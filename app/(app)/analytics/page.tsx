@@ -30,8 +30,8 @@ export default function AnalyticsPage() {
       </div>
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         <KPICard title="Closed-loop recovery (KPI)" value={`${data.overview.kpis.closedLoopRecoveryRate}%`} unit="linked reappearances / detected" statusColor="#00A36C" />
-        <KPICard title="Reappearance rate (KRI)" value={`${data.overview.kpis.reappearanceRate}%`} unit="16 of 143 monitored" statusColor="#8B1E3F" />
-        <KPICard title="Estimated exposure" value={`₹${data.overview.kpis.estimatedExposureCr} Cr`} unit="4.2 lakh copies × ₹443" statusColor="#8B1E3F" />
+        <KPICard title="Reappearance rate (KRI)" value={`${data.overview.kpis.reappearanceRate}%`} unit="16 of 143 monitored" statusColor="#c83328" />
+        <KPICard title="Estimated exposure" value={`₹${data.overview.kpis.estimatedExposureCr} Cr`} unit="4.2 lakh copies × ₹443" statusColor="#c83328" />
         <KPICard title="Takedown success (KPI)" value={`${data.overview.kpis.takedownRate}%`} unit="138 / 156 notices" statusColor="#00A36C" />
       </div>
       <p className="text-[11px] text-[#6B7280]">W12 exposure index 118 vs W11 100 = +18% exam-season KRI. Forecast is a scenario, not a fact.</p>
@@ -45,7 +45,7 @@ export default function AnalyticsPage() {
               <XAxis dataKey="week" />
               <YAxis />
               <Tooltip />
-              <Line dataKey="exposure" stroke="#00338D" />
+              <Line dataKey="exposure" stroke="#c83328" />
             </LineChart>
           </ResponsiveContainer>
         </div>
@@ -69,7 +69,7 @@ export default function AnalyticsPage() {
               <div className="text-xs text-[#6B7280] mt-1">Reconciles to dashboard KPI ₹18.6 Cr = 4,20,000 × ₹443</div>
               <div className="text-xs text-[#6B7280]">Confidence: {f.confidence} · {f.methodology}</div>
             </div>
-            <button className="text-xs text-[#00338D] font-semibold" onClick={() => setFin(f)}>View methodology</button>
+            <button className="text-xs text-[#c83328] font-semibold" onClick={() => setFin(f)}>View methodology</button>
           </div>
         </div>
       )}

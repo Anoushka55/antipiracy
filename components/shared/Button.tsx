@@ -1,13 +1,13 @@
 'use client';
 
 const variants: Record<string, string> = {
-  primary: 'bg-[#00338D] text-white hover:bg-[#0044b8] focus:ring-[#00338D] shadow-sm hover:shadow-md active:scale-[0.98]',
-  accent:  'bg-[#0077C8] text-white hover:bg-[#0088e0] focus:ring-[#0077C8] shadow-sm hover:shadow-md active:scale-[0.98]',
-  outline: 'bg-transparent text-[#00338D] border-2 border-[#00338D] hover:bg-[#00338D] hover:text-white focus:ring-[#00338D] active:scale-[0.98]',
-  ghost:   'bg-transparent text-[#6B7280] hover:bg-[#F4F6F9] hover:text-[#1A1F36] focus:ring-[#CBD5E1] active:scale-[0.98]',
+  primary: 'bg-[#c83328] text-white hover:bg-[#a82a22] focus:ring-[#c83328] shadow-sm hover:shadow-md active:scale-[0.98]',
+  accent:  'bg-[#111111] text-white hover:bg-[#2a2a2a] focus:ring-[#111111] shadow-sm hover:shadow-md active:scale-[0.98]',
+  outline: 'bg-transparent text-[#c83328] border-2 border-[#c83328] hover:bg-[#c83328] hover:text-white focus:ring-[#c83328] active:scale-[0.98]',
+  ghost:   'bg-transparent text-[#6B7280] hover:bg-[#F4F6F9] hover:text-[#111111] focus:ring-[#CBD5E1] active:scale-[0.98]',
   danger:  'bg-[#EF4444] text-white hover:bg-[#DC2626] focus:ring-[#EF4444] shadow-sm active:scale-[0.98]',
   amber:   'bg-[#D4A017] text-white hover:bg-[#b8891a] focus:ring-[#D4A017] shadow-sm active:scale-[0.98]',
-  white:   'bg-white text-[#00338D] hover:bg-[#F4F6F9] focus:ring-white shadow-sm active:scale-[0.98]',
+  white:   'bg-white text-[#c83328] hover:bg-[#fdf2f1] focus:ring-white shadow-sm active:scale-[0.98]',
   success: 'bg-[#00A36C] text-white hover:bg-[#008c5c] focus:ring-[#00A36C] shadow-sm hover:shadow-md active:scale-[0.98]',
 };
 

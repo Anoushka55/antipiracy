@@ -24,7 +24,7 @@ export default function CasesPage() {
         </div>
         <div className="flex gap-2">
           {(['table', 'kanban', 'timeline'] as const).map((v) => (
-            <button key={v} onClick={() => setView(v)} className={`px-3 py-1.5 rounded-lg text-xs font-semibold capitalize ${view === v ? 'bg-[#00338D] text-white' : 'bg-white border border-[#E2E8F0]'}`}>{v}</button>
+            <button key={v} onClick={() => setView(v)} className={`px-3 py-1.5 rounded-lg text-xs font-semibold capitalize ${view === v ? 'bg-[#c83328] text-white' : 'bg-white border border-[#E2E8F0]'}`}>{v}</button>
           ))}
         </div>
       </div>
@@ -38,7 +38,7 @@ export default function CasesPage() {
             <tbody>
               {data.items.map((c) => (
                 <tr key={c.id} className="border-b border-[#E2E8F0] hover:bg-[#F4F6F9]">
-                  <td className="px-3 py-3 font-mono font-semibold"><Link className="text-[#00338D]" href={`/cases/${c.id}`}>{c.id}</Link></td>
+                  <td className="px-3 py-3 font-mono font-semibold"><Link className="text-[#c83328]" href={`/cases/${c.id}`}>{c.id}</Link></td>
                   <td className="px-3 py-3">{c.title}</td>
                   <td className="px-3 py-3"><PlatformBadge platform={c.platform} /></td>
                   <td className="px-3 py-3"><RiskBadge risk={c.risk} /></td>
@@ -64,7 +64,7 @@ export default function CasesPage() {
               <div className="space-y-2">
                 {data.items.filter((c) => c.status === s).slice(0, 8).map((c) => (
                   <Link key={c.id} href={`/cases/${c.id}`} className="block rounded-xl border border-[#E2E8F0] p-3 hover:-translate-y-0.5 transition-all">
-                    <div className="font-mono text-[11px] text-[#00338D]">{c.id}</div>
+                    <div className="font-mono text-[11px] text-[#c83328]">{c.id}</div>
                     <div className="text-xs font-semibold">{c.title}</div>
                     <RiskBadge risk={c.risk} />
                   </Link>
@@ -79,7 +79,7 @@ export default function CasesPage() {
           {data.items.slice(0, 20).map((c) => (
             <div key={c.id} className="flex gap-4 text-xs border-b border-[#E2E8F0] pb-3">
               <div className="font-mono text-[#9CA3AF] w-36">{c.createdAt.slice(0, 10)}</div>
-              <Link href={`/cases/${c.id}`} className="font-semibold text-[#00338D]">{c.id}</Link>
+              <Link href={`/cases/${c.id}`} className="font-semibold text-[#c83328]">{c.id}</Link>
               <div>{c.title}</div>
               <Badge>{CASE_STATUS_LABEL[c.status]}</Badge>
             </div>

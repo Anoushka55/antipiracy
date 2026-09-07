@@ -3,7 +3,7 @@
 import type { FourGates } from '@/lib/types';
 
 export function Timeline({ items }: { items: { title: string; meta?: string; detail?: string; tone?: 'navy' | 'green' | 'amber' | 'red' }[] }) {
-  const color = { navy: '#00338D', green: '#00A36C', amber: '#D4A017', red: '#DC2626' };
+  const color = { navy: '#c83328', green: '#00A36C', amber: '#D4A017', red: '#DC2626' };
   return (
     <div className="space-y-0">
       {items.map((item, i) => (
@@ -13,7 +13,7 @@ export function Timeline({ items }: { items: { title: string; meta?: string; det
             {i < items.length - 1 && <span className="w-px flex-1 bg-[#E2E8F0]" />}
           </div>
           <div className="pb-4">
-            <div className="text-xs font-semibold text-[#1A1F36]">{item.title}</div>
+            <div className="text-xs font-semibold text-[#111111]">{item.title}</div>
             {item.meta && <div className="text-[10px] text-[#9CA3AF] font-mono">{item.meta}</div>}
             {item.detail && <div className="text-xs text-[#6B7280] mt-0.5">{item.detail}</div>}
           </div>
@@ -43,20 +43,20 @@ export function AIRecommendationCard({
   inputs?: Record<string, unknown>;
 }) {
   return (
-    <div className="rounded-xl border border-[#00338D]/15 bg-[#00338D]/5 p-4">
+    <div className="rounded-xl border border-[#c83328]/15 bg-[#c83328]/5 p-4">
       <div className="flex items-center justify-between mb-2">
-        <div className="text-[10px] font-bold uppercase tracking-widest text-[#00338D]">AI Recommendation</div>
-        <span className="text-[10px] font-semibold px-2 py-0.5 rounded-md bg-[#0077C8]/10 text-[#0077C8] border border-[#0077C8]/20">
+        <div className="text-[10px] font-bold uppercase tracking-widest text-[#c83328]">AI Recommendation</div>
+        <span className="text-[10px] font-semibold px-2 py-0.5 rounded-md bg-[#c83328]/10 text-[#c83328] border border-[#c83328]/20">
           {Math.round(confidence * (confidence > 1 ? 1 : 100))}% confidence
         </span>
       </div>
-      <div className="text-sm font-semibold text-[#1A1F36]">{recommendation}</div>
+      <div className="text-sm font-semibold text-[#111111]">{recommendation}</div>
       <p className="text-[11px] text-[#6B7280] mt-2">AI recommendation — human validation required.</p>
       <div className="mt-3 grid grid-cols-2 gap-2 text-[11px] text-[#6B7280]">
-        <div>Model: <span className="font-mono text-[#1A1F36]">{model}</span></div>
-        {version && <div>Version: <span className="font-mono text-[#1A1F36]">{version}</span></div>}
-        {promptVersion && <div>Prompt: <span className="font-mono text-[#1A1F36]">{promptVersion}</span></div>}
-        {timestamp && <div>At: <span className="font-mono text-[#1A1F36]">{timestamp.slice(0, 16).replace('T', ' ')}</span></div>}
+        <div>Model: <span className="font-mono text-[#111111]">{model}</span></div>
+        {version && <div>Version: <span className="font-mono text-[#111111]">{version}</span></div>}
+        {promptVersion && <div>Prompt: <span className="font-mono text-[#111111]">{promptVersion}</span></div>}
+        {timestamp && <div>At: <span className="font-mono text-[#111111]">{timestamp.slice(0, 16).replace('T', ' ')}</span></div>}
       </div>
       {methodology && <p className="text-[11px] text-[#6B7280] mt-2">{methodology}</p>}
       {inputs && (
@@ -88,7 +88,7 @@ export function DecisionGates({ gates }: { gates: Record<string, string> | FourG
       <div className="space-y-2">
         {entries.map(([k, v]) => (
           <div key={k} className="flex items-center justify-between rounded-xl border border-[#E2E8F0] px-3 py-2">
-            <span className="text-xs text-[#1A1F36]">{labels[k] ?? k}</span>
+            <span className="text-xs text-[#111111]">{labels[k] ?? k}</span>
             <span className={`text-[10px] font-bold uppercase tracking-widest ${v === 'pass' ? 'text-[#00A36C]' : v === 'hold' ? 'text-[#D4A017]' : 'text-[#DC2626]'}`}>
               {v}
             </span>
@@ -111,12 +111,12 @@ export function ClosedLoopDiagram() {
       <div className="flex flex-wrap items-center gap-2">
         {steps.map((s, i) => (
           <div key={s} className="flex items-center gap-2">
-            <div className="px-3 py-1.5 rounded-lg bg-[#00338D] text-white text-[11px] font-semibold">{s}</div>
+            <div className="px-3 py-1.5 rounded-lg bg-[#c83328] text-white text-[11px] font-semibold">{s}</div>
             {i < steps.length - 1 && <span className="text-[#9CA3AF]">→</span>}
           </div>
         ))}
         <span className="text-[#9CA3AF]">→</span>
-        <div className="px-3 py-1.5 rounded-lg border border-[#8B1E3F]/30 bg-[#8B1E3F]/10 text-[#8B1E3F] text-[11px] font-semibold">
+        <div className="px-3 py-1.5 rounded-lg border border-[#c83328]/30 bg-[#c83328]/10 text-[#c83328] text-[11px] font-semibold">
           D1 Discover
         </div>
       </div>

@@ -66,21 +66,21 @@ export default function OverviewPage() {
     <div className="max-w-screen-xl mx-auto px-6 py-8 space-y-4">
       <div className="flex items-start justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-[#1A1F36]">Anti-Piracy Command Center</h1>
+          <h1 className="text-2xl font-bold text-[#111111]">Anti-Piracy Command Center</h1>
           <p className="text-sm text-[#6B7280] mt-1">Enterprise IP Protection & Enforcement Overview · S. Chand & Company</p>
         </div>
         <SyntheticBanner />
       </div>
 
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <MetricCard label="Active Cases" value={k.activeCases} icon={Activity} color="#00338D" />
+        <MetricCard label="Active Cases" value={k.activeCases} icon={Activity} color="#c83328" />
         <MetricCard label="Critical / High Risk" value={k.criticalHigh} icon={ShieldAlert} color="#DC2626" />
         <MetricCard label="Takedown Success Rate" value={k.takedownRate} unit="%" icon={Target} color="#00A36C" />
-        <MetricCard label="Avg. Removal Time" value={k.avgRemovalDays} unit="days" icon={Timer} color="#0077C8" />
+        <MetricCard label="Avg. Removal Time" value={k.avgRemovalDays} unit="days" icon={Timer} color="#c83328" />
         <MetricCard label="SLA Breach Rate" value={k.slaBreachRate} unit="%" icon={Clock} color="#D4A017" />
-        <MetricCard label="Reappearance Rate" value={k.reappearanceRate} unit="%" icon={Radar} color="#8B1E3F" />
+        <MetricCard label="Reappearance Rate" value={k.reappearanceRate} unit="%" icon={Radar} color="#c83328" />
         <MetricCard label="Priority Title Exposure" value={k.priorityTitleExposure} unit="%" icon={AlertTriangle} color="#D4A017" />
-        <MetricCard label="Estimated Exposure Value" value={`₹${k.estimatedExposureCr}`} unit="Cr" icon={IndianRupee} color="#00338D" />
+        <MetricCard label="Estimated Exposure Value" value={`₹${k.estimatedExposureCr}`} unit="Cr" icon={IndianRupee} color="#c83328" />
       </div>
       <p className="text-[11px] text-[#9CA3AF]">
         Synthetic / demonstration pack. Takedown {k.takedownRate}% = 138 removed / 156 notices. Critical+High {k.criticalHigh} / {k.activeCases} active ({Math.round((k.criticalHigh / k.activeCases) * 100)}% KRI). Reappearance {k.reappearanceRate}% = 16 / 143 monitored. Exposure ₹{k.estimatedExposureCr} Cr = 4,20,000 copies × ₹443 (FIN-v0.1, medium confidence).
@@ -88,14 +88,14 @@ export default function OverviewPage() {
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
         {data.alerts.map((a) => (
-          <div key={a.level} className="bg-white rounded-2xl border border-[#E2E8F0] p-5 border-l-[3px]" style={{ borderLeftColor: a.level === 'CRITICAL' ? '#DC2626' : a.level === 'HIGH' ? '#D4A017' : '#0077C8' }}>
+          <div key={a.level} className="bg-white rounded-2xl border border-[#E2E8F0] p-5 border-l-[3px]" style={{ borderLeftColor: a.level === 'CRITICAL' ? '#DC2626' : a.level === 'HIGH' ? '#D4A017' : '#c83328' }}>
             <div className="text-[10px] font-bold uppercase tracking-widest text-[#9CA3AF] mb-1">{a.level}</div>
-            <div className="text-sm font-semibold text-[#1A1F36]">{a.text}</div>
+            <div className="text-sm font-semibold text-[#111111]">{a.text}</div>
           </div>
         ))}
       </div>
       {data.recurringThreat > 0 && (
-        <div className="rounded-2xl border border-[#8B1E3F]/20 bg-[#8B1E3F]/5 p-4 text-sm text-[#8B1E3F] font-semibold">
+        <div className="rounded-2xl border border-[#c83328]/20 bg-[#c83328]/5 p-4 text-sm text-[#c83328] font-semibold">
           RECURRING THREAT DETECTED — {data.recurringThreat} reappearances on the monitored book. Closed-loop recovery {k.closedLoopRecoveryRate}%.
         </div>
       )}
@@ -109,8 +109,8 @@ export default function OverviewPage() {
               <YAxis tick={{ fontSize: 11 }} />
               <Tooltip />
               <Legend />
-              <Line type="monotone" dataKey="exposure" name="Exposure index (W11=100)" stroke="#00338D" strokeWidth={2} dot={false} />
-              <Line type="monotone" dataKey="cases" name="New cases" stroke="#0077C8" strokeWidth={2} dot={false} />
+              <Line type="monotone" dataKey="exposure" name="Exposure index (W11=100)" stroke="#c83328" strokeWidth={2} dot={false} />
+              <Line type="monotone" dataKey="cases" name="New cases" stroke="#111111" strokeWidth={2} dot={false} />
               <Line type="monotone" dataKey="removals" name="Removals" stroke="#00A36C" strokeWidth={2} dot={false} />
             </LineChart>
           </ResponsiveContainer>
@@ -129,7 +129,7 @@ export default function OverviewPage() {
                 <Tooltip />
                 <Bar dataKey="value" radius={[0, 6, 6, 0]}>
                   {data.platformCounts.map((row) => (
-                    <Cell key={row.name} fill={row.color ?? '#00338D'} />
+                    <Cell key={row.name} fill={row.color ?? '#c83328'} />
                   ))}
                 </Bar>
               </BarChart>
@@ -146,14 +146,14 @@ export default function OverviewPage() {
               <XAxis type="number" tick={{ fontSize: 11 }} />
               <YAxis type="category" dataKey="stage" width={88} tick={{ fontSize: 11 }} />
               <Tooltip />
-              <Bar dataKey="value" fill="#00338D" radius={[0, 6, 6, 0]} />
+              <Bar dataKey="value" fill="#c83328" radius={[0, 6, 6, 0]} />
             </BarChart>
           </ResponsiveContainer>
           <div className="mt-3 space-y-1.5">
             {funnelSteps.map((row) => (
               <div key={row.stage} className="flex items-start justify-between gap-3 text-xs">
-                <span className="font-semibold text-[#1A1F36] w-28 shrink-0">{row.stage}</span>
-                <span className="font-mono text-[#1A1F36] w-16">{row.value.toLocaleString()}</span>
+                <span className="font-semibold text-[#111111] w-28 shrink-0">{row.stage}</span>
+                <span className="font-mono text-[#111111] w-16">{row.value.toLocaleString()}</span>
                 <span className="text-[#6B7280] flex-1">{row.insight}</span>
                 <span className="font-mono text-[11px] text-[#9CA3AF] w-14 text-right">{row.stage === 'Closed' ? `${row.retained}% of created` : row.stage === 'Detected' ? 'intake' : `${row.retained}% kept`}</span>
               </div>
@@ -168,7 +168,7 @@ export default function OverviewPage() {
               <PieChart>
                 <Pie data={data.riskDist} dataKey="value" nameKey="name" innerRadius={52} outerRadius={82} paddingAngle={2}>
                   {data.riskDist.map((row) => (
-                    <Cell key={row.name} fill={row.color ?? '#0077C8'} />
+                    <Cell key={row.name} fill={row.color ?? '#c83328'} />
                   ))}
                 </Pie>
                 <Tooltip formatter={(value, name) => [`${value} cases`, String(name)]} />
@@ -185,7 +185,7 @@ export default function OverviewPage() {
               <PieChart>
                 <Pie data={data.flagship} dataKey="value" nameKey="name" innerRadius={52} outerRadius={82} paddingAngle={2}>
                   {data.flagship.map((row) => (
-                    <Cell key={row.name} fill={row.color ?? '#00338D'} />
+                    <Cell key={row.name} fill={row.color ?? '#c83328'} />
                   ))}
                 </Pie>
                 <Tooltip formatter={(value, name) => [`${value} cases`, String(name)]} />
@@ -206,7 +206,7 @@ export default function OverviewPage() {
               <ReferenceLine y={k.avgRemovalDays} stroke="#D4A017" strokeDasharray="4 4" label={{ value: `Blend ${k.avgRemovalDays}d`, fill: '#D4A017', fontSize: 10, position: 'right' }} />
               <Bar dataKey="days" radius={[6, 6, 0, 0]}>
                 {data.removalByPlatform.map((row) => (
-                  <Cell key={row.name} fill={row.vsBlend === 'faster' ? '#00A36C' : '#8B1E3F'} />
+                  <Cell key={row.name} fill={row.vsBlend === 'faster' ? '#00A36C' : '#c83328'} />
                 ))}
               </Bar>
             </BarChart>
@@ -230,7 +230,7 @@ export default function OverviewPage() {
               <XAxis dataKey="week" tick={{ fontSize: 11 }} />
               <YAxis tick={{ fontSize: 11 }} allowDecimals={false} />
               <Tooltip />
-              <Line type="monotone" dataKey="reappearances" name="Linked reappearances" stroke="#8B1E3F" strokeWidth={2} />
+              <Line type="monotone" dataKey="reappearances" name="Linked reappearances" stroke="#c83328" strokeWidth={2} />
             </LineChart>
           </ResponsiveContainer>
           <Callout tone="red">
@@ -248,7 +248,7 @@ export default function OverviewPage() {
                 <Tooltip />
                 <Bar dataKey="value" radius={[0, 6, 6, 0]}>
                   {data.geo.map((row) => (
-                    <Cell key={row.region} fill={row.region === 'North India' || row.region === 'West India' ? '#8B1E3F' : row.region === 'UAE / GCC' ? '#D4A017' : '#00338D'} />
+                    <Cell key={row.region} fill={row.region === 'North India' || row.region === 'West India' ? '#c83328' : row.region === 'UAE / GCC' ? '#D4A017' : '#c83328'} />
                   ))}
                 </Bar>
               </BarChart>
@@ -257,11 +257,11 @@ export default function OverviewPage() {
               {data.geo.map((row) => (
                 <div key={row.region}>
                   <div className="flex items-center justify-between text-xs mb-1">
-                    <span className="font-semibold text-[#1A1F36]">{row.region}</span>
+                    <span className="font-semibold text-[#111111]">{row.region}</span>
                     <span className="font-mono">{row.value}%</span>
                   </div>
                   <div className="h-1.5 rounded-full bg-[#E2E8F0] overflow-hidden">
-                    <div className="h-full rounded-full bg-[#00338D]" style={{ width: `${row.value}%` }} />
+                    <div className="h-full rounded-full bg-[#c83328]" style={{ width: `${row.value}%` }} />
                   </div>
                   <div className="text-[10px] text-[#9CA3AF] mt-0.5">{row.action}</div>
                 </div>
@@ -278,7 +278,7 @@ export default function OverviewPage() {
           <div className="space-y-3">
             {data.emerging.map((t) => (
               <div key={t.title}>
-                <div className="text-xs font-semibold text-[#1A1F36]">{t.title}</div>
+                <div className="text-xs font-semibold text-[#111111]">{t.title}</div>
                 <div className="text-xs text-[#6B7280]">{t.detail}</div>
               </div>
             ))}
@@ -293,7 +293,7 @@ export default function OverviewPage() {
 function ChartCard({ title, hint, children }: { title: string; hint?: string; children: React.ReactNode }) {
   return (
     <div className="bg-white rounded-2xl border border-[#E2E8F0] p-6 shadow-[0_1px_3px_0_rgba(0,0,0,0.08)]">
-      <div className="text-xs font-semibold text-[#1A1F36]">{title}</div>
+      <div className="text-xs font-semibold text-[#111111]">{title}</div>
       {hint && <p className="text-[11px] text-[#6B7280] mt-1 mb-3 leading-relaxed">{hint}</p>}
       <div className={hint ? '' : 'mt-4'}>{children}</div>
     </div>
@@ -306,11 +306,11 @@ function SliceList({ rows }: { rows: Slice[] }) {
       {rows.map((row) => (
         <div key={row.name}>
           <div className="flex items-center justify-between text-xs mb-1">
-            <span className="font-semibold text-[#1A1F36] flex items-center gap-2">
+            <span className="font-semibold text-[#111111] flex items-center gap-2">
               <span className="w-2.5 h-2.5 rounded-sm shrink-0" style={{ backgroundColor: row.color }} />
               {row.name}
             </span>
-            <span className="font-mono text-[#1A1F36]">{row.value}{row.pct != null ? ` · ${row.pct}%` : ''}</span>
+            <span className="font-mono text-[#111111]">{row.value}{row.pct != null ? ` · ${row.pct}%` : ''}</span>
           </div>
           {row.pct != null && (
             <div className="h-1.5 rounded-full bg-[#E2E8F0] overflow-hidden">

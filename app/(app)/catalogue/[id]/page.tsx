@@ -30,7 +30,7 @@ export default function CatalogueDetailPage() {
       <div className="bg-white rounded-2xl border border-[#E2E8F0] p-6">
         <div className="text-[10px] font-bold uppercase tracking-widest text-[#9CA3AF] mb-3">Related cases</div>
         {data.relatedCases.slice(0, 12).map((c) => (
-          <div key={c.id} className="text-xs py-1"><Link className="text-[#00338D] font-mono" href={`/cases/${c.id}`}>{c.id}</Link> · {c.status} · {c.platform}</div>
+          <div key={c.id} className="text-xs py-1"><Link className="text-[#c83328] font-mono" href={`/cases/${c.id}`}>{c.id}</Link> · {c.status} · {c.platform}</div>
         ))}
       </div>
     </div>

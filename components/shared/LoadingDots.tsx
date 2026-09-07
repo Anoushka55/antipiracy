@@ -1,6 +1,6 @@
 'use client';
 
-export function LoadingDots({ color = '#0077C8', size = 8 }: { color?: string; size?: number }) {
+export function LoadingDots({ color = '#c83328', size = 8 }: { color?: string; size?: number }) {
   return (
     <div className="flex items-center gap-1.5">
       {[0, 1, 2].map((i) => (
@@ -14,7 +14,7 @@ export function PageLoader({ label = 'Loading...' }: { label?: string }) {
   return (
     <div className="flex items-center justify-center py-24">
       <div className="text-center">
-        <div className="w-12 h-12 border-2 border-[#0077C8]/30 border-t-[#0077C8] rounded-full animate-spin mx-auto mb-4" />
+        <div className="w-12 h-12 border-2 border-[#c83328]/30 border-t-[#c83328] rounded-full animate-spin mx-auto mb-4" />
         <p className="text-[#6B7280] text-sm font-medium">{label}</p>
       </div>
     </div>
@@ -24,7 +24,7 @@ export function PageLoader({ label = 'Loading...' }: { label?: string }) {
 export function EmptyState({ title, body }: { title: string; body: string }) {
   return (
     <div className="text-center py-16">
-      <p className="text-sm font-semibold text-[#1A1F36]">{title}</p>
+      <p className="text-sm font-semibold text-[#111111]">{title}</p>
       <p className="text-xs text-[#6B7280] mt-1">{body}</p>
     </div>
   );

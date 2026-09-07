@@ -32,7 +32,7 @@ export default function EvidencePage() {
             <tbody>
               {data.items.map((e) => (
                 <tr key={e.id} className="border-b border-[#E2E8F0] cursor-pointer hover:bg-[#F4F6F9]" onClick={() => setOpen(e.id)}>
-                  <td className="px-3 py-3 font-mono font-semibold text-[#00338D]">{e.id}</td>
+                  <td className="px-3 py-3 font-mono font-semibold text-[#c83328]">{e.id}</td>
                   <td className="px-3 py-3">{e.caseId}</td>
                   <td className="px-3 py-3">{e.type}</td>
                   <td className="px-3 py-3">{e.capturedAt}</td>

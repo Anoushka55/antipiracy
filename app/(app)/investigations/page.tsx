@@ -25,12 +25,12 @@ export default function InvestigationsPage() {
           </thead>
           <tbody>
             {data.items.map((inv) => (
-              <tr key={inv.id} className={`border-b border-[#E2E8F0] ${highlight === inv.findingId ? 'bg-[#00338D]/5' : ''}`}>
+              <tr key={inv.id} className={`border-b border-[#E2E8F0] ${highlight === inv.findingId ? 'bg-[#c83328]/5' : ''}`}>
                 <td className="px-3 py-3 font-mono">{inv.id}</td>
                 <td className="px-3 py-3">{inv.findingId}</td>
                 <td className="px-3 py-3">{inv.finding?.suspectedTitle}</td>
                 <td className="px-3 py-3"><Badge>{inv.status}</Badge></td>
-                <td className="px-3 py-3">{inv.case ? <Link className="text-[#00338D] font-semibold" href={`/cases/${inv.case.id}`}>{inv.case.id}</Link> : '—'}</td>
+                <td className="px-3 py-3">{inv.case ? <Link className="text-[#c83328] font-semibold" href={`/cases/${inv.case.id}`}>{inv.case.id}</Link> : '—'}</td>
                 <td className="px-3 py-3 text-[#6B7280]">{inv.updatedAt.slice(0, 16).replace('T', ' ')}</td>
               </tr>
             ))}

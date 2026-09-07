@@ -45,12 +45,12 @@ export const EXEC_KPI = {
 export function executiveOverview() {
   const k = EXEC_KPI;
   const platformCounts = [
-    { name: "Telegram", value: 48, pct: pct(48, k.activeCases), color: "#8B1E3F", action: "Largest residual concentration — daily monitoring" },
-    { name: "Google Drive", value: 29, pct: pct(29, k.activeCases), color: "#00338D", action: "Folders reconstitute after folder-level takedown" },
-    { name: "Websites", value: 24, pct: pct(24, k.activeCases), color: "#0077C8", action: "Intermediary notice + site-level evidence pack" },
+    { name: "Telegram", value: 48, pct: pct(48, k.activeCases), color: "#c83328", action: "Largest residual concentration — daily monitoring" },
+    { name: "Google Drive", value: 29, pct: pct(29, k.activeCases), color: "#c83328", action: "Folders reconstitute after folder-level takedown" },
+    { name: "Websites", value: 24, pct: pct(24, k.activeCases), color: "#c83328", action: "Intermediary notice + site-level evidence pack" },
     { name: "Marketplaces", value: 18, pct: pct(18, k.activeCases), color: "#D4A017", action: "Slowest consumer path — 3.4 day average removal" },
     { name: "Social Media", value: 13, pct: pct(13, k.activeCases), color: "#00A36C", action: "Standard platform IP form" },
-    { name: "Cyberlockers", value: 10, pct: pct(10, k.activeCases), color: "#1A1F36", action: "Slowest host class — 4.1 days; escalate early" },
+    { name: "Cyberlockers", value: 10, pct: pct(10, k.activeCases), color: "#111111", action: "Slowest host class — 4.1 days; escalate early" },
   ];
   const funnel = [
     { stage: "Detected", value: k.detected, insight: "OSINT + connector intake (12-week book)" },
@@ -63,7 +63,7 @@ export function executiveOverview() {
   const riskDist = [
     { name: "Critical", value: k.critical, pct: pct(k.critical, k.activeCases), color: "#DC2626", action: "Management attention — flagship titles still live" },
     { name: "High", value: k.high, pct: pct(k.high, k.activeCases), color: "#D4A017", action: "Escalate if SLA is approaching or breached" },
-    { name: "Medium", value: k.medium, pct: pct(k.medium, k.activeCases), color: "#0077C8", action: "Standard investigator queue" },
+    { name: "Medium", value: k.medium, pct: pct(k.medium, k.activeCases), color: "#c83328", action: "Standard investigator queue" },
     { name: "Low", value: k.low, pct: pct(k.low, k.activeCases), color: "#00A36C", action: "Monitor; do not pull capacity from Critical/High" },
   ];
   const trend = [
@@ -110,8 +110,8 @@ export function executiveOverview() {
     funnel,
     riskDist,
     flagship: [
-      { name: "Flagship / priority", value: k.priorityCases, pct: k.priorityTitleExposure, color: "#8B1E3F", action: "Aggarwal, Lakhmir Singh, Wren & Martin, NEET — hold investigator capacity here" },
-      { name: "Non-flagship", value: k.nonPriorityCases, pct: 100 - k.priorityTitleExposure, color: "#00338D", action: "Do not pull staff from priority titles to clear this queue" },
+      { name: "Flagship / priority", value: k.priorityCases, pct: k.priorityTitleExposure, color: "#c83328", action: "Aggarwal, Lakhmir Singh, Wren & Martin, NEET — hold investigator capacity here" },
+      { name: "Non-flagship", value: k.nonPriorityCases, pct: 100 - k.priorityTitleExposure, color: "#c83328", action: "Do not pull staff from priority titles to clear this queue" },
     ],
     removalByPlatform,
     reappearanceTrend: trend.map((t) => ({ week: t.week, reappearances: t.reappearances })),

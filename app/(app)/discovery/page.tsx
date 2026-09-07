@@ -55,8 +55,8 @@ export default function DiscoveryPage() {
         <Button onClick={runScan} disabled={busy}>{busy ? 'Scanning…' : 'Run Discovery Scan'}</Button>
       </div>
       {scan && (
-        <div className="rounded-2xl border border-[#0077C8]/20 bg-[#0077C8]/5 p-4 text-sm">
-          <div className="text-[10px] font-bold uppercase tracking-widest text-[#0077C8] mb-1">Simulated Discovery Run</div>
+        <div className="rounded-2xl border border-[#c83328]/20 bg-[#c83328]/5 p-4 text-sm">
+          <div className="text-[10px] font-bold uppercase tracking-widest text-[#c83328] mb-1">Simulated Discovery Run</div>
           Sources scanned: {String(scan.sourcesScanned)} · New findings: {String(scan.newFindings)} · Duplicates removed: {String(scan.duplicatesRemoved)} · High-confidence: {String(scan.highConfidence)} · Critical: {String(scan.critical)}
         </div>
       )}
@@ -65,7 +65,7 @@ export default function DiscoveryPage() {
           <button
             key={t.id}
             onClick={() => setTab(t.id)}
-            className={`px-3 py-1.5 rounded-lg text-xs font-semibold ${tab === t.id ? 'bg-[#00338D] text-white' : 'bg-white border border-[#E2E8F0] text-[#6B7280]'}`}
+            className={`px-3 py-1.5 rounded-lg text-xs font-semibold ${tab === t.id ? 'bg-[#c83328] text-white' : 'bg-white border border-[#E2E8F0] text-[#6B7280]'}`}
           >
             {t.label}
           </button>
@@ -86,7 +86,7 @@ export default function DiscoveryPage() {
             <tbody>
               {data.items.map((f) => (
                 <tr key={f.id} className="border-b border-[#E2E8F0] hover:bg-[#F4F6F9] cursor-pointer" onClick={() => setSelected(f.id)}>
-                  <td className="px-3 py-3 font-mono font-semibold text-[#00338D]">{f.id}</td>
+                  <td className="px-3 py-3 font-mono font-semibold text-[#c83328]">{f.id}</td>
                   <td className="px-3 py-3 text-[#6B7280] whitespace-nowrap">{f.detectedAt.slice(0, 16).replace('T', ' ')}</td>
                   <td className="px-3 py-3"><PlatformBadge platform={f.platform} /></td>
                   <td className="px-3 py-3 max-w-[180px] truncate text-[#6B7280]">{f.url}</td>
@@ -150,7 +150,7 @@ function FindingDrawer({ id, onClose, onDone }: { id: string; onClose: () => voi
             <Field k="Match score" v={`${data.finding.matchScore}%`} />
             <Field k="Watermark" v={data.finding.watermarkDetected ? 'Detected' : 'Not detected'} />
           </div>
-          <div className="text-xs break-all text-[#0077C8]">{data.finding.url}</div>
+          <div className="text-xs break-all text-[#c83328]">{data.finding.url}</div>
           {data.asset && <div className="text-xs">Suspected asset: <b>{data.asset.title}</b> · ISBN {data.asset.isbn} {data.asset.priorityTitle && <Badge color="red">Priority title</Badge>}</div>}
           <AIRecommendationCard {...data.ai} />
           <div className="rounded-xl border border-[#E2E8F0] p-3 text-xs space-y-1">
@@ -186,7 +186,7 @@ function Field({ k, v }: { k: string; v: string }) {
   return (
     <div>
       <div className="text-[10px] font-bold uppercase tracking-widest text-[#9CA3AF]">{k}</div>
-      <div className="text-[#1A1F36] font-medium">{v}</div>
+      <div className="text-[#111111] font-medium">{v}</div>
     </div>
   );
 }
