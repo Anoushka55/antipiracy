@@ -24,7 +24,7 @@ import {
   LogOut,
   Bot,
 } from 'lucide-react';
-import { NAV_GROUPS, ROLE_LABEL, SCHAND_LOGO } from '@/lib/constants';
+import { NAV_GROUPS, ROLE_LABEL, KPMG_LOGO, SCHAND_LOGO } from '@/lib/constants';
 import { navAllowed } from '@/lib/rbac';
 import { api, post } from '@/lib/client';
 import type { Role, SessionUser } from '@/lib/types';
@@ -168,7 +168,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
       <div className="flex-1 flex flex-col overflow-hidden">
         <header className="h-14 flex-shrink-0 bg-[#1A1F36]/95 border-b border-white/[0.08] flex items-center gap-3 px-4" style={{ backdropFilter: 'blur(20px)' }}>
           <div className="flex items-center gap-2 flex-shrink-0">
-            <img src="https://upload.wikimedia.org/wikipedia/commons/d/db/KPMG_blue_logo.svg" alt="KPMG" className="h-5 brightness-0 invert opacity-90" />
+            <img src={KPMG_LOGO} alt="KPMG" className="h-5 w-auto object-contain brightness-0 invert opacity-90" />
             <span className="text-white/30">|</span>
             <div className="h-6 px-1.5 rounded bg-white flex items-center">
               <img src={SCHAND_LOGO} alt="S. Chand" className="h-4 w-auto object-contain" />

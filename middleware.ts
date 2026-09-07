@@ -9,7 +9,8 @@ export function middleware(req: NextRequest) {
     pathname.startsWith("/api/health") ||
     pathname.startsWith("/_next") ||
     pathname === "/favicon.svg" ||
-    pathname === "/schand-logo.png"
+    pathname === "/schand-logo.png" ||
+    pathname === "/kpmg-logo.svg"
   ) {
     return NextResponse.next();
   }
@@ -20,5 +21,5 @@ export function middleware(req: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/((?!_next/static|_next/image|favicon.svg|schand-logo.png).*)"],
+  matcher: ["/((?!_next/static|_next/image|favicon.svg|schand-logo.png|kpmg-logo.svg).*)"],
 };

@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { post } from '@/lib/client';
 import { Button } from '@/components/shared/Button';
-import { DEMO_PASSWORD, SCHAND_LOGO } from '@/lib/constants';
+import { DEMO_PASSWORD, KPMG_LOGO, SCHAND_LOGO } from '@/lib/constants';
 
 const PERSONAS = [
   { email: 'sourabh@schand.demo', name: 'Mr. Sourabh', role: 'Executive / CFO' },
@@ -51,8 +51,8 @@ export default function LoginPage() {
       <div className="w-full max-w-5xl grid grid-cols-1 lg:grid-cols-5 gap-6">
         <div className="lg:col-span-3 p-6 lg:p-8">
           <div className="flex items-center gap-3 mb-8">
-            <div className="h-8 px-3 rounded bg-white flex items-center">
-              <span className="text-[#00338D] text-xs font-bold tracking-wide">KPMG</span>
+            <div className="h-8 px-2 rounded bg-white flex items-center">
+              <img src={KPMG_LOGO} alt="KPMG" className="h-5 w-auto object-contain" />
             </div>
             <span className="text-white/30">×</span>
             <div className="h-8 px-2 rounded bg-white flex items-center">
