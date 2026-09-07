@@ -1,0 +1,11 @@
+node_modules
+.next
+out
+dist
+.env
+.env.local
+data/runtime-store.json
+*.log
+.DS_Store
+coverage
+.vitest
