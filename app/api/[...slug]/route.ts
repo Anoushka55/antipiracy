@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { cookies } from "next/headers";
-import { authenticate, createSession, getCurrentUser } from "@/lib/auth";
+import { authenticate, createSession, getCurrentUser, sessionCookieOptions } from "@/lib/auth";
 import { SESSION_COOKIE } from "@/lib/constants";
 import { can } from "@/lib/rbac";
 import { getStore, mutate, resetStore } from "@/lib/store";
@@ -310,60 +309,65 @@ export async function POST(req: NextRequest) {
   const body = await req.json().catch(() => ({}));
 
   if (path === "auth/login") {
-    const session = authenticate(String(body.email ?? ""), String(body.password ?? ""));
-    if (!session) return err("Invalid credentials", 401);
-    const token = await createSession(session);
-    const jar = await cookies();
-    jar.set(SESSION_COOKIE, token, {
-      httpOnly: true,
-      sameSite: "lax",
-      path: "/",
-      maxAge: 60 * 60 * 12,
-    });
-    mutate((s) => {
-      s.auditEvents.unshift({
-        id: `AUD-LOGIN-${Date.now()}`,
-        tenantId: session.tenantId,
-        timestamp: new Date().toISOString(),
-        userId: session.id,
-        userName: session.name,
-        role: session.role,
-        action: "LOGIN",
-        entity: "Session",
-        entityId: session.id,
-        before: null,
-        after: { role: session.role },
-        ip: "127.0.0.1",
-        sessionId: `sess-${session.id}`,
+    try {
+      const session = authenticate(String(body.email ?? ""), String(body.password ?? ""));
+      if (!session) return err("Invalid credentials", 401);
+      const token = await createSession(session);
+      mutate((s) => {
+        s.auditEvents.unshift({
+          id: `AUD-LOGIN-${Date.now()}`,
+          tenantId: session.tenantId,
+          timestamp: new Date().toISOString(),
+          userId: session.id,
+          userName: session.name,
+          role: session.role,
+          action: "LOGIN",
+          entity: "Session",
+          entityId: session.id,
+          before: null,
+          after: { role: session.role },
+          ip: "127.0.0.1",
+          sessionId: `sess-${session.id}`,
+        });
       });
-    });
-    return json({ user: session });
+      const response = json({ user: session });
+      response.cookies.set(SESSION_COOKIE, token, sessionCookieOptions());
+      return response;
+    } catch (e) {
+      console.error("auth/login failed", e);
+      return err("Authentication failed", 500);
+    }
   }
 
   if (path === "auth/logout") {
-    const current = await getCurrentUser();
-    const jar = await cookies();
-    jar.set(SESSION_COOKIE, "", { httpOnly: true, path: "/", maxAge: 0 });
-    if (current) {
-      mutate((s) => {
-        s.auditEvents.unshift({
-          id: `AUD-LOGOUT-${Date.now()}`,
-          tenantId: current.tenantId,
-          timestamp: new Date().toISOString(),
-          userId: current.id,
-          userName: current.name,
-          role: current.role,
-          action: "LOGOUT",
-          entity: "Session",
-          entityId: current.id,
-          before: null,
-          after: null,
-          ip: "127.0.0.1",
-          sessionId: `sess-${current.id}`,
+    try {
+      const current = await getCurrentUser();
+      if (current) {
+        mutate((s) => {
+          s.auditEvents.unshift({
+            id: `AUD-LOGOUT-${Date.now()}`,
+            tenantId: current.tenantId,
+            timestamp: new Date().toISOString(),
+            userId: current.id,
+            userName: current.name,
+            role: current.role,
+            action: "LOGOUT",
+            entity: "Session",
+            entityId: current.id,
+            before: null,
+            after: null,
+            ip: "127.0.0.1",
+            sessionId: `sess-${current.id}`,
+          });
         });
-      });
+      }
+      const response = json({ ok: true });
+      response.cookies.set(SESSION_COOKIE, "", { ...sessionCookieOptions(0), maxAge: 0 });
+      return response;
+    } catch (e) {
+      console.error("auth/logout failed", e);
+      return err("Logout failed", 500);
     }
-    return json({ ok: true });
   }
 
   const { user, res } = await userOr401();

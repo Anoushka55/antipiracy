@@ -6,8 +6,20 @@ import { getStore } from "./store";
 import { verifyPassword } from "./hash";
 
 function secret() {
-  const raw = process.env.SESSION_SECRET ?? "schand-command-center-prototype-dev-secret-change-me";
-  return new TextEncoder().encode(raw);
+  const raw = process.env.SESSION_SECRET?.trim();
+  const value =
+    raw && raw.length > 0 ? raw : "schand-command-center-prototype-dev-secret-change-me";
+  return new TextEncoder().encode(value);
+}
+
+export function sessionCookieOptions(maxAge = 60 * 60 * 12) {
+  return {
+    httpOnly: true,
+    sameSite: "lax" as const,
+    secure: process.env.NODE_ENV === "production",
+    path: "/",
+    maxAge,
+  };
 }
 
 export async function createSession(user: SessionUser): Promise<string> {

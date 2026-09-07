@@ -9,6 +9,8 @@ const STORE_FILE = path.join(DATA_DIR, "runtime-store.json");
 let memory: AppState | null = null;
 
 function persistEnabled() {
+  // Vercel serverless has a read-only filesystem except /tmp.
+  if (process.env.VERCEL) return false;
   return process.env.PERSIST_STORE !== "false";
 }
 
