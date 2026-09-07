@@ -108,7 +108,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
 
   return (
     <div className="flex h-screen overflow-hidden bg-[#F4F6F9]">
-      <aside className={`${collapsed ? 'w-16' : 'w-64'} flex-shrink-0 bg-[#c83328] border-r border-white/[0.12] flex flex-col transition-all duration-300 overflow-hidden h-full`}>
+      <aside className={`${collapsed ? 'w-16' : 'w-64'} flex-shrink-0 bg-[#0D1428] border-r border-white/[0.06] flex flex-col transition-all duration-300 overflow-hidden h-full`}>
         <div className="px-3 py-4 border-b border-white/[0.06]">
           <div className="flex items-center gap-2">
             <div className="h-8 px-2 rounded bg-white flex items-center flex-shrink-0">
@@ -141,11 +141,11 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
                       href={item.href}
                       className={`flex items-center gap-3 px-2.5 py-2 rounded-lg transition-colors group ${
                         isActive
-                          ? 'bg-black/20 border border-white/25 text-white'
-                          : 'text-white/70 hover:text-white hover:bg-black/10 border border-transparent'
+                          ? 'bg-[#00338D]/25 border border-[#00338D]/30 text-white'
+                          : 'text-white/50 hover:text-white hover:bg-white/5 border border-transparent'
                       }`}
                     >
-                      <Icon size={16} className={`flex-shrink-0 ${isActive ? 'text-white' : 'group-hover:text-white'}`} />
+                      <Icon size={16} className={`flex-shrink-0 ${isActive ? 'text-[#0077C8]' : 'group-hover:text-white/80'}`} />
                       {!collapsed && <span className="text-xs font-semibold truncate">{item.label}</span>}
                     </Link>
                   );
@@ -166,7 +166,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
       </aside>
 
       <div className="flex-1 flex flex-col overflow-hidden">
-        <header className="h-14 flex-shrink-0 bg-black border-b border-white/[0.08] flex items-center gap-3 px-4">
+        <header className="h-14 flex-shrink-0 bg-[#1A1F36]/95 border-b border-white/[0.08] flex items-center gap-3 px-4" style={{ backdropFilter: 'blur(20px)' }}>
           <div className="flex items-center gap-2 flex-shrink-0">
             <img src={KPMG_LOGO} alt="KPMG" className="h-5 w-auto object-contain brightness-0 invert opacity-90" />
             <span className="text-white/30">|</span>
