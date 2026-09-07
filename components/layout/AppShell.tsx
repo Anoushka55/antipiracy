@@ -24,7 +24,7 @@ import {
   LogOut,
   Bot,
 } from 'lucide-react';
-import { NAV_GROUPS, ROLE_LABEL } from '@/lib/constants';
+import { NAV_GROUPS, ROLE_LABEL, SCHAND_LOGO } from '@/lib/constants';
 import { navAllowed } from '@/lib/rbac';
 import { api, post } from '@/lib/client';
 import type { Role, SessionUser } from '@/lib/types';
@@ -111,15 +111,10 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
       <aside className={`${collapsed ? 'w-16' : 'w-64'} flex-shrink-0 bg-[#0D1428] border-r border-white/[0.06] flex flex-col transition-all duration-300 overflow-hidden h-full`}>
         <div className="px-3 py-4 border-b border-white/[0.06]">
           <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-lg bg-[#8B1E3F] flex items-center justify-center text-white font-bold text-sm flex-shrink-0">S</div>
-            {!collapsed && (
-              <div>
-                <div className="text-white text-xs font-bold leading-tight" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
-                  S. Chand
-                </div>
-                <div className="text-white/50 text-[10px] font-medium">IP Protection</div>
-              </div>
-            )}
+            <div className="h-8 px-2 rounded bg-white flex items-center flex-shrink-0">
+              <img src={SCHAND_LOGO} alt="S. Chand" className="h-5 w-auto object-contain" />
+            </div>
+            {!collapsed && <div className="text-white/50 text-[10px] font-medium">IP Protection</div>}
           </div>
         </div>
         <div className="flex items-center justify-end px-2 py-2 border-b border-white/[0.06]">
@@ -175,8 +170,12 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
           <div className="flex items-center gap-2 flex-shrink-0">
             <img src="https://upload.wikimedia.org/wikipedia/commons/d/db/KPMG_blue_logo.svg" alt="KPMG" className="h-5 brightness-0 invert opacity-90" />
             <span className="text-white/30">|</span>
-            <span className="font-bold text-sm text-white" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
-              S. Chand Anti-Piracy Command Center
+            <div className="h-6 px-1.5 rounded bg-white flex items-center">
+              <img src={SCHAND_LOGO} alt="S. Chand" className="h-4 w-auto object-contain" />
+            </div>
+            <span className="text-white/30 hidden sm:inline">|</span>
+            <span className="font-bold text-sm text-white hidden sm:inline" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
+              Anti-Piracy Command Center
             </span>
           </div>
           <span className="text-white/30">|</span>

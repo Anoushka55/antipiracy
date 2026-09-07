@@ -5,7 +5,7 @@ export const metadata: Metadata = {
   title: "S. Chand Anti-Piracy Command Center",
   description:
     "Enterprise IP protection and enforcement platform prototype for S. Chand & Company",
-  icons: { icon: "/favicon.svg" },
+  icons: { icon: "/schand-logo.png" },
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

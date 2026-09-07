@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { post } from '@/lib/client';
 import { Button } from '@/components/shared/Button';
-import { DEMO_PASSWORD } from '@/lib/constants';
+import { DEMO_PASSWORD, SCHAND_LOGO } from '@/lib/constants';
 
 const PERSONAS = [
   { email: 'sourabh@schand.demo', name: 'Mr. Sourabh', role: 'Executive / CFO' },
@@ -55,8 +55,8 @@ export default function LoginPage() {
               <span className="text-[#00338D] text-xs font-bold tracking-wide">KPMG</span>
             </div>
             <span className="text-white/30">×</span>
-            <div className="w-8 h-8 rounded-lg flex items-center justify-center text-white font-bold text-sm" style={{ backgroundColor: '#8B1E3F' }}>
-              S
+            <div className="h-8 px-2 rounded bg-white flex items-center">
+              <img src={SCHAND_LOGO} alt="S. Chand" className="h-5 w-auto object-contain" />
             </div>
           </div>
           <div className="text-[10px] font-bold uppercase tracking-widest text-white/55 mb-3">Client demonstration</div>
@@ -75,7 +75,9 @@ export default function LoginPage() {
         </div>
         <div className="lg:col-span-2 bg-white rounded-2xl p-6 border border-[#E2E8F0] shadow-[0_1px_3px_0_rgba(0,0,0,0.08)]">
           <div className="flex items-center gap-2 mb-1">
-            <div className="w-8 h-8 rounded-lg text-white flex items-center justify-center font-bold" style={{ backgroundColor: '#8B1E3F' }}>S</div>
+            <div className="h-9 px-2 rounded-lg bg-white border border-[#E2E8F0] flex items-center">
+              <img src={SCHAND_LOGO} alt="S. Chand" className="h-6 w-auto object-contain" />
+            </div>
             <div>
               <div className="text-sm font-bold text-[#1A1F36]">S. Chand & Company</div>
               <div className="text-[10px] text-[#6B7280]">Tenant SCHAND</div>

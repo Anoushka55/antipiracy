@@ -6,6 +6,8 @@ export const DEMO_PASSWORD = "Schand@2026";
 
 export const SESSION_COOKIE = "schand_cc_session";
 
+export const SCHAND_LOGO = "/schand-logo.png";
+
 export const MODEL_MATCH = "AntiPiracy-Match-v0.1-demo";
 export const MODEL_MATCH_VERSION = "0.1.0";
 export const MODEL_FORECAST = "FORECAST-v0.1";
