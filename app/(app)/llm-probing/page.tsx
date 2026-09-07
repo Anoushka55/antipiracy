@@ -23,7 +23,7 @@ import { Drawer, SyntheticBanner } from '@/components/shared/Overlay';
 import { AIRecommendationCard } from '@/components/shared/Domain';
 import type { LlmFinding } from '@/lib/llm-probe';
 
-const COLORS = ['#c83328', '#D4A017', '#111111', '#00A36C'];
+const COLORS = ['#8B1E3F', '#D4A017', '#0077C8', '#00A36C'];
 const MODEL_ORDER = ['Gemini', 'Meta', 'ChatGPT', 'Claude'];
 
 type Ranked = {
@@ -149,8 +149,8 @@ export default function LlmProbingPage() {
     <div className="max-w-screen-xl mx-auto px-6 py-8 space-y-6">
       <div className="flex items-start justify-between gap-4">
         <div className="max-w-3xl">
-          <div className="text-[10px] font-bold uppercase tracking-[0.18em] text-[#c83328] mb-2">S. Chand LLM Exposure Programme</div>
-          <h1 className="text-2xl font-bold text-[#111111]">Two levels of testing, four models</h1>
+          <div className="text-[10px] font-bold uppercase tracking-[0.18em] text-[#00338D] mb-2">S. Chand LLM Exposure Programme</div>
+          <h1 className="text-2xl font-bold text-[#1A1F36]">Two levels of testing, four models</h1>
           <p className="text-sm text-[#6B7280] mt-2 leading-relaxed">
             Drive 1 asks whether models already know proprietary S. Chand content. Drive 2 asks how closely — and how repeatably — they reconstruct it.
             Unified assessment {formatStamp(u.generated)}. Judge {data.campaign.judge}. No live model calls.
@@ -173,7 +173,7 @@ export default function LlmProbingPage() {
           <button
             key={t.id}
             onClick={() => { setView(t.id); setModel('all'); setInconsistentOnly(false); }}
-            className={`px-3.5 py-2 rounded-lg text-xs font-semibold transition-colors ${view === t.id ? 'bg-[#c83328] text-white shadow-sm' : 'text-[#6B7280] hover:text-[#111111]'}`}
+            className={`px-3.5 py-2 rounded-lg text-xs font-semibold transition-colors ${view === t.id ? 'bg-[#00338D] text-white shadow-sm' : 'text-[#6B7280] hover:text-[#1A1F36]'}`}
           >
             {t.label}
           </button>
@@ -183,10 +183,10 @@ export default function LlmProbingPage() {
       {view === 'programme' && (
         <>
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-            <MetricCard label="Prompt designs" value={uk.promptsTested} icon={Layers} color="#c83328" />
-            <MetricCard label="Recorded executions" value="2,000" icon={Repeat} color="#c83328" />
+            <MetricCard label="Prompt designs" value={uk.promptsTested} icon={Layers} color="#00338D" />
+            <MetricCard label="Recorded executions" value="2,000" icon={Repeat} color="#0077C8" />
             <MetricCard label="Overall exposure" value={`${uk.overallExposureRate}%`} icon={ShieldAlert} color="#DC2626" />
-            <MetricCard label="High-severity KRI" value={uk.highSeverityFindings} icon={Fingerprint} color="#c83328" />
+            <MetricCard label="High-severity KRI" value={uk.highSeverityFindings} icon={Fingerprint} color="#8B1E3F" />
           </div>
           <p className="text-[11px] text-[#9CA3AF] -mt-2">
             Overall exposure {uk.overallExposureRate}% = 841 exposed / 1,600 scored prompt-model cases (Drive 1 counts each probe once; Drive 2 counts the three-run case, not each run). High-severity 483 = 430 Drive 1 + 53 Drive 2.
@@ -204,7 +204,7 @@ export default function LlmProbingPage() {
                 executions="1,400 executions"
                 result={`${uk.d1ExposureRate}% exposure`}
                 kri={`${uk.d1HighRisk} high-risk leaks`}
-                color="#c83328"
+                color="#00338D"
                 icon={BookOpen}
                 onOpen={() => setView('drive1')}
               />
@@ -217,7 +217,7 @@ export default function LlmProbingPage() {
                 executions="600 executions"
                 result={`${uk.d2ExposureRate}% exposure · ${Number(uk.avgSimilarity).toFixed(1)} avg similarity`}
                 kri={`${uk.d2HighSimilarity} cases ≥70 · ${uk.d2Inconsistent} inconsistent regenerations`}
-                color="#c83328"
+                color="#8B1E3F"
                 icon={Fingerprint}
                 onOpen={() => setView('drive2')}
               />
@@ -236,8 +236,8 @@ export default function LlmProbingPage() {
                   <YAxis unit="%" tick={{ fontSize: 11 }} />
                   <Tooltip />
                   <Legend />
-                  <Bar dataKey="Drive 1 elicitation" fill="#c83328" radius={[6, 6, 0, 0]} />
-                  <Bar dataKey="Drive 2 reconstruction" fill="#111111" radius={[6, 6, 0, 0]} />
+                  <Bar dataKey="Drive 1 elicitation" fill="#00338D" radius={[6, 6, 0, 0]} />
+                  <Bar dataKey="Drive 2 reconstruction" fill="#8B1E3F" radius={[6, 6, 0, 0]} />
                 </BarChart>
               </ResponsiveContainer>
             </div>
@@ -249,15 +249,15 @@ export default function LlmProbingPage() {
                   <div key={r.label} className="bg-white rounded-2xl border border-[#E2E8F0] p-5">
                     <div className="flex items-start justify-between gap-2 mb-3">
                       <div>
-                        <div className="text-sm font-semibold text-[#111111]">{r.label}</div>
+                        <div className="text-sm font-semibold text-[#1A1F36]">{r.label}</div>
                         <div className="font-mono text-[10px] text-[#9CA3AF]">{r.model}</div>
                       </div>
                       <span className="text-[10px] font-bold uppercase tracking-widest px-2 py-1 rounded-md" style={{ backgroundColor: `${COLORS[i]}18`, color: COLORS[i] }}>
                         {i === 0 ? 'Highest' : i === 3 ? 'D1 control' : r.label === 'ChatGPT' ? 'D2 control' : r.exposureBand}
                       </span>
                     </div>
-                    <Meter label="Drive 1 elicitation" value={r.d1Exposure} suffix="%" color="#c83328" hint={`${d1?.high ?? r.d1HighRisk} high-risk / 350`} />
-                    <Meter label="Drive 2 reconstruction" value={r.d2Exposure} suffix="%" color="#c83328" hint={`${d2?.avgSimilarity ?? r.d2Similarity} similarity · ${d2?.highSimilarity ?? 0} ≥70`} />
+                    <Meter label="Drive 1 elicitation" value={r.d1Exposure} suffix="%" color="#00338D" hint={`${d1?.high ?? r.d1HighRisk} high-risk / 350`} />
+                    <Meter label="Drive 2 reconstruction" value={r.d2Exposure} suffix="%" color="#8B1E3F" hint={`${d2?.avgSimilarity ?? r.d2Similarity} similarity · ${d2?.highSimilarity ?? 0} ≥70`} />
                     <div className="text-[11px] text-[#6B7280] mt-3 leading-relaxed">{r.assessment}</div>
                   </div>
                 );
@@ -267,9 +267,9 @@ export default function LlmProbingPage() {
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {u.keyFindings.map((f) => (
-              <div key={f.title} className="bg-white rounded-2xl border border-[#E2E8F0] p-5 border-l-[3px] border-l-[#c83328]">
+              <div key={f.title} className="bg-white rounded-2xl border border-[#E2E8F0] p-5 border-l-[3px] border-l-[#00338D]">
                 <div className="text-[10px] font-bold uppercase tracking-widest text-[#9CA3AF] mb-1">Key finding</div>
-                <div className="text-sm font-semibold text-[#111111] mb-1">{f.title}</div>
+                <div className="text-sm font-semibold text-[#1A1F36] mb-1">{f.title}</div>
                 <p className="text-xs text-[#6B7280] leading-relaxed">{f.body}</p>
               </div>
             ))}
@@ -292,8 +292,8 @@ export default function LlmProbingPage() {
                     {compareRows.map((r) => (
                       <tr key={r.dimension} className="border-b border-[#E2E8F0]">
                         <td className="py-2.5 text-[#6B7280]">{r.dimension}</td>
-                        <td className="py-2.5 pr-3 font-medium text-[#111111]">{String(r.drive1)}</td>
-                        <td className="py-2.5 font-medium text-[#111111]">{String(r.drive2)}</td>
+                        <td className="py-2.5 pr-3 font-medium text-[#1A1F36]">{String(r.drive1)}</td>
+                        <td className="py-2.5 font-medium text-[#1A1F36]">{String(r.drive2)}</td>
                       </tr>
                     ))}
                   </tbody>
@@ -302,10 +302,10 @@ export default function LlmProbingPage() {
             </div>
             <div className="bg-white rounded-2xl border border-[#E2E8F0] p-6">
               <div className="text-xs font-semibold mb-3">Programme conclusions</div>
-              <ul className="text-xs text-[#111111] space-y-2.5">
+              <ul className="text-xs text-[#1A1F36] space-y-2.5">
                 {u.conclusions.map((i) => (
                   <li key={i} className="flex gap-2 leading-relaxed">
-                    <span className="mt-1.5 w-1.5 h-1.5 rounded-full bg-[#c83328] shrink-0" />
+                    <span className="mt-1.5 w-1.5 h-1.5 rounded-full bg-[#00338D] shrink-0" />
                     <span>{i}</span>
                   </li>
                 ))}
@@ -323,12 +323,12 @@ export default function LlmProbingPage() {
             title="Proprietary content awareness"
             body="Single-run elicitation test: 350 purpose-built prompts per model. Pass = the model refused to reproduce protected structure. Fail = leak of TOC, chapters, exercises or worked examples."
             chips={['350 prompts', '1 run each', '1,400 executions', `${uk.d1ExposureRate}% exposure`, `${uk.d1HighRisk} high-risk`]}
-            color="#c83328"
+            color="#00338D"
           />
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
             <KPICard title="Safe / pass rate" value={`${data.kpis.passPct}%`} unit={`${data.kpis.pass} pass · ${data.kpis.fail} fail`} statusColor="#00A36C" />
             <KPICard title="High-risk leaks" value={uk.d1HighRisk} unit={`${data.kpis.highPct}% of 1,400 probes`} statusColor="#DC2626" />
-            <KPICard title="Gemini high-risk share" value={`${data.kpis.geminiHighShare}%`} unit="188 of 430 — worst model" statusColor="#c83328" />
+            <KPICard title="Gemini high-risk share" value={`${data.kpis.geminiHighShare}%`} unit="188 of 430 — worst model" statusColor="#8B1E3F" />
             <KPICard title="Claude (control)" value="5.4%" unit="19 high-risk / 350" statusColor="#00A36C" />
           </div>
           <div className="grid grid-cols-1 xl:grid-cols-2 gap-4">
@@ -349,14 +349,14 @@ export default function LlmProbingPage() {
                 <XAxis dataKey="model" tick={{ fontSize: 11 }} />
                 <YAxis unit="%" tick={{ fontSize: 11 }} />
                 <Tooltip />
-                <Bar dataKey="highPct" name="High-risk %" fill="#c83328" radius={[6, 6, 0, 0]} />
+                <Bar dataKey="highPct" name="High-risk %" fill="#8B1E3F" radius={[6, 6, 0, 0]} />
               </BarChart>
             </ChartPanel>
             <ChartPanel title="High-risk volume share" hint="Gemini 188 + Meta 178 = 85% of Drive 1 high-risk labels.">
               <PieChart>
                 <Pie data={data.contentAwareness} dataKey="high" nameKey="model" innerRadius={54} outerRadius={86}>
                   {data.contentAwareness.map((row) => (
-                    <Cell key={row.model} fill={COLORS[MODEL_ORDER.indexOf(row.model)] ?? '#c83328'} />
+                    <Cell key={row.model} fill={COLORS[MODEL_ORDER.indexOf(row.model)] ?? '#0077C8'} />
                   ))}
                 </Pie>
                 <Legend />
@@ -399,13 +399,13 @@ export default function LlmProbingPage() {
             title="Forensic repeatable exposure generation"
             body="Fifty prompts, three independent runs per model. The judge scores similarity to proprietary reference material and keeps pass/fail flips as inconsistent — they are not collapsed to a single verdict."
             chips={['50 prompts', '3 runs each', '600 executions', `${uk.d2ExposureRate}% exposure`, `${Number(uk.avgSimilarity).toFixed(1)} avg similarity`, `${uk.d2Inconsistent} inconsistent`]}
-            color="#c83328"
+            color="#8B1E3F"
           />
           <div className="grid grid-cols-2 lg:grid-cols-5 gap-3">
             <KPICard title="Reconstruction exposure" value={`${uk.d2ExposureRate}%`} unit="65 of 200 three-run cases" statusColor="#DC2626" />
-            <KPICard title="Avg similarity" value={Number(uk.avgSimilarity).toFixed(1)} unit={`${uk.d2HighSimilarity} cases scored ≥70`} statusColor="#c83328" />
+            <KPICard title="Avg similarity" value={Number(uk.avgSimilarity).toFixed(1)} unit={`${uk.d2HighSimilarity} cases scored ≥70`} statusColor="#00338D" />
             <KPICard title="3-run consistency" value={`${uk.avgConsistency}%`} unit={`${uk.d2Inconsistent} pass/fail flips`} statusColor="#D4A017" />
-            <KPICard title="High-severity" value={uk.d2HighRisk} unit="forensic risk labels" statusColor="#c83328" />
+            <KPICard title="High-severity" value={uk.d2HighRisk} unit="forensic risk labels" statusColor="#8B1E3F" />
             <KPICard title="ChatGPT (control)" value="26.0%" unit="lowest Drive 2 exposure" statusColor="#00A36C" />
           </div>
           <div className="grid grid-cols-1 xl:grid-cols-2 gap-4">
@@ -416,8 +416,8 @@ export default function LlmProbingPage() {
                 <YAxis tick={{ fontSize: 11 }} />
                 <Tooltip />
                 <Legend />
-                <Bar dataKey="avgSimilarity" name="Avg similarity" fill="#c83328" radius={[6, 6, 0, 0]} />
-                <Bar dataKey="exposureRate" name="Exposure %" fill="#c83328" radius={[6, 6, 0, 0]} />
+                <Bar dataKey="avgSimilarity" name="Avg similarity" fill="#00338D" radius={[6, 6, 0, 0]} />
+                <Bar dataKey="exposureRate" name="Exposure %" fill="#8B1E3F" radius={[6, 6, 0, 0]} />
               </BarChart>
             </ChartPanel>
             <ChartPanel title="Three-run consistency bands" hint="Flipped outcomes stay inconsistent. Consistently failed means all three runs leaked.">
@@ -428,7 +428,7 @@ export default function LlmProbingPage() {
                 <Tooltip />
                 <Legend />
                 <Bar dataKey="highly" name="Highly consistent" stackId="a" fill="#00A36C" />
-                <Bar dataKey="moderate" name="Moderately consistent" stackId="a" fill="#c83328" />
+                <Bar dataKey="moderate" name="Moderately consistent" stackId="a" fill="#0077C8" />
                 <Bar dataKey="low" name="Low consistency" stackId="a" fill="#D4A017" />
                 <Bar dataKey="failed" name="Consistently failed" stackId="a" fill="#DC2626" radius={[6, 6, 0, 0]} />
               </BarChart>
@@ -440,7 +440,7 @@ export default function LlmProbingPage() {
                 <YAxis tick={{ fontSize: 11 }} />
                 <Tooltip />
                 <Legend />
-                <Bar dataKey="highSimilarity" name="Similarity ≥70" fill="#c83328" radius={[6, 6, 0, 0]} />
+                <Bar dataKey="highSimilarity" name="Similarity ≥70" fill="#8B1E3F" radius={[6, 6, 0, 0]} />
                 <Bar dataKey="inconsistent" name="Inconsistent" fill="#D4A017" radius={[6, 6, 0, 0]} />
               </BarChart>
             </ChartPanel>
@@ -450,7 +450,7 @@ export default function LlmProbingPage() {
                 <XAxis type="number" tick={{ fontSize: 11 }} />
                 <YAxis type="category" dataKey="name" tick={{ fontSize: 11 }} width={108} />
                 <Tooltip />
-                <Bar dataKey="value" fill="#c83328" radius={[0, 6, 6, 0]} />
+                <Bar dataKey="value" fill="#00338D" radius={[0, 6, 6, 0]} />
               </BarChart>
             </ChartPanel>
           </div>
@@ -460,7 +460,7 @@ export default function LlmProbingPage() {
               <XAxis dataKey="name" tick={{ fontSize: 11 }} />
               <YAxis tick={{ fontSize: 11 }} />
               <Tooltip />
-              <Bar dataKey="value" fill="#c83328" radius={[6, 6, 0, 0]} />
+              <Bar dataKey="value" fill="#0077C8" radius={[6, 6, 0, 0]} />
             </BarChart>
           </ChartPanel>
 
@@ -475,9 +475,9 @@ export default function LlmProbingPage() {
                 <tbody>
                   {u.drive2.hotspots.map((h) => (
                     <tr key={h.id} className="border-b border-[#E2E8F0] align-top">
-                      <td className="py-2.5 font-mono font-semibold text-[#c83328]">{h.id}</td>
+                      <td className="py-2.5 font-mono font-semibold text-[#00338D]">{h.id}</td>
                       <td className="py-2.5">
-                        <div className="font-semibold text-[#111111]">{h.title}</div>
+                        <div className="font-semibold text-[#1A1F36]">{h.title}</div>
                         <div className="text-[11px] text-[#6B7280] mt-0.5 max-w-md leading-relaxed">{h.prompt}</div>
                       </td>
                       <td className="py-2.5 font-mono">{h.failCount}/4</td>
@@ -503,7 +503,7 @@ export default function LlmProbingPage() {
                   {u.drive2.inconsistentCases.map((c) => (
                     <tr key={`${c.model}-${c.id}`} className="border-b border-[#E2E8F0] align-top">
                       <td className="py-2.5">{c.model}</td>
-                      <td className="py-2.5 font-mono text-[#c83328] font-semibold">{c.id}</td>
+                      <td className="py-2.5 font-mono text-[#00338D] font-semibold">{c.id}</td>
                       <td className="py-2.5 font-mono">{(c.runs || []).join(' → ')}</td>
                       <td className="py-2.5 font-mono">{c.passRate}</td>
                       <td className="py-2.5 font-mono">{c.similarity}</td>
@@ -529,7 +529,7 @@ export default function LlmProbingPage() {
       {open && (
         <Drawer title={open.id} onClose={() => setOpen(null)} width="w-[560px]">
           <div className="space-y-3 text-xs">
-            <div className="text-sm font-semibold text-[#111111]">{open.title}</div>
+            <div className="text-sm font-semibold text-[#1A1F36]">{open.title}</div>
             <div className="text-[#6B7280]">{open.author}</div>
             <div className="flex gap-2 flex-wrap">
               <RiskBadge risk={open.risk.toLowerCase()} />
@@ -565,8 +565,8 @@ export default function LlmProbingPage() {
 function SectionHead({ kicker, title, body }: { kicker: string; title: string; body: string }) {
   return (
     <div>
-      <div className="text-[10px] font-bold uppercase tracking-[0.16em] text-[#c83328]">{kicker}</div>
-      <h2 className="text-lg font-semibold text-[#111111] mt-1">{title}</h2>
+      <div className="text-[10px] font-bold uppercase tracking-[0.16em] text-[#00338D]">{kicker}</div>
+      <h2 className="text-lg font-semibold text-[#1A1F36] mt-1">{title}</h2>
       <p className="text-sm text-[#6B7280] mt-1 max-w-3xl leading-relaxed">{body}</p>
     </div>
   );
@@ -590,27 +590,27 @@ function DriveCard({
           <Icon size={20} style={{ color }} />
         </div>
       </div>
-      <h3 className="text-base font-semibold text-[#111111]">{title}</h3>
+      <h3 className="text-base font-semibold text-[#1A1F36]">{title}</h3>
       <p className="text-xs text-[#6B7280] mt-2 leading-relaxed">{question}</p>
       <div className="mt-4 grid grid-cols-2 gap-3 text-xs">
         <div>
           <div className="text-[10px] font-bold uppercase tracking-widest text-[#9CA3AF]">Design</div>
-          <div className="font-medium text-[#111111] mt-0.5">{design}</div>
+          <div className="font-medium text-[#1A1F36] mt-0.5">{design}</div>
         </div>
         <div>
           <div className="text-[10px] font-bold uppercase tracking-widest text-[#9CA3AF]">Volume</div>
-          <div className="font-medium text-[#111111] mt-0.5">{executions}</div>
+          <div className="font-medium text-[#1A1F36] mt-0.5">{executions}</div>
         </div>
         <div>
           <div className="text-[10px] font-bold uppercase tracking-widest text-[#9CA3AF]">Result</div>
-          <div className="font-semibold text-[#111111] mt-0.5">{result}</div>
+          <div className="font-semibold text-[#1A1F36] mt-0.5">{result}</div>
         </div>
         <div>
           <div className="text-[10px] font-bold uppercase tracking-widest text-[#9CA3AF]">KRI</div>
-          <div className="font-semibold text-[#111111] mt-0.5">{kri}</div>
+          <div className="font-semibold text-[#1A1F36] mt-0.5">{kri}</div>
         </div>
       </div>
-      <div className="text-[11px] font-semibold text-[#c83328] mt-4">Open {drive} detail →</div>
+      <div className="text-[11px] font-semibold text-[#00338D] mt-4">Open {drive} detail →</div>
     </button>
   );
 }
@@ -619,7 +619,7 @@ function DriveBanner({ drive, title, body, chips, color }: { drive: string; titl
   return (
     <div className="bg-white rounded-2xl border border-[#E2E8F0] p-6 border-l-[3px]" style={{ borderLeftColor: color }}>
       <div className="text-[10px] font-bold uppercase tracking-widest" style={{ color }}>{drive}</div>
-      <h2 className="text-xl font-semibold text-[#111111] mt-1">{title}</h2>
+      <h2 className="text-xl font-semibold text-[#1A1F36] mt-1">{title}</h2>
       <p className="text-sm text-[#6B7280] mt-2 max-w-3xl leading-relaxed">{body}</p>
       <div className="flex flex-wrap gap-2 mt-3">
         {chips.map((c) => (
@@ -635,7 +635,7 @@ function Meter({ label, value, suffix, color, hint }: { label: string; value: nu
     <div className="mb-3">
       <div className="flex items-baseline justify-between gap-2 mb-1">
         <span className="text-[11px] text-[#6B7280]">{label}</span>
-        <span className="font-mono text-xs font-semibold text-[#111111]">{value}{suffix}</span>
+        <span className="font-mono text-xs font-semibold text-[#1A1F36]">{value}{suffix}</span>
       </div>
       <div className="h-1.5 rounded-full bg-[#E2E8F0] overflow-hidden">
         <div className="h-full rounded-full" style={{ width: `${Math.min(100, value)}%`, backgroundColor: color }} />
@@ -670,7 +670,7 @@ function FindingsTable({
   return (
     <div>
       <div className="flex items-center gap-2 flex-wrap mb-3">
-        <div className="text-xs font-semibold text-[#111111]">{forensic ? 'Drive 2 forensic findings' : 'Drive 1 awareness findings'}</div>
+        <div className="text-xs font-semibold text-[#1A1F36]">{forensic ? 'Drive 2 forensic findings' : 'Drive 1 awareness findings'}</div>
         <select value={model} onChange={(e) => setModel(e.target.value)} className="px-3 py-1.5 text-xs rounded-lg border border-[#E2E8F0] bg-white">
           <option value="all">All models</option>
           {MODEL_ORDER.map((m) => <option key={m}>{m}</option>)}
@@ -695,7 +695,7 @@ function FindingsTable({
           <tbody>
             {rows.map((f) => (
               <tr key={f.id} className="border-b border-[#E2E8F0] hover:bg-[#F4F6F9] cursor-pointer" onClick={() => open(f)}>
-                <td className="px-3 py-3 font-mono text-[#c83328] font-semibold">{f.id}</td>
+                <td className="px-3 py-3 font-mono text-[#00338D] font-semibold">{f.id}</td>
                 <td className="px-3 py-3">{f.model}</td>
                 <td className="px-3 py-3">{f.title}</td>
                 <td className="px-3 py-3"><RiskBadge risk={f.risk.toLowerCase()} /></td>

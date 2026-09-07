@@ -41,7 +41,7 @@ export default function EnforcementPage() {
           <tbody>
             {data.items.map((c) => (
               <tr key={c.id} className="border-b border-[#E2E8F0]">
-                <td className="px-3 py-3 font-mono"><Link className="text-[#c83328] font-semibold" href={`/cases/${c.id}`}>{c.id}</Link></td>
+                <td className="px-3 py-3 font-mono"><Link className="text-[#00338D] font-semibold" href={`/cases/${c.id}`}>{c.id}</Link></td>
                 <td className="px-3 py-3">{c.platform}</td>
                 <td className="px-3 py-3">{c.noticeRoute}</td>
                 <td className="px-3 py-3">{c.submission?.submittedAt?.slice(0, 16) ?? '—'}</td>

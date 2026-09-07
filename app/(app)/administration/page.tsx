@@ -75,7 +75,7 @@ export default function AdminPage() {
             <div>Enforcement: SUCCESSFUL · Ticket {story.ticketId}</div>
             <div>Reappearance: DETECTED · New Finding {story.newFinding}</div>
             <div>Repeat Offender: IDENTIFIED · Case: REOPENED</div>
-            <p className="mt-2 text-[#111111]">Protection does not stop at takedown. Every enforcement event feeds the next detection cycle.</p>
+            <p className="mt-2 text-[#1A1F36]">Protection does not stop at takedown. Every enforcement event feeds the next detection cycle.</p>
             <ul className="mt-2 text-[#6B7280]">{story.logs.map((l) => <li key={l}>{l}</li>)}</ul>
           </div>
         )}

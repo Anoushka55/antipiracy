@@ -67,7 +67,7 @@ export default function RadarPage() {
       </div>
 
       {busy && (
-        <div className="rounded-2xl border border-[#c83328]/20 bg-[#c83328]/5 p-5 flex items-center gap-3">
+        <div className="rounded-2xl border border-[#00338D]/20 bg-[#00338D]/5 p-5 flex items-center gap-3">
           <LoadingDots />
           <div className="text-sm font-semibold">{STEPS[Math.max(0, step)]}</div>
         </div>
@@ -94,8 +94,8 @@ export default function RadarPage() {
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         <KPICard title="Active monitoring" value={k.monitored} statusColor="#00A36C" />
         <KPICard title="Reappearances detected" value={k.reappearances} statusColor="#DC2626" />
-        <KPICard title="Repeat offenders" value={k.repeatOffenders} statusColor="#c83328" />
-        <KPICard title="Closed-loop recovery" value={`${k.closedLoop}%`} statusColor="#c83328" />
+        <KPICard title="Repeat offenders" value={k.repeatOffenders} statusColor="#8B1E3F" />
+        <KPICard title="Closed-loop recovery" value={`${k.closedLoop}%`} statusColor="#00338D" />
         <KPICard title="Avg. time to reappearance" value={`${k.avgTime}d`} />
         <KPICard title="Reappearance rate" value={`${k.rate}%`} />
         <KPICard title="Total monitored" value={k.totalMonitored} />
@@ -111,7 +111,7 @@ export default function RadarPage() {
               <XAxis dataKey="w" tick={{ fontSize: 11 }} />
               <YAxis tick={{ fontSize: 11 }} />
               <Tooltip />
-              <Line dataKey="n" stroke="#c83328" />
+              <Line dataKey="n" stroke="#8B1E3F" />
             </LineChart>
           </ResponsiveContainer>
         </div>
@@ -123,7 +123,7 @@ export default function RadarPage() {
               <XAxis dataKey="name" tick={{ fontSize: 10 }} />
               <YAxis />
               <Tooltip />
-              <Bar dataKey="n" fill="#c83328" />
+              <Bar dataKey="n" fill="#00338D" />
             </BarChart>
           </ResponsiveContainer>
         </div>
@@ -137,7 +137,7 @@ export default function RadarPage() {
           <tbody>
             {data.items.map((r) => (
               <tr key={r.id} className="border-b border-[#E2E8F0]">
-                <td className="px-3 py-3 font-mono"><Link className="text-[#c83328]" href={`/cases/${r.originalCaseId}`}>{r.originalCaseId}</Link></td>
+                <td className="px-3 py-3 font-mono"><Link className="text-[#00338D]" href={`/cases/${r.originalCaseId}`}>{r.originalCaseId}</Link></td>
                 <td className="px-3 py-3 font-mono">{r.newFindingId}</td>
                 <td className="px-3 py-3">{r.platform}</td>
                 <td className="px-3 py-3">{r.uploader}</td>

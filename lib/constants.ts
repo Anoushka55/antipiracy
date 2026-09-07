@@ -9,13 +9,6 @@ export const SESSION_COOKIE = "schand_cc_session";
 export const SCHAND_LOGO = "/schand-logo.png";
 export const KPMG_LOGO = "/kpmg-logo.svg";
 
-/** S. Chand brand palette for main application UI */
-export const SCHAND_RED = "#c83328";
-export const SCHAND_RED_DARK = "#a82a22";
-export const SCHAND_RED_LIGHT = "#fdf2f1";
-export const SCHAND_BLACK = "#111111";
-export const SCHAND_WHITE = "#ffffff";
-
 export const MODEL_MATCH = "AntiPiracy-Match-v0.1-demo";
 export const MODEL_MATCH_VERSION = "0.1.0";
 export const MODEL_FORECAST = "FORECAST-v0.1";

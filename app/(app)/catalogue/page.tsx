@@ -21,7 +21,7 @@ export default function CataloguePage() {
           <tbody>
             {data.items.map((a) => (
               <tr key={a.id} className="border-b border-[#E2E8F0]">
-                <td className="px-3 py-3 font-semibold"><Link className="text-[#c83328]" href={`/catalogue/${a.id}`}>{a.title}</Link></td>
+                <td className="px-3 py-3 font-semibold"><Link className="text-[#00338D]" href={`/catalogue/${a.id}`}>{a.title}</Link></td>
                 <td className="px-3 py-3 font-mono">{a.isbn}</td>
                 <td className="px-3 py-3">{a.edition}</td>
                 <td className="px-3 py-3">{a.author}</td>

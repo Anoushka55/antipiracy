@@ -22,9 +22,9 @@ const POS: Record<string, { x: number; y: number }> = {
 };
 
 function nodeColor(score: number) {
-  if (score >= 80) return '#c83328';
+  if (score >= 80) return '#8B1E3F';
   if (score >= 60) return '#D4A017';
-  return '#111111';
+  return '#00338D';
 }
 
 export function EntityNetwork({
@@ -87,7 +87,7 @@ export function EntityNetwork({
                     strokeWidth={active ? 2.5 : 1}
                   />
                   <rect x={p.x} y={p.y} width="4" height="48" rx="2" fill={color} />
-                  <text x={p.x + 14} y={p.y + 20} fill="#111111" fontSize="11" fontWeight="700">
+                  <text x={p.x + 14} y={p.y + 20} fill="#1A1F36" fontSize="11" fontWeight="700">
                     {shortName(e.name)}
                   </text>
                   <text x={p.x + 14} y={p.y + 36} fill="#9CA3AF" fontSize="9">

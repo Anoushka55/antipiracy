@@ -60,7 +60,7 @@ export default function CaseDetailPage() {
       {(c.status === 'removed' || c.status === 'monitoring') && monitoring && (
         <div className="rounded-2xl border border-[#00A36C]/30 bg-[#F0FDF4] p-5">
           <div className="text-sm font-bold text-[#00A36C]">CONTENT REMOVED</div>
-          <p className="text-sm text-[#111111] mt-1">Enforcement successful.</p>
+          <p className="text-sm text-[#1A1F36] mt-1">Enforcement successful.</p>
           <p className="text-sm text-[#6B7280]">Monitoring remains active for {monitoring.windowDays} days. Next automated check: {monitoring.nextScanAt.slice(0, 16).replace('T', ' ')} UTC</p>
           <div className="flex gap-4 mt-3 text-xs">
             <span>Status: <b>ACTIVE</b></span>
@@ -102,7 +102,7 @@ export default function CaseDetailPage() {
         <div className="lg:col-span-6 space-y-4">
           <div className="flex gap-1 flex-wrap">
             {['overview', 'evidence', 'similarity', 'uploader', 'related', 'history', 'legal', 'notice', 'compare'].map((t) => (
-              <button key={t} onClick={() => setTab(t)} className={`px-3 py-1.5 rounded-lg text-xs font-semibold capitalize ${tab === t ? 'bg-[#c83328] text-white' : 'bg-white border border-[#E2E8F0]'}`}>{t}</button>
+              <button key={t} onClick={() => setTab(t)} className={`px-3 py-1.5 rounded-lg text-xs font-semibold capitalize ${tab === t ? 'bg-[#00338D] text-white' : 'bg-white border border-[#E2E8F0]'}`}>{t}</button>
             ))}
           </div>
           <div className="bg-white rounded-2xl border border-[#E2E8F0] p-6">
@@ -128,7 +128,7 @@ export default function CaseDetailPage() {
               <div className="text-sm space-y-2">
                 <div className="font-semibold">{c.uploader}</div>
                 <div>Entity {data.entity?.name} · Repeat offender score {data.entity?.riskScore}/100</div>
-                <Link className="text-[#c83328] text-xs" href={`/entities/${c.entityId}`}>Open entity profile</Link>
+                <Link className="text-[#00338D] text-xs" href={`/entities/${c.entityId}`}>Open entity profile</Link>
               </div>
             )}
             {tab === 'related' && (
@@ -150,7 +150,7 @@ export default function CaseDetailPage() {
               <div className="space-y-4">
                 {rights && <DecisionGates gates={rights.gates} />}
                 {rights?.inheritedFromCaseId && (
-                  <div className="text-xs rounded-xl border border-[#c83328]/20 bg-[#c83328]/5 p-3">
+                  <div className="text-xs rounded-xl border border-[#0077C8]/20 bg-[#0077C8]/5 p-3">
                     Rights validation inherited from {rights.inheritedFromCaseId}. Previous rights validation available — confirmation required.
                   </div>
                 )}

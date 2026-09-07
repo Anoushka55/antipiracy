@@ -9,7 +9,7 @@ body {
   margin: 0;
   padding: 0;
   font-family: 'DM Sans', sans-serif;
-  color: #111111;
+  color: #1A1F36;
   background-color: #F4F6F9;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
@@ -20,13 +20,13 @@ h1,h2,h3,h4,h5,h6 { font-family: 'Plus Jakarta Sans', sans-serif; }
 .glass      { background: rgba(255,255,255,0.08); backdrop-filter: blur(16px); border: 1px solid rgba(255,255,255,0.12); }
 .glass-dark { background: rgba(26,31,54,0.82);   backdrop-filter: blur(20px); border: 1px solid rgba(255,255,255,0.08); }
 
-.bg-navy-gradient        { background: linear-gradient(135deg, #c83328 0%, #111111 55%, #0D1428 100%); }
-.bg-navy-gradient-subtle { background: linear-gradient(180deg, #111111 0%, #0D1428 100%); }
+.bg-navy-gradient        { background: linear-gradient(135deg, #00338D 0%, #1A1F36 55%, #0D1428 100%); }
+.bg-navy-gradient-subtle { background: linear-gradient(180deg, #1A1F36 0%, #0D1428 100%); }
 
 .bg-grid-pattern {
   background-image:
-    linear-gradient(rgba(200,51,40,0.05) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(200,51,40,0.05) 1px, transparent 1px);
+    linear-gradient(rgba(0,119,200,0.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0,119,200,0.05) 1px, transparent 1px);
   background-size: 48px 48px;
 }
 
@@ -53,9 +53,9 @@ h1,h2,h3,h4,h5,h6 { font-family: 'Plus Jakarta Sans', sans-serif; }
   animation: shimmer 1.5s infinite;
 }
 
-.ai-output h2 { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 1.05rem; font-weight: 700; color: #c83328; margin-top: 1.25rem; margin-bottom: 0.5rem; border-bottom: 2px solid #E2E8F0; padding-bottom: 0.25rem; }
-.ai-output h3 { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 0.95rem; font-weight: 600; color: #111111; margin-top: 1rem; margin-bottom: 0.35rem; }
+.ai-output h2 { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 1.05rem; font-weight: 700; color: #00338D; margin-top: 1.25rem; margin-bottom: 0.5rem; border-bottom: 2px solid #E2E8F0; padding-bottom: 0.25rem; }
+.ai-output h3 { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 0.95rem; font-weight: 600; color: #0077C8; margin-top: 1rem; margin-bottom: 0.35rem; }
 .ai-output p  { margin-bottom: 0.65rem; line-height: 1.7; font-size: 0.9rem; }
 .ai-output ul { padding-left: 1.25rem; margin-bottom: 0.65rem; }
 .ai-output li { margin-bottom: 0.2rem; font-size: 0.9rem; line-height: 1.6; }
-.ai-output strong { color: #111111; font-weight: 600; }
+.ai-output strong { color: #1A1F36; font-weight: 600; }

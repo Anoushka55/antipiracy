@@ -22,7 +22,7 @@ import { Button } from '@/components/shared/Button';
 import { PageLoader } from '@/components/shared/LoadingDots';
 import { SyntheticBanner } from '@/components/shared/Overlay';
 
-const COLORS = ['#DC2626', '#D4A017', '#c83328', '#00A36C', '#111111', '#c83328'];
+const COLORS = ['#DC2626', '#D4A017', '#0077C8', '#00A36C', '#8B1E3F', '#00338D'];
 
 type LlmCharts = {
   exposure: { model: string; 'Drive 1 elicitation': number; 'Drive 2 reconstruction': number }[];
@@ -128,7 +128,7 @@ export default function ReportsPage() {
             <>
               {preview.charts.map((c) => (
                 <div key={c.title} className="bg-white rounded-2xl border border-[#E2E8F0] p-5">
-                  <div className="text-xs font-semibold text-[#111111]">{c.title}</div>
+                  <div className="text-xs font-semibold text-[#1A1F36]">{c.title}</div>
                   {c.hint && <p className="text-[11px] text-[#6B7280] mt-1 mb-3 leading-relaxed">{c.hint}</p>}
                   <div className={c.hint ? '' : 'mt-3'}>
                     <ChartBlock kind={c.kind} dataKey={c.dataKey} ov={ov} llm={preview.llm} />
@@ -166,7 +166,7 @@ function Kri({ label, value }: { label: string; value: string | number }) {
   return (
     <div className="rounded-lg border border-[#E2E8F0] px-2 py-1.5">
       <div className="text-[#9CA3AF]">{label}</div>
-      <div className="font-mono font-bold text-[#111111]">{value}</div>
+      <div className="font-mono font-bold text-[#1A1F36]">{value}</div>
     </div>
   );
 }
@@ -181,8 +181,8 @@ function ChartBlock({ kind, dataKey, ov, llm }: { kind: string; dataKey: string;
           <YAxis tick={{ fontSize: 11 }} />
           <Tooltip />
           <Legend />
-          <Line type="monotone" dataKey="exposure" name="Exposure index" stroke="#c83328" strokeWidth={2} dot={false} />
-          <Line type="monotone" dataKey="cases" name="New cases" stroke="#111111" strokeWidth={2} dot={false} />
+          <Line type="monotone" dataKey="exposure" name="Exposure index" stroke="#00338D" strokeWidth={2} dot={false} />
+          <Line type="monotone" dataKey="cases" name="New cases" stroke="#0077C8" strokeWidth={2} dot={false} />
           <Line type="monotone" dataKey="removals" name="Removals" stroke="#00A36C" strokeWidth={2} dot={false} />
         </LineChart>
       </ResponsiveContainer>
@@ -196,7 +196,7 @@ function ChartBlock({ kind, dataKey, ov, llm }: { kind: string; dataKey: string;
           <XAxis type="number" tick={{ fontSize: 11 }} />
           <YAxis type="category" dataKey="stage" width={100} tick={{ fontSize: 11 }} />
           <Tooltip />
-          <Bar dataKey="value" fill="#c83328" radius={[0, 6, 6, 0]} />
+          <Bar dataKey="value" fill="#00338D" radius={[0, 6, 6, 0]} />
         </BarChart>
       </ResponsiveContainer>
     );
@@ -246,7 +246,7 @@ function ChartBlock({ kind, dataKey, ov, llm }: { kind: string; dataKey: string;
           <XAxis dataKey="name" tick={{ fontSize: 10 }} />
           <YAxis tick={{ fontSize: 11 }} />
           <Tooltip />
-          <Bar dataKey={key} fill="#c83328" radius={[6, 6, 0, 0]} />
+          <Bar dataKey={key} fill="#0077C8" radius={[6, 6, 0, 0]} />
         </BarChart>
       </ResponsiveContainer>
     );
@@ -259,7 +259,7 @@ function ChartBlock({ kind, dataKey, ov, llm }: { kind: string; dataKey: string;
           <XAxis dataKey="week" tick={{ fontSize: 11 }} />
           <YAxis tick={{ fontSize: 11 }} />
           <Tooltip />
-          <Line type="monotone" dataKey="reappearances" stroke="#c83328" strokeWidth={2} />
+          <Line type="monotone" dataKey="reappearances" stroke="#8B1E3F" strokeWidth={2} />
         </LineChart>
       </ResponsiveContainer>
     );
@@ -272,7 +272,7 @@ function ChartBlock({ kind, dataKey, ov, llm }: { kind: string; dataKey: string;
           <XAxis type="number" unit="%" tick={{ fontSize: 11 }} />
           <YAxis type="category" dataKey="region" width={90} tick={{ fontSize: 11 }} />
           <Tooltip />
-          <Bar dataKey="value" fill="#c83328" radius={[0, 6, 6, 0]} />
+          <Bar dataKey="value" fill="#00338D" radius={[0, 6, 6, 0]} />
         </BarChart>
       </ResponsiveContainer>
     );
@@ -286,8 +286,8 @@ function ChartBlock({ kind, dataKey, ov, llm }: { kind: string; dataKey: string;
           <YAxis unit="%" tick={{ fontSize: 11 }} />
           <Tooltip />
           <Legend />
-          <Bar dataKey="Drive 1 elicitation" fill="#c83328" radius={[6, 6, 0, 0]} />
-          <Bar dataKey="Drive 2 reconstruction" fill="#111111" radius={[6, 6, 0, 0]} />
+          <Bar dataKey="Drive 1 elicitation" fill="#00338D" radius={[6, 6, 0, 0]} />
+          <Bar dataKey="Drive 2 reconstruction" fill="#8B1E3F" radius={[6, 6, 0, 0]} />
         </BarChart>
       </ResponsiveContainer>
     );
@@ -301,7 +301,7 @@ function ChartBlock({ kind, dataKey, ov, llm }: { kind: string; dataKey: string;
           <YAxis tick={{ fontSize: 11 }} />
           <Tooltip />
           <Legend />
-          <Bar dataKey="high" name="High-risk leaks" fill="#c83328" radius={[6, 6, 0, 0]} />
+          <Bar dataKey="high" name="High-risk leaks" fill="#8B1E3F" radius={[6, 6, 0, 0]} />
         </BarChart>
       </ResponsiveContainer>
     );
@@ -315,8 +315,8 @@ function ChartBlock({ kind, dataKey, ov, llm }: { kind: string; dataKey: string;
           <YAxis tick={{ fontSize: 11 }} />
           <Tooltip />
           <Legend />
-          <Bar dataKey="similarity" name="Avg similarity" fill="#c83328" radius={[6, 6, 0, 0]} />
-          <Bar dataKey="highSimilarity" name="Cases ≥70" fill="#c83328" radius={[6, 6, 0, 0]} />
+          <Bar dataKey="similarity" name="Avg similarity" fill="#00338D" radius={[6, 6, 0, 0]} />
+          <Bar dataKey="highSimilarity" name="Cases ≥70" fill="#8B1E3F" radius={[6, 6, 0, 0]} />
           <Bar dataKey="inconsistent" name="Inconsistent" fill="#D4A017" radius={[6, 6, 0, 0]} />
         </BarChart>
       </ResponsiveContainer>

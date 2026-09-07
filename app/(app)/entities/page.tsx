@@ -38,7 +38,7 @@ export default function EntitiesPage() {
               <div>Reapp. {e.reappearances}</div>
             </div>
             <div className="mt-2 flex gap-1 flex-wrap">{e.labels.map((l) => <Badge key={l} color="red">{l}</Badge>)}</div>
-            <button className="text-[11px] text-[#c83328] mt-2" onClick={(ev) => { ev.preventDefault(); setWhy(e); }}>Why?</button>
+            <button className="text-[11px] text-[#00338D] mt-2" onClick={(ev) => { ev.preventDefault(); setWhy(e); }}>Why?</button>
           </Link>
         ))}
       </div>

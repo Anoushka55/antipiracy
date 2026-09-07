@@ -141,11 +141,11 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
                       href={item.href}
                       className={`flex items-center gap-3 px-2.5 py-2 rounded-lg transition-colors group ${
                         isActive
-                          ? 'bg-[#c83328]/25 border border-[#c83328]/30 text-white'
+                          ? 'bg-[#00338D]/25 border border-[#00338D]/30 text-white'
                           : 'text-white/50 hover:text-white hover:bg-white/5 border border-transparent'
                       }`}
                     >
-                      <Icon size={16} className={`flex-shrink-0 ${isActive ? 'text-[#c83328]' : 'group-hover:text-white/80'}`} />
+                      <Icon size={16} className={`flex-shrink-0 ${isActive ? 'text-[#0077C8]' : 'group-hover:text-white/80'}`} />
                       {!collapsed && <span className="text-xs font-semibold truncate">{item.label}</span>}
                     </Link>
                   );
@@ -187,7 +187,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder="Search cases, findings, ISBN..."
-              className="w-full bg-white/5 border border-white/10 rounded-lg pl-8 pr-3 py-1.5 text-xs text-white placeholder:text-white/30 focus:outline-none focus:border-[#c83328]/50 transition-colors"
+              className="w-full bg-white/5 border border-white/10 rounded-lg pl-8 pr-3 py-1.5 text-xs text-white placeholder:text-white/30 focus:outline-none focus:border-[#0077C8]/50 transition-colors"
             />
             {results && (
               <div className="absolute top-9 left-0 right-0 bg-white rounded-xl border border-[#E2E8F0] shadow-lg z-50 p-3 max-h-80 overflow-y-auto">
@@ -199,7 +199,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
                       <Link
                         key={r.id}
                         href={g === 'cases' ? `/cases/${r.id}` : g === 'findings' ? `/discovery?id=${r.id}` : g === 'assets' ? `/catalogue/${r.id}` : g === 'evidence' ? `/evidence?id=${r.id}` : `/entities/${r.id}`}
-                        className="block text-xs py-1 text-[#c83328] hover:underline"
+                        className="block text-xs py-1 text-[#00338D] hover:underline"
                         onClick={() => setSearch('')}
                       >
                         {r.id} · {r.title || r.name || r.suspectedTitle}
@@ -226,7 +226,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
               <div className="absolute right-0 top-10 w-80 bg-white rounded-xl border border-[#E2E8F0] shadow-lg z-50 p-3 max-h-96 overflow-y-auto">
                 <div className="text-[10px] font-bold uppercase tracking-widest text-[#9CA3AF] mb-2">Notifications</div>
                 {notes.slice(0, 12).map((n) => (
-                  <div key={n.id} className="text-xs py-2 border-b border-[#E2E8F0] last:border-0 text-[#111111]">{n.title}</div>
+                  <div key={n.id} className="text-xs py-2 border-b border-[#E2E8F0] last:border-0 text-[#1A1F36]">{n.title}</div>
                 ))}
               </div>
             )}

@@ -36,7 +36,7 @@ export default function EntityDetailPage() {
         {data.cases.length === 0 && <p className="text-xs text-[#6B7280]">No live cases currently attached to this entity.</p>}
         {data.cases.map((c) => (
           <div key={c.id} className="text-xs py-1">
-            <Link className="text-[#c83328] font-mono" href={`/cases/${c.id}`}>{c.id}</Link> {c.title}
+            <Link className="text-[#00338D] font-mono" href={`/cases/${c.id}`}>{c.id}</Link> {c.title}
           </div>
         ))}
       </div>

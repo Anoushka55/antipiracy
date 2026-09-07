@@ -8,18 +8,11 @@ module.exports = {
   theme: {
     extend: {
       colors: {
-        schand: {
-          red: "#c83328",
-          "red-dark": "#a82a22",
-          "red-light": "#fdf2f1",
-          black: "#111111",
-          white: "#ffffff",
-        },
-        navy: "#c83328",
-        "navy-deep": "#111111",
+        navy: "#00338D",
+        "navy-deep": "#1A1F36",
         "navy-darker": "#0D1428",
-        accent: "#c83328",
-        "accent-light": "#d94a3f",
+        accent: "#0077C8",
+        "accent-light": "#1A8FE3",
         success: "#00A36C",
         amber: "#D4A017",
         danger: "#DC2626",
@@ -28,9 +21,10 @@ module.exports = {
         "danger-light": "#FEF2F2",
         "grey-bg": "#F4F6F9",
         "grey-border": "#E2E8F0",
-        "text-primary": "#111111",
+        "text-primary": "#1A1F36",
         "text-secondary": "#6B7280",
         "text-muted": "#9CA3AF",
+        schand: "#8B1E3F",
       },
       fontFamily: {
         heading: ["'Plus Jakarta Sans'", "sans-serif"],
