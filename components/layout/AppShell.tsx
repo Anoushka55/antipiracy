@@ -29,6 +29,7 @@ import { navAllowed } from '@/lib/rbac';
 import { api, post } from '@/lib/client';
 import type { Role, SessionUser } from '@/lib/types';
 import { SyntheticBanner } from '@/components/shared/Overlay';
+import KBot from '@/components/layout/KBot';
 
 const ICONS: Record<string, React.ComponentType<{ size?: number; className?: string }>> = {
   overview: LayoutDashboard,
@@ -260,6 +261,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
         )}
         <main className="flex-1 overflow-y-auto">{children}</main>
       </div>
+      <KBot user={user ? { name: user.name, role: user.role as Role } : null} pathname={pathname} />
     </div>
   );
 }
