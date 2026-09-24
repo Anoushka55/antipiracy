@@ -10,9 +10,10 @@ import { Badge, PlatformBadge, RiskBadge, SlaBadge } from '@/components/shared/B
 import { PageLoader } from '@/components/shared/LoadingDots';
 import { Drawer, Toast } from '@/components/shared/Overlay';
 import { AIRecommendationCard, ClosedLoopDiagram, DecisionGates, Timeline } from '@/components/shared/Domain';
+import { JourneyStepper } from '@/components/shared/JourneyStepper';
 import { CASE_STATUS_LABEL, NOTICE_ROUTE_LABEL } from '@/lib/constants';
 import { slaProgressLabel } from '@/lib/sla';
-import type { CaseRecord, Evidence, Finding, LegalReview, Notice, Reappearance, RightsValidation } from '@/lib/types';
+import type { CaseRecord, Evidence, Finding, LegalReview, Notice, Reappearance, Role, RightsValidation } from '@/lib/types';
 
 export default function CaseDetailPage() {
   const { id } = useParams<{ id: string }>();
@@ -56,6 +57,13 @@ export default function CaseDetailPage() {
           <SlaBadge state={c.slaState} label={slaProgressLabel(c.createdAt, c.slaHours)} />
         </div>
       </div>
+
+      <JourneyStepper
+        transitions={data.transitions}
+        currentStatus={c.status}
+        escalation={data.escalation}
+        users={data.users}
+      />
 
       {(c.status === 'removed' || c.status === 'monitoring') && monitoring && (
         <div className="rounded-2xl border border-[#00A36C]/30 bg-[#F0FDF4] p-5">
@@ -311,4 +319,6 @@ interface CasePayload {
   ai?: { recommendation: string; confidence: number; model: string; version: string; promptVersion: string; timestamp: string; methodology: string; inputs: Record<string, unknown> };
   route?: { route: string; confidence: string; reason: string };
   owner?: { name: string };
+  escalation?: { id: string; reason: string; status: string; notifyRoles: Role[]; createdAt: string };
+  users?: { id: string; name: string }[];
 }

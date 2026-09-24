@@ -252,6 +252,17 @@ export interface WorkflowStageGuide {
   whatHappensHere: string;
   whoActs: Role[];
   nextAction: string;
+  /**
+   * Position on the canonical happy-path spine (0-indexed), or null if this
+   * status is a branch/detour rather than a spine stage. Used by the
+   * JourneyStepper component to render a horizontal step tracker.
+   */
+  spineIndex: number | null;
+  /**
+   * For detour statuses (spineIndex === null), which spine status this
+   * branched off from — the stepper anchors the detour badge there.
+   */
+  detourFrom?: CaseStatus;
 }
 
 export const WORKFLOW_STAGES: WorkflowStageGuide[] = [
@@ -261,6 +272,7 @@ export const WORKFLOW_STAGES: WorkflowStageGuide[] = [
     whatHappensHere: "The case has just been created from a promoted finding and hasn't been picked up yet.",
     whoActs: ["investigator", "lead"],
     nextAction: "Assign the case (or pick it up) and begin the investigation.",
+    spineIndex: 0,
   },
   {
     status: "investigating",
@@ -268,6 +280,7 @@ export const WORKFLOW_STAGES: WorkflowStageGuide[] = [
     whatHappensHere: "An investigator is gathering evidence and confirming the infringement is real.",
     whoActs: ["investigator", "lead"],
     nextAction: "Confirm infringement once you have enough evidence — this moves the case into rights validation.",
+    spineIndex: 1,
   },
   {
     status: "rights_validation",
@@ -275,6 +288,7 @@ export const WORKFLOW_STAGES: WorkflowStageGuide[] = [
     whatHappensHere: "The case is being checked against the four gates: rights ownership, infringement substantiated, authorization, and actionable target.",
     whoActs: ["legal"],
     nextAction: "A Legal reviewer approves rights once all four gates pass (or are put on hold with a reason).",
+    spineIndex: 2,
   },
   {
     status: "legal_review",
@@ -282,6 +296,7 @@ export const WORKFLOW_STAGES: WorkflowStageGuide[] = [
     whatHappensHere: "Legal is reviewing the case for jurisdiction, notice route, and overall legal soundness.",
     whoActs: ["legal"],
     nextAction: "Legal approves, holds, or rejects the case.",
+    spineIndex: 3,
   },
   {
     status: "legal_approved",
@@ -289,6 +304,7 @@ export const WORKFLOW_STAGES: WorkflowStageGuide[] = [
     whatHappensHere: "Legal has approved the case — a takedown notice can now be generated.",
     whoActs: ["legal"],
     nextAction: "Generate the notice using the recommended notice route.",
+    spineIndex: 4,
   },
   {
     status: "notice_ready",
@@ -296,6 +312,7 @@ export const WORKFLOW_STAGES: WorkflowStageGuide[] = [
     whatHappensHere: "A notice has been drafted and approved, and is ready for submission to the platform.",
     whoActs: ["legal", "operations"],
     nextAction: "Submit the notice from the Enforcement page.",
+    spineIndex: 5,
   },
   {
     status: "submitted",
@@ -303,6 +320,7 @@ export const WORKFLOW_STAGES: WorkflowStageGuide[] = [
     whatHappensHere: "The notice has been (simulated) submitted to the hosting platform or registrar.",
     whoActs: ["operations"],
     nextAction: "Wait for or record the platform's response.",
+    spineIndex: 6,
   },
   {
     status: "awaiting_response",
@@ -310,6 +328,7 @@ export const WORKFLOW_STAGES: WorkflowStageGuide[] = [
     whatHappensHere: "Waiting on the platform to act on the submitted notice.",
     whoActs: ["operations"],
     nextAction: "Record the platform's response when it comes in (removed, rejected, more info, or no response).",
+    spineIndex: 7,
   },
   {
     status: "removed",
@@ -317,13 +336,7 @@ export const WORKFLOW_STAGES: WorkflowStageGuide[] = [
     whatHappensHere: "The infringing content was taken down. The case is NOT closed yet — a monitoring job starts automatically to watch for reappearance.",
     whoActs: ["operations", "lead"],
     nextAction: "Let monitoring run; close the case once the monitoring window passes without reappearance.",
-  },
-  {
-    status: "escalated",
-    label: "Escalated",
-    whatHappensHere: "The case has been flagged for priority attention — usually due to an SLA breach, reappearance, or critical priority.",
-    whoActs: ["lead", "legal"],
-    nextAction: "A lead or legal reviewer should acknowledge and resolve the escalation.",
+    spineIndex: 8,
   },
   {
     status: "monitoring",
@@ -331,13 +344,7 @@ export const WORKFLOW_STAGES: WorkflowStageGuide[] = [
     whatHappensHere: "A monitoring job is actively watching for reappearance of the removed content.",
     whoActs: ["investigator", "lead"],
     nextAction: "If a reappearance is detected on the Radar page, confirm it to link it back to this case.",
-  },
-  {
-    status: "reopened",
-    label: "Reopened",
-    whatHappensHere: "A confirmed reappearance caused this case to be reopened for a fresh enforcement cycle.",
-    whoActs: ["investigator", "lead"],
-    nextAction: "Treat it like a case in Investigating — re-confirm and move it back through rights validation.",
+    spineIndex: 9,
   },
   {
     status: "closed",
@@ -345,6 +352,25 @@ export const WORKFLOW_STAGES: WorkflowStageGuide[] = [
     whatHappensHere: "The case is fully resolved with no further action needed.",
     whoActs: ["lead"],
     nextAction: "No action needed — this is the end state.",
+    spineIndex: 10,
+  },
+  {
+    status: "escalated",
+    label: "Escalated",
+    whatHappensHere: "The case has been flagged for priority attention — usually due to an SLA breach, reappearance, or critical priority.",
+    whoActs: ["lead", "legal"],
+    nextAction: "A lead or legal reviewer should acknowledge and resolve the escalation.",
+    spineIndex: null,
+    detourFrom: "awaiting_response",
+  },
+  {
+    status: "reopened",
+    label: "Reopened",
+    whatHappensHere: "A confirmed reappearance caused this case to be reopened for a fresh enforcement cycle.",
+    whoActs: ["investigator", "lead"],
+    nextAction: "Treat it like a case in Investigating — re-confirm and move it back through rights validation.",
+    spineIndex: null,
+    detourFrom: "monitoring",
   },
   {
     status: "approved_hold",
@@ -352,6 +378,8 @@ export const WORKFLOW_STAGES: WorkflowStageGuide[] = [
     whatHappensHere: "Rights were validated but one or more gates are on hold pending more information.",
     whoActs: ["legal"],
     nextAction: "Resolve the hold (get the missing information) then re-approve rights.",
+    spineIndex: null,
+    detourFrom: "rights_validation",
   },
   {
     status: "rejected",
@@ -359,8 +387,14 @@ export const WORKFLOW_STAGES: WorkflowStageGuide[] = [
     whatHappensHere: "Legal or rights validation rejected the case — it will not proceed to enforcement.",
     whoActs: ["legal"],
     nextAction: "No further enforcement action; the case is closed out as rejected.",
+    spineIndex: null,
+    detourFrom: "legal_review",
   },
 ];
+
+export const SPINE_STAGES = WORKFLOW_STAGES.filter((s) => s.spineIndex !== null).sort(
+  (a, b) => (a.spineIndex as number) - (b.spineIndex as number)
+);
 
 export const GATE_LABELS: Record<string, string> = {
   rightsOwnership: "Rights Ownership",

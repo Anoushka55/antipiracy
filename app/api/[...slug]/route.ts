@@ -148,6 +148,8 @@ export async function GET(req: NextRequest) {
       ai: MockAIService.classifyFinding(state.findings.find((f) => f.id === rec.findingId) ?? {}),
       route: MockAIService.recommendNoticeRoute(rec.platform),
       owner: state.users.find((u) => u.id === rec.ownerId),
+      escalation: state.escalations.find((e) => e.caseId === rec.id),
+      users: state.users.filter((u) => u.tenantId === rec.tenantId).map((u) => ({ id: u.id, name: u.name })),
     });
   }
 
