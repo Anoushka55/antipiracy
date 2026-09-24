@@ -60,3 +60,17 @@ export function SlaBadge({ state, label }: { state: string; label?: string }) {
   const text = label ?? (state === 'breached' ? 'SLA Breached' : state === 'approaching' ? 'Approaching SLA' : 'Within SLA');
   return <Badge color={color}>{text}</Badge>;
 }
+
+/**
+ * Signals whether a labeled system/service is real deterministic logic or a
+ * simulated/mocked stand-in for a future production integration — the same
+ * distinction already made throughout this app (MockAIService, simulated
+ * submissions, synthetic-data banners), surfaced as a small reusable pill.
+ */
+export function RealityBadge({ tone }: { tone: 'deterministic' | 'simulated' }) {
+  return (
+    <Badge color={tone === 'deterministic' ? 'navy' : 'amber'} size="xs">
+      {tone === 'deterministic' ? 'DETERMINISTIC' : 'SIMULATED'}
+    </Badge>
+  );
+}

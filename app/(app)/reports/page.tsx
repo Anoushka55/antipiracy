@@ -20,7 +20,6 @@ import { useApi } from '@/hooks/useApi';
 import { api } from '@/lib/client';
 import { Button } from '@/components/shared/Button';
 import { PageLoader } from '@/components/shared/LoadingDots';
-import { SyntheticBanner } from '@/components/shared/Overlay';
 
 const COLORS = ['#DC2626', '#D4A017', '#0077C8', '#00A36C', '#8B1E3F', '#00338D'];
 
@@ -90,7 +89,6 @@ export default function ReportsPage() {
           <h1 className="text-2xl font-bold">Reports</h1>
           <p className="text-sm text-[#6B7280]">KPI / KRI pack is internally consistent — charts, cards and narrative use the same numbers.</p>
         </div>
-        <SyntheticBanner />
       </div>
       <div className="grid grid-cols-1 lg:grid-cols-5 gap-4">
         <div className="lg:col-span-2 bg-white rounded-2xl border border-[#E2E8F0] p-6 space-y-3">

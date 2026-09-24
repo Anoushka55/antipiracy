@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { Line, LineChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis, BarChart, Bar } from 'recharts';
 import { useApi } from '@/hooks/useApi';
 import { PageLoader } from '@/components/shared/LoadingDots';
-import { Drawer, SyntheticBanner } from '@/components/shared/Overlay';
+import { Drawer } from '@/components/shared/Overlay';
 import { AIRecommendationCard } from '@/components/shared/Domain';
 import { KPICard } from '@/components/shared/Card';
 import type { FinancialEstimate } from '@/lib/types';
@@ -26,7 +26,6 @@ export default function AnalyticsPage() {
           <h1 className="text-2xl font-bold">AI Risk & Predictive Analytics</h1>
           <p className="text-sm text-[#6B7280]">Deterministic synthetic AI outputs. Predictions are not presented as facts.</p>
         </div>
-        <SyntheticBanner />
       </div>
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         <KPICard title="Closed-loop recovery (KPI)" value={`${data.overview.kpis.closedLoopRecoveryRate}%`} unit="linked reappearances / detected" statusColor="#00A36C" />

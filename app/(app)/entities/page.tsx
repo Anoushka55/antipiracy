@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { useApi } from '@/hooks/useApi';
 import { Badge } from '@/components/shared/Badge';
 import { PageLoader } from '@/components/shared/LoadingDots';
-import { Drawer, SyntheticBanner } from '@/components/shared/Overlay';
+import { Drawer } from '@/components/shared/Overlay';
 import { EntityNetwork } from '@/components/shared/EntityGraph';
 import { useState } from 'react';
 import type { EntityRecord, EntityRelationship } from '@/lib/types';
@@ -20,7 +20,6 @@ export default function EntitiesPage() {
           <h1 className="text-2xl font-bold">Repeat Offender Intelligence</h1>
           <p className="text-sm text-[#6B7280]">Entity clustering across uploaders, channels, domains and marketplace sellers. Scores are deterministic and configurable.</p>
         </div>
-        <SyntheticBanner />
       </div>
       <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
         {data.items.map((e) => (

@@ -20,7 +20,6 @@ import { Activity, AlertTriangle, Clock, IndianRupee, Radar, ShieldAlert, Target
 import { useApi } from '@/hooks/useApi';
 import { MetricCard } from '@/components/shared/Card';
 import { PageLoader } from '@/components/shared/LoadingDots';
-import { SyntheticBanner } from '@/components/shared/Overlay';
 import { ClosedLoopDiagram } from '@/components/shared/Domain';
 
 type Slice = { name: string; value: number; pct?: number; color?: string; action?: string };
@@ -69,7 +68,6 @@ export default function OverviewPage() {
           <h1 className="text-2xl font-bold text-[#1A1F36]">Anti-Piracy Command Center</h1>
           <p className="text-sm text-[#6B7280] mt-1">Enterprise IP Protection & Enforcement Overview · S. Chand & Company</p>
         </div>
-        <SyntheticBanner />
       </div>
 
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">

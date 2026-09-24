@@ -23,12 +23,12 @@ import {
   ScrollText,
   LogOut,
   Bot,
+  Network,
 } from 'lucide-react';
 import { NAV_GROUPS, ROLE_LABEL, KPMG_LOGO, SCHAND_LOGO } from '@/lib/constants';
 import { navAllowed } from '@/lib/rbac';
 import { api, post } from '@/lib/client';
 import type { Role, SessionUser } from '@/lib/types';
-import { SyntheticBanner } from '@/components/shared/Overlay';
 import KBot from '@/components/layout/KBot';
 
 const ICONS: Record<string, React.ComponentType<{ size?: number; className?: string }>> = {
@@ -65,6 +65,7 @@ const PAGE_TITLES: Record<string, string> = {
   '/audit': 'Audit Log',
   '/entities': 'Repeat Offenders',
   '/llm-probing': 'LLM Exposure',
+  '/architecture': 'Architecture',
 };
 
 export default function AppShell({ children }: { children: React.ReactNode }) {
@@ -72,7 +73,6 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
   const router = useRouter();
   const [collapsed, setCollapsed] = useState(false);
   const [user, setUser] = useState<SessionUser | null>(null);
-  const [demoMode, setDemoMode] = useState(true);
   const [search, setSearch] = useState('');
   const [results, setResults] = useState<Record<string, { id: string; title?: string; name?: string; suspectedTitle?: string }[]> | null>(null);
   const [notes, setNotes] = useState<{ id: string; title: string; unread?: boolean; read?: boolean }[]>([]);
@@ -82,7 +82,6 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
     api<{ user: SessionUser; demoMode: boolean }>('me')
       .then((d) => {
         setUser(d.user);
-        setDemoMode(d.demoMode);
       })
       .catch(() => router.push('/'));
     api<{ items: { id: string; title: string; read: boolean }[] }>('notifications').then((d) => setNotes(d.items ?? []));
@@ -212,10 +211,20 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
             )}
           </div>
 
+          <Link
+            href="/architecture"
+            className={`hidden md:flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-semibold transition-colors ${
+              pathname === '/architecture'
+                ? 'bg-[#00338D]/25 text-white border border-[#00338D]/30'
+                : 'text-white/60 hover:text-white hover:bg-white/5 border border-transparent'
+            }`}
+          >
+            <Network size={14} />
+            Architecture
+          </Link>
+
           <div className="hidden md:flex items-center gap-2">
             <span className="text-[10px] text-white/50">Tenant <span className="text-white">S. Chand & Company</span></span>
-            <span className="text-white/20">|</span>
-            <span className="text-[10px] text-white/50">Environment <span className="text-[#D4A017]">Prototype / Synthetic Data</span></span>
           </div>
 
           <div className="relative">
@@ -252,13 +261,6 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
             </div>
           )}
         </header>
-        {demoMode && (
-          <div className="h-8 flex-shrink-0 bg-[#FFFBEB] border-b border-[#D4A017]/20 flex items-center px-4 gap-3">
-            <SyntheticBanner text="PROTOTYPE" />
-            <SyntheticBanner />
-            <span className="text-[11px] text-[#6B7280]">No live scraping, notices or legal filings are performed.</span>
-          </div>
-        )}
         <main className="flex-1 overflow-y-auto">{children}</main>
       </div>
       <KBot user={user ? { name: user.name, role: user.role as Role } : null} pathname={pathname} />

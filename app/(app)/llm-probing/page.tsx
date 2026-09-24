@@ -19,7 +19,7 @@ import { useApi } from '@/hooks/useApi';
 import { Badge, RiskBadge } from '@/components/shared/Badge';
 import { KPICard, MetricCard } from '@/components/shared/Card';
 import { PageLoader } from '@/components/shared/LoadingDots';
-import { Drawer, SyntheticBanner } from '@/components/shared/Overlay';
+import { Drawer } from '@/components/shared/Overlay';
 import { AIRecommendationCard } from '@/components/shared/Domain';
 import type { LlmFinding } from '@/lib/llm-probe';
 
@@ -161,7 +161,6 @@ export default function LlmProbingPage() {
             ))}
           </div>
         </div>
-        <SyntheticBanner text="SYNTHETIC CAMPAIGN DATA" />
       </div>
 
       <div className="flex flex-wrap gap-2 bg-[#F4F6F9] p-1.5 rounded-xl border border-[#E2E8F0] w-fit">
