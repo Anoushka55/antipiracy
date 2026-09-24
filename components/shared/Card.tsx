@@ -24,11 +24,14 @@ export function DarkCard({ children, className = '', padding = 'p-6' }: {
   );
 }
 
-export function MetricCard({ label, value, unit, icon: Icon, color = '#0077C8', trend }: {
-  label: string; value: React.ReactNode; unit?: string; icon?: React.ComponentType<{ size?: number; style?: React.CSSProperties }>; color?: string; trend?: number;
+export function MetricCard({ label, value, unit, icon: Icon, color = '#0077C8', trend, onDoubleClick }: {
+  label: string; value: React.ReactNode; unit?: string; icon?: React.ComponentType<{ size?: number; style?: React.CSSProperties }>; color?: string; trend?: number; onDoubleClick?: () => void;
 }) {
   return (
-    <div className="bg-white rounded-2xl border border-[#E2E8F0] p-5 shadow-[0_1px_3px_0_rgba(0,0,0,0.08)] hover:shadow-[0_4px_12px_rgba(0,51,141,0.1)] transition-all duration-200">
+    <div
+      onDoubleClick={onDoubleClick}
+      className={`bg-white rounded-2xl border border-[#E2E8F0] p-5 shadow-[0_1px_3px_0_rgba(0,0,0,0.08)] hover:shadow-[0_4px_12px_rgba(0,51,141,0.1)] transition-all duration-200 ${onDoubleClick ? 'cursor-pointer hover:-translate-y-0.5' : ''}`}
+    >
       <div className="flex items-start justify-between mb-3">
         <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ backgroundColor: color + '18' }}>
           {Icon && <Icon size={20} style={{ color }} />}
@@ -48,12 +51,13 @@ export function MetricCard({ label, value, unit, icon: Icon, color = '#0077C8', 
   );
 }
 
-export function KPICard({ title, value, unit, statusColor = '#0077C8' }: {
-  title: string; value: React.ReactNode; unit?: string; statusColor?: string;
+export function KPICard({ title, value, unit, statusColor = '#0077C8', onDoubleClick }: {
+  title: string; value: React.ReactNode; unit?: string; statusColor?: string; onDoubleClick?: () => void;
 }) {
   return (
     <div
-      className="bg-white rounded-xl border border-[#E2E8F0] border-l-[3px] p-4 min-w-[160px] shadow-sm hover:shadow-md transition-all duration-200"
+      onDoubleClick={onDoubleClick}
+      className={`bg-white rounded-xl border border-[#E2E8F0] border-l-[3px] p-4 min-w-[160px] shadow-sm hover:shadow-md transition-all duration-200 ${onDoubleClick ? 'cursor-pointer hover:-translate-y-0.5' : ''}`}
       style={{ borderLeftColor: statusColor }}
     >
       <div className="text-[10px] font-bold uppercase tracking-widest text-[#9CA3AF] mb-1">{title}</div>

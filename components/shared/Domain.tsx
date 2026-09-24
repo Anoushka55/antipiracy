@@ -32,6 +32,7 @@ export function AIRecommendationCard({
   timestamp,
   methodology,
   inputs,
+  onDoubleClick,
 }: {
   recommendation: string;
   confidence: number;
@@ -41,9 +42,13 @@ export function AIRecommendationCard({
   timestamp?: string;
   methodology?: string;
   inputs?: Record<string, unknown>;
+  onDoubleClick?: () => void;
 }) {
   return (
-    <div className="rounded-xl border border-[#00338D]/15 bg-[#00338D]/5 p-4">
+    <div
+      onDoubleClick={onDoubleClick}
+      className={`rounded-xl border border-[#00338D]/15 bg-[#00338D]/5 p-4 ${onDoubleClick ? 'cursor-pointer transition-transform duration-200 hover:-translate-y-0.5' : ''}`}
+    >
       <div className="flex items-center justify-between mb-2">
         <div className="text-[10px] font-bold uppercase tracking-widest text-[#00338D]">AI Recommendation</div>
         <span className="text-[10px] font-semibold px-2 py-0.5 rounded-md bg-[#0077C8]/10 text-[#0077C8] border border-[#0077C8]/20">
