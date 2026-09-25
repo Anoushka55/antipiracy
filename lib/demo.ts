@@ -51,6 +51,41 @@ export function startDiscoveryJob(state: AppState, user: SessionUser) {
   return { job: j, result: j.result };
 }
 
+export function uploadDiscoveryDataset(state: AppState, user: SessionUser, filename: string) {
+  const label = filename || "uploaded dataset";
+  const j = job("discovery", `DATASET UPLOAD — processing ${label}`);
+  state.jobs.unshift(j);
+  const urls = new Set(state.findings.map((f) => f.url));
+  const result = runDiscoveryScan(urls);
+  result.findings.forEach((f) => {
+    f.jobId = j.id;
+    f.sourceConnector = `Uploaded dataset (${label})`;
+    f.metadata = { ...f.metadata, connector: f.sourceConnector, uploadedFile: label };
+    state.findings.unshift(f);
+  });
+  j.status = "completed";
+  j.progress = 100;
+  j.completedAt = new Date().toISOString();
+  j.message = `Dataset upload processed: ${label}`;
+  j.result = {
+    sourcesScanned: result.sourcesScanned,
+    newFindings: result.newFindings,
+    duplicatesRemoved: result.duplicatesRemoved,
+    highConfidence: result.highConfidence,
+    critical: result.critical,
+    filename: label,
+    simulated: true,
+  };
+  j.logs.push(
+    `Uploaded file: ${label}`,
+    `New findings: ${result.newFindings}`,
+    `Duplicates removed: ${result.duplicatesRemoved}`,
+    `High-confidence matches: ${result.highConfidence}`,
+    `Critical findings: ${result.critical}`
+  );
+  return { job: j, result: j.result };
+}
+
 export function seedDemoScenario(state: AppState) {
   const fresh = buildSeed();
   Object.keys(fresh).forEach((k) => {

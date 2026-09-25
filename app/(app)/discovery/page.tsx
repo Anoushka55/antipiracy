@@ -2,11 +2,12 @@
 
 import { useMemo, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
+import { Upload } from 'lucide-react';
 import { useApi } from '@/hooks/useApi';
 import { post } from '@/lib/client';
 import { Button } from '@/components/shared/Button';
 import { Badge, PlatformBadge, RiskBadge } from '@/components/shared/Badge';
-import { Drawer, Toast } from '@/components/shared/Overlay';
+import { Drawer, Modal, Toast } from '@/components/shared/Overlay';
 import { AIRecommendationCard } from '@/components/shared/Domain';
 import { PageLoader } from '@/components/shared/LoadingDots';
 import type { Finding } from '@/lib/types';
@@ -28,7 +29,10 @@ export default function DiscoveryPage() {
   const [selected, setSelected] = useState<string | null>(params.get('id'));
   const [toast, setToast] = useState('');
   const [scan, setScan] = useState<Record<string, unknown> | null>(null);
+  const [scanLabel, setScanLabel] = useState('Simulated Discovery Run');
   const [busy, setBusy] = useState(false);
+  const [uploadOpen, setUploadOpen] = useState(false);
+  const [uploadFile, setUploadFile] = useState<File | null>(null);
   const { data, loading, refresh } = useApi<{ items: Finding[]; total: number; newCount: number }>(`findings?tab=${tab}`);
 
   async function runScan() {
@@ -36,10 +40,29 @@ export default function DiscoveryPage() {
     try {
       const r = await post<{ result: Record<string, unknown> }>('discovery/run');
       setScan(r.result);
+      setScanLabel('Simulated Discovery Run');
       setToast('SIMULATED DISCOVERY RUN complete');
       await refresh();
     } catch (e) {
       setToast(e instanceof Error ? e.message : 'Scan failed');
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function uploadDataset() {
+    if (!uploadFile) return;
+    setBusy(true);
+    try {
+      const r = await post<{ result: Record<string, unknown> }>('discovery/upload', { filename: uploadFile.name });
+      setScan(r.result);
+      setScanLabel('Dataset Upload Complete');
+      setToast(`Dataset "${uploadFile.name}" processed`);
+      setUploadOpen(false);
+      setUploadFile(null);
+      await refresh();
+    } catch (e) {
+      setToast(e instanceof Error ? e.message : 'Upload failed');
     } finally {
       setBusy(false);
     }
@@ -52,11 +75,14 @@ export default function DiscoveryPage() {
           <h1 className="text-2xl font-bold">Discovery Inbox</h1>
           <p className="text-sm text-[#6B7280]">{data?.newCount ?? 0} new findings · OSINT intake for S. Chand catalogue</p>
         </div>
-        <Button onClick={runScan} disabled={busy}>{busy ? 'Scanning…' : 'Run Discovery Scan'}</Button>
+        <div className="flex gap-2">
+          <Button variant="outline" onClick={() => setUploadOpen(true)} disabled={busy}><Upload size={14} />Upload Dataset</Button>
+          <Button onClick={runScan} disabled={busy}>{busy ? 'Scanning…' : 'Run Discovery Scan'}</Button>
+        </div>
       </div>
       {scan && (
         <div className="rounded-2xl border border-[#0077C8]/20 bg-[#0077C8]/5 p-4 text-sm">
-          <div className="text-[10px] font-bold uppercase tracking-widest text-[#0077C8] mb-1">Simulated Discovery Run</div>
+          <div className="text-[10px] font-bold uppercase tracking-widest text-[#0077C8] mb-1">{scanLabel}</div>
           Sources scanned: {String(scan.sourcesScanned)} · New findings: {String(scan.newFindings)} · Duplicates removed: {String(scan.duplicatesRemoved)} · High-confidence: {String(scan.highConfidence)} · Critical: {String(scan.critical)}
         </div>
       )}
@@ -117,6 +143,30 @@ export default function DiscoveryPage() {
         />
       )}
       {toast && <Toast message={toast} onDone={() => setToast('')} />}
+      {uploadOpen && (
+        <Modal title="Upload Dataset" onClose={() => { setUploadOpen(false); setUploadFile(null); }}>
+          <div className="space-y-4">
+            <p className="text-xs text-[#6B7280]">
+              Upload a findings dataset (e.g. an export from a monitoring tool) to feed into the discovery pipeline. This is a synthetic demo — the file name is used to tag the resulting findings; file contents are not parsed.
+            </p>
+            <div>
+              <label className="text-xs text-[#6B7280] block mb-1">Dataset file</label>
+              <input
+                type="file"
+                onChange={(e) => setUploadFile(e.target.files?.[0] ?? null)}
+                className="w-full text-xs px-3 py-2 rounded-lg border border-[#E2E8F0] text-[#1A1F36] file:mr-3 file:py-1 file:px-3 file:rounded-md file:border-0 file:bg-[#00338D]/10 file:text-[#00338D] file:text-xs file:font-semibold"
+              />
+              {uploadFile && (
+                <p className="text-[11px] text-[#9CA3AF] mt-1.5">Selected: {uploadFile.name} ({Math.round(uploadFile.size / 1024)} KB)</p>
+              )}
+            </div>
+            <div className="flex justify-end gap-2">
+              <Button variant="ghost" size="sm" onClick={() => { setUploadOpen(false); setUploadFile(null); }} disabled={busy}>Cancel</Button>
+              <Button size="sm" onClick={uploadDataset} disabled={!uploadFile || busy}>{busy ? 'Uploading…' : 'Confirm Upload'}</Button>
+            </div>
+          </div>
+        </Modal>
+      )}
     </div>
   );
 }

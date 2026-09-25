@@ -69,7 +69,7 @@ export default function OverviewPage() {
     activeCases: {
       title: 'Active Cases — Detailed Breakdown',
       subtitle: `${k.activeCases} cases currently open across the enforcement pipeline`,
-      summary: `There are ${k.activeCases} active cases in the pipeline right now. ${ins.riskCheck ?? ''} ${ins.platformInsight ?? ''}`,
+      summary: `Telegram alone accounts for ${data.platformCounts[0]?.value} of the ${k.activeCases} active cases (${data.platformCounts[0]?.pct}%) — the single largest concentration — followed by Google Drive at ${data.platformCounts[1]?.value}. Five flagship titles (Mathematics for Class 10, Lakhmir Singh Science Class 10, English Grammar & Composition, NEET Preparation Series, and Quantitative Aptitude) account for the bulk of priority-risk exposure and should keep the largest share of investigator capacity.`,
       render: () => (
         <div className="space-y-5">
           <DrilldownDonut title="By risk level" rows={data.riskDist} hint={ins.riskCheck} />
@@ -80,7 +80,7 @@ export default function OverviewPage() {
     criticalHigh: {
       title: 'Critical / High Risk — Residual Risk KRI',
       subtitle: `${k.criticalHigh} of ${k.activeCases} active cases`,
-      summary: `${k.criticalHigh} cases (${data.kri?.residualRiskShare ?? Math.round((k.criticalHigh / k.activeCases) * 100)}% of the active book) are Critical or High risk — these need management attention and should not be deprioritised in favor of lower-risk work.`,
+      summary: `Critical cases: ${data.riskDist[0]?.action ?? ''} High cases: ${data.riskDist[1]?.action ?? ''}`,
       render: () => (
         <div className="space-y-4">
           <DrilldownDonut title="Risk distribution" rows={data.riskDist} />
@@ -178,7 +178,7 @@ export default function OverviewPage() {
     platformChart: {
       title: 'Cases by Platform',
       subtitle: 'Distribution of active cases across discovery platforms',
-      summary: `Telegram carries the largest share of active cases and is the dominant distribution channel to monitor daily. Google Drive is notable because pirated folders tend to reconstitute even after a folder-level takedown, so it needs repeat checks rather than a single removal action.`,
+      summary: `${data.platformCounts[0]?.name} carries ${data.platformCounts[0]?.value} of ${k.activeCases} active cases (${data.platformCounts[0]?.pct}%) — ${data.platformCounts[0]?.action}. ${data.platformCounts[1]?.name} is second at ${data.platformCounts[1]?.value} cases — ${data.platformCounts[1]?.action}`,
       render: () => <DrilldownDonut title="Platform mix" rows={data.platformCounts} hint={ins.platformInsight} />,
     },
   };

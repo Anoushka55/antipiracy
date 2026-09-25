@@ -110,7 +110,7 @@ export function executiveOverview() {
     funnel,
     riskDist,
     flagship: [
-      { name: "Flagship / priority", value: k.priorityCases, pct: k.priorityTitleExposure, color: "#8B1E3F", action: "Aggarwal, Lakhmir Singh, Wren & Martin, NEET — hold investigator capacity here" },
+      { name: "Flagship / priority", value: k.priorityCases, pct: k.priorityTitleExposure, color: "#8B1E3F", action: "Aggarwal, Lakhmir Singh, Wren & Martin, NEET, Quantitative Aptitude — hold investigator capacity here" },
       { name: "Non-flagship", value: k.nonPriorityCases, pct: 100 - k.priorityTitleExposure, color: "#00338D", action: "Do not pull staff from priority titles to clear this queue" },
     ],
     removalByPlatform,
@@ -147,7 +147,7 @@ export function executiveOverview() {
       trendCheck: `W12 exposure index 118 vs W11 100 = +${k.wowExposurePct}% into board exams. Weekly new cases doubled from 9 (W1) to 19 (W12); the index is accelerating faster than case intake.`,
       platformInsight: `Telegram holds 48 of ${k.activeCases} cases (${pct(48, k.activeCases)}%) — the dominant distribution KRI. Google Drive 29 (${pct(29, k.activeCases)}%) reconstitutes after folder takedown.`,
       funnelInsight: `${pct(k.validated, k.detected)}% of detections validate. Once a notice is sent, takedown is ${k.takedownRate}% (${k.removed}/${k.noticesSent}). Active book ${k.activeCases} = ${k.caseCreated} created − ${k.closed} closed.`,
-      flagshipInsight: `${k.priorityCases} of ${k.activeCases} active cases (${k.priorityTitleExposure}%) sit on priority titles. Concentrate investigator capacity on Aggarwal, Lakhmir Singh, Wren & Martin and NEET.`,
+      flagshipInsight: `${k.priorityCases} of ${k.activeCases} active cases (${k.priorityTitleExposure}%) sit on priority titles. Concentrate investigator capacity on Aggarwal, Lakhmir Singh, Wren & Martin, NEET, and Quantitative Aptitude.`,
       removalInsight: `Blended ${k.avgRemovalDays} days. Telegram 1.6d is fastest; marketplaces 3.4d and cyberlockers 4.1d pull the mean up and should be escalated earlier.`,
       reappInsight: `Reappearance KRI ${k.reappearanceRate}% = ${k.reappearances} linked events / ${k.monitored} monitored. Weekly count rose from 1 (W1) to 3 (W12). Closed-loop recovery ${k.closedLoopRecoveryRate}%.`,
       geoInsight: `North + West India = 56% of geographic share. UAE/GCC 9% aligns with Telegram hosting patterns — treat as the same distribution ring, not a separate market.`,

@@ -11,6 +11,7 @@ import {
   seedDemoScenario,
   simulatePlatformResponses,
   startDiscoveryJob,
+  uploadDiscoveryDataset,
 } from "@/lib/demo";
 import { MockAIService } from "@/lib/ai";
 import type { FourGates, SessionUser } from "@/lib/types";
@@ -434,6 +435,8 @@ function dispatchAction(state: ReturnType<typeof getStore>, user: SessionUser, p
       return verifyEvidenceHash(state, String(body.evidenceId), user);
     case "discovery/run":
       return startDiscoveryJob(state, user);
+    case "discovery/upload":
+      return uploadDiscoveryDataset(state, user, String(body.filename ?? ""));
     case "demo/reset":
       if (!can(user.role, "demo.controls")) throw new Error("Forbidden: demo.controls");
       resetStore();

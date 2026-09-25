@@ -2,30 +2,16 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import {
-  LayoutDashboard,
-  Compass,
-  BookOpen,
-  FileSearch,
-  Shield,
-  FolderArchive,
-  Gavel,
-  Radar,
-  BarChart3,
-  Users,
-  ScrollText,
-  Settings,
-  SlidersHorizontal,
-  Bot,
-} from 'lucide-react';
-import { api } from '@/lib/client';
+import { ArrowRight, LayoutDashboard, Compass, BookOpen, FileSearch, Shield, FolderArchive, Gavel, Radar, BarChart3, Users, ScrollText, Settings, SlidersHorizontal, Bot, LogOut } from 'lucide-react';
+import { api, post } from '@/lib/client';
 import { ChatThread, type QuickStart } from '@/components/shared/ChatThread';
 import { navAllowed } from '@/lib/rbac';
 import { PAGE_GUIDES } from '@/lib/kbot-knowledge';
-import { KPMG_LOGO, SCHAND_LOGO, destinationForEmail } from '@/lib/constants';
+import { KPMG_LOGO, ROLE_LABEL, SCHAND_LOGO, destinationForEmail } from '@/lib/constants';
 import type { Role, SessionUser } from '@/lib/types';
 
 const PILLARS = ['Discover', 'Investigate', 'Validate', 'Enforce', 'Monitor', 'LLM Probe'];
+const ROLE_ORDER: Role[] = ['executive', 'lead', 'investigator', 'legal', 'operations', 'admin'];
 
 interface QuickStartSpec {
   pageId: string;
@@ -101,6 +87,24 @@ function quickStartsFor(role: Role): QuickStart[] {
   return items;
 }
 
+/** Decorative discover→investigate→enforce→monitor loop, echoing ClosedLoopDiagram's
+ * hand-built SVG style but rendered large and low-opacity as a hero backdrop. */
+function LoopGraphic() {
+  const nodes = [
+    { x: 90, y: 60 }, { x: 260, y: 30 }, { x: 400, y: 90 },
+    { x: 420, y: 220 }, { x: 280, y: 270 }, { x: 120, y: 220 },
+  ];
+  const path = [...nodes, nodes[0]].map((n) => `${n.x},${n.y}`).join(' ');
+  return (
+    <svg viewBox="0 0 480 300" className="absolute inset-0 w-full h-full pointer-events-none" style={{ opacity: 0.35 }}>
+      <polyline points={path} fill="none" stroke="#0077C8" strokeWidth="1" strokeDasharray="3 5" />
+      {nodes.map((n, i) => (
+        <circle key={i} cx={n.x} cy={n.y} r={i === 0 ? 5 : 3.5} fill={i === 0 ? '#D4A017' : '#0077C8'} />
+      ))}
+    </svg>
+  );
+}
+
 export default function WelcomePage() {
   const router = useRouter();
   const [user, setUser] = useState<SessionUser | null>(null);
@@ -118,41 +122,91 @@ export default function WelcomePage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-6" style={{ backgroundColor: '#0D1428' }}>
-      <div className="w-full max-w-5xl grid grid-cols-1 lg:grid-cols-5 gap-6">
-        <div className="lg:col-span-3 p-6 lg:p-8">
-          <div className="flex items-center gap-3 mb-8">
-            <div className="h-8 px-2 rounded bg-white flex items-center">
-              <img src={KPMG_LOGO} alt="KPMG" className="h-5 w-auto object-contain" />
-            </div>
-            <span className="text-white/30">×</span>
-            <div className="h-8 px-2 rounded bg-white flex items-center">
-              <img src={SCHAND_LOGO} alt="S. Chand" className="h-5 w-auto object-contain" />
-            </div>
+    <div className="min-h-screen flex flex-col" style={{ backgroundColor: '#0D1428' }}>
+      <header className="h-14 flex-shrink-0 bg-[#1A1F36]/95 border-b border-white/[0.08] flex items-center gap-3 px-6" style={{ backdropFilter: 'blur(20px)' }}>
+        <div className="flex items-center gap-2 flex-shrink-0">
+          <img src={KPMG_LOGO} alt="KPMG" className="h-5 w-auto object-contain brightness-0 invert opacity-90" />
+          <span className="text-white/30">|</span>
+          <div className="h-6 px-1.5 rounded bg-white flex items-center">
+            <img src={SCHAND_LOGO} alt="S. Chand" className="h-4 w-auto object-contain" />
           </div>
-          <div className="text-[10px] font-bold uppercase tracking-widest text-white/55 mb-3">Client demonstration</div>
-          <h1 className="text-4xl font-bold leading-tight text-white" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
-            S. Chand Anti-Piracy<br />Command Center
-          </h1>
-          <p className="text-white/80 mt-4 max-w-md text-sm leading-relaxed">
-            A closed-loop IP protection operating platform — discovery, evidence, human governance, legal controls, enforcement orchestration, reappearance intelligence and LLM exposure monitoring.
-          </p>
-          <div className="mt-8 grid grid-cols-2 gap-3 text-xs">
-            {PILLARS.map((s) => (
-              <div key={s} className="rounded-xl border border-white/20 bg-white/10 px-3 py-2 text-white font-medium">{s}</div>
-            ))}
+          <span className="text-white/30 hidden sm:inline">|</span>
+          <span className="font-bold text-sm text-white hidden sm:inline" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
+            Anti-Piracy Command Center
+          </span>
+        </div>
+        <div className="flex-1" />
+        <span className="text-xs text-white/60">
+          Signed in as <span className="text-white font-semibold">{ROLE_LABEL[user.role]}</span>
+        </span>
+        <button
+          onClick={async () => {
+            await post('auth/logout');
+            router.push('/');
+          }}
+          className="flex items-center gap-1.5 text-xs text-white/60 hover:text-white transition-colors pl-3 ml-1 border-l border-white/10"
+          title="Sign out"
+        >
+          <LogOut size={13} />
+          <span className="hidden sm:inline">Sign out</span>
+        </button>
+      </header>
+
+      <div className="flex-1 grid grid-cols-1 lg:grid-cols-5 gap-6 p-6 lg:p-10 max-w-7xl mx-auto w-full">
+        <div className="lg:col-span-3 relative flex flex-col justify-center px-2">
+          <LoopGraphic />
+          <div className="relative">
+            <div className="text-[10px] font-bold uppercase tracking-widest text-white/55 mb-3">Client demonstration</div>
+            <h1 className="text-4xl lg:text-5xl font-bold leading-tight text-white" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
+              Anti-piracy enforcement,<br /><span className="text-[#0077C8]">at your fingertips</span>
+            </h1>
+            <p className="text-white/80 mt-5 max-w-md text-sm leading-relaxed">
+              A closed-loop IP protection operating platform — discovery, evidence, human governance, legal controls, enforcement orchestration, reappearance intelligence and LLM exposure monitoring.
+            </p>
+            <div className="mt-8 grid grid-cols-2 gap-3 text-xs max-w-md">
+              {PILLARS.map((s) => (
+                <div key={s} className="rounded-xl border border-white/20 bg-white/10 px-3 py-2 text-white font-medium">{s}</div>
+              ))}
+            </div>
+            <button
+              onClick={continueToApp}
+              className="mt-9 inline-flex items-center gap-2 rounded-xl px-5 py-3 text-sm font-bold text-white transition-transform active:scale-[0.98]"
+              style={{ background: 'linear-gradient(135deg, #00338D, #0077C8)' }}
+            >
+              Enter Command Center
+              <ArrowRight size={16} />
+            </button>
+            <p className="text-[11px] text-white/60 mt-4">Prototype / Synthetic Data · No live scraping, model calls or legal filings</p>
           </div>
-          <p className="text-[11px] text-white/60 mt-8">Prototype / Synthetic Data · No live scraping, model calls or legal filings</p>
         </div>
 
-        <div className="lg:col-span-2 bg-white rounded-2xl border border-[#E2E8F0] shadow-[0_1px_3px_0_rgba(0,0,0,0.08)] overflow-hidden flex flex-col" style={{ height: '600px', maxHeight: '85vh' }}>
-          <div className="flex-shrink-0 flex items-center gap-2 px-5 pt-5 pb-3 border-b border-[#E2E8F0]">
-            <div className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0" style={{ background: 'linear-gradient(135deg, #00338D, #0077C8)' }}>
-              <Bot size={16} className="text-white" />
+        <div className="lg:col-span-2 bg-white rounded-2xl border border-[#E2E8F0] shadow-[0_1px_3px_0_rgba(0,0,0,0.08)] overflow-hidden flex flex-col" style={{ height: '620px', maxHeight: '85vh' }}>
+          <div className="flex-shrink-0 px-5 pt-5 pb-3 border-b border-[#E2E8F0]">
+            <div className="flex items-center gap-2 mb-3">
+              <div className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0" style={{ background: 'linear-gradient(135deg, #00338D, #0077C8)' }}>
+                <Bot size={16} className="text-white" />
+              </div>
+              <div className="min-w-0">
+                <div className="text-sm font-bold text-[#1A1F36]">K.Bot</div>
+                <div className="text-[10px] text-[#9CA3AF]">Welcome, {user.name} · your platform guide</div>
+              </div>
             </div>
-            <div className="min-w-0">
-              <div className="text-sm font-bold text-[#1A1F36]">K.Bot</div>
-              <div className="text-[10px] text-[#9CA3AF]">Welcome, {user.name} · your platform guide</div>
+            <div className="flex flex-wrap gap-1.5">
+              {ROLE_ORDER.map((r) => {
+                const active = r === user.role;
+                return (
+                  <span
+                    key={r}
+                    className={`text-[10px] font-semibold px-2.5 py-1 rounded-full border ${
+                      active
+                        ? 'bg-[#00338D] text-white border-[#00338D]'
+                        : 'bg-[#F4F6F9] text-[#9CA3AF] border-[#E2E8F0]'
+                    }`}
+                  >
+                    {ROLE_LABEL[r]}
+                  </span>
+                );
+              })}
             </div>
           </div>
 
@@ -163,12 +217,6 @@ export default function WelcomePage() {
               quickStarts={quickStartsFor(user.role)}
               bubbleMaxWidth="max-w-[85%]"
             />
-          </div>
-
-          <div className="flex-shrink-0 border-t border-[#E2E8F0] px-5 py-3 text-center">
-            <button onClick={continueToApp} className="text-xs font-semibold text-[#00338D] hover:underline">
-              Skip to Command Center →
-            </button>
           </div>
         </div>
       </div>
