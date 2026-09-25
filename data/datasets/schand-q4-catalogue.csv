@@ -1,0 +1,9 @@
+id,title,isbn,author,category,segment,priorityTitle,indicativeValueInr,platformBias
+AST-Q4-01,Quantitative Aptitude for Competitive Exams,9789355019226,R.S. Aggarwal,Reasoning,Competitive Exams,true,520,Marketplace
+AST-Q4-02,NEET Preparation Series 2027,9789355019240,S. Chand Editorial,Medical Entrance,Test Prep,true,680,Cyberlocker
+AST-Q4-03,Chemistry for Class 12,9789352530885,O.P. Tandon,Science,K-12 CBSE,true,505,Google Drive
+AST-Q4-04,Data Structures Using C,9789352530908,S. Chand Editorial,Computer Science,Engineering,true,540,Marketplace
+AST-Q4-05,Basic Electrical Engineering,9789352530922,S. Chand Editorial,Engineering,Diploma / ITI,false,460,Cyberlocker
+AST-Q4-06,Financial Accounting for Class 12,9789352530946,T.S. Grewal,Commerce,K-12 CBSE,false,415,Google Drive
+AST-Q4-07,Objective General English,9789352530960,S.P. Bakshi,English,Competitive Exams,false,375,Marketplace
+AST-Q4-08,Industrial Electronics (ITI Vocational),9789352530984,S. Chand Editorial,Vocational,Diploma / ITI,false,330,Cyberlocker

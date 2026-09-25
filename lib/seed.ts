@@ -170,7 +170,9 @@ const TITLES: CatalogueAsset[] = [
   },
 ];
 
-const PLATFORMS: { name: string; cat: PlatformCategory; country: string }[] = [
+// Exported for lib/dataset-seed.ts, which builds a second, uploadable AppState
+// using the same platform/uploader mix and helpers as the main demo seed.
+export const PLATFORMS: { name: string; cat: PlatformCategory; country: string }[] = [
   { name: "Telegram", cat: "messaging", country: "AE" },
   { name: "Google Drive", cat: "cloud_storage", country: "US" },
   { name: "Website", cat: "web", country: "IN" },
@@ -179,7 +181,7 @@ const PLATFORMS: { name: string; cat: PlatformCategory; country: string }[] = [
   { name: "Cyberlocker", cat: "cyberlocker", country: "NL" },
 ];
 
-const UPLOADERS = [
+export const UPLOADERS = [
   { name: "AcademicLeaks_IN", entity: "ENT-0001" },
   { name: "FreeStudyHub", entity: "ENT-0002" },
   { name: "CBSE_NotesHub", entity: "ENT-0003" },
@@ -190,7 +192,7 @@ const UPLOADERS = [
   { name: "TeleBooks_04", entity: "ENT-0008" },
 ];
 
-function user(id: string, name: string, title: string, email: string, role: Role): User {
+export function user(id: string, name: string, title: string, email: string, role: Role): User {
   return {
     id,
     tenantId: TENANT_ID,
@@ -203,7 +205,7 @@ function user(id: string, name: string, title: string, email: string, role: Role
   };
 }
 
-function mulberry32(a: number) {
+export function mulberry32(a: number) {
   return function () {
     a |= 0;
     a = (a + 0x6d2b79f5) | 0;
@@ -213,7 +215,7 @@ function mulberry32(a: number) {
   };
 }
 
-function routeFor(platform: string): NoticeRoute {
+export function routeFor(platform: string): NoticeRoute {
   if (platform === "Telegram" || platform === "Google Drive") return "platform_ip_form";
   if (platform === "Marketplace") return "india_intermediary";
   if (platform === "Cyberlocker") return "registrar_hosting";

@@ -4,6 +4,8 @@ import { runDiscoveryScan } from "./connectors";
 import { nextSeq } from "./ids";
 import { resetStore } from "./store";
 import { buildSeed } from "./seed";
+import { parseDatasetCsv } from "./csv";
+import { buildDatasetSeed } from "./dataset-seed";
 
 function job(type: Job["type"], message: string): Job {
   return {
@@ -52,38 +54,50 @@ export function startDiscoveryJob(state: AppState, user: SessionUser) {
   return { job: j, result: j.result };
 }
 
-export function uploadDiscoveryDataset(state: AppState, user: SessionUser, filename: string) {
+/**
+ * Replaces the entire workspace with a dataset built from an uploaded catalogue
+ * CSV: catalogue, findings, cases, evidence, notices, monitoring and radar are
+ * all regenerated from the file's rows, so nothing from the previous dataset
+ * is left behind and nothing is left blank. Mirrors the shape of
+ * runDiscoveryScan's result so the existing Discovery UI needs no changes.
+ */
+export function uploadDatasetCsv(state: AppState, user: SessionUser, filename: string, csvText: string) {
   const label = filename || "uploaded dataset";
-  const j = job("discovery", `DATASET UPLOAD — processing ${label}`);
-  state.jobs.unshift(j);
-  const urls = new Set(state.findings.map((f) => f.url));
-  const result = runDiscoveryScan(urls);
-  result.findings.forEach((f) => {
-    f.jobId = j.id;
-    f.sourceConnector = `Uploaded dataset (${label})`;
-    f.metadata = { ...f.metadata, connector: f.sourceConnector, uploadedFile: label };
-    state.findings.unshift(f);
+  const rows = parseDatasetCsv(csvText);
+  const runSeq = Date.now() % 100000;
+  const fresh = buildDatasetSeed(rows, label, runSeq);
+  Object.keys(fresh).forEach((k) => {
+    // @ts-expect-error index
+    state[k] = fresh[k];
   });
+
+  const j = job("discovery", `Dataset upload — processing ${label}`);
+  state.jobs.unshift(j);
+
+  const newFindingIds = state.findings.map((f) => f.id);
   j.status = "completed";
   j.progress = 100;
   j.completedAt = new Date().toISOString();
   j.message = `Dataset upload processed: ${label}`;
   j.result = {
-    sourcesScanned: result.sourcesScanned,
-    newFindings: result.newFindings,
-    duplicatesRemoved: result.duplicatesRemoved,
-    highConfidence: result.highConfidence,
-    critical: result.critical,
-    newFindingIds: result.findings.map((f) => f.id),
+    sourcesScanned: rows.length,
+    newFindings: state.findings.length,
+    duplicatesRemoved: 0,
+    highConfidence: state.findings.filter((f) => f.matchScore >= 90).length,
+    critical: state.cases.filter((c) => c.risk === "critical").length,
+    newFindingIds,
     filename: label,
+    titles: state.catalogue.length,
+    cases: state.cases.length,
     simulated: true,
   };
   j.logs.push(
     `Uploaded file: ${label}`,
-    `New findings: ${result.newFindings}`,
-    `Duplicates removed: ${result.duplicatesRemoved}`,
-    `High-confidence matches: ${result.highConfidence}`,
-    `Critical findings: ${result.critical}`
+    `Titles loaded: ${state.catalogue.length}`,
+    `Cases generated: ${state.cases.length}`,
+    `Findings generated: ${state.findings.length}`,
+    `Notices dispatched: ${state.notices.filter((n) => n.status === "dispatched").length}`,
+    `Monitoring jobs: ${state.monitoringJobs.length}`
   );
   return { job: j, result: j.result };
 }

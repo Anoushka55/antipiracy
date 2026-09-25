@@ -1,0 +1,9 @@
+id,title,isbn,author,category,segment,priorityTitle,indicativeValueInr,platformBias
+AST-Q3-01,Mathematics for Class 10 (2026 Edition),9789352533978,R.S. Aggarwal,Mathematics,K-12 CBSE,true,445,Telegram
+AST-Q3-02,Lakhmir Singh Science Class 9,9789352530649,Lakhmir Singh & Manjit Kaur,Science,K-12 CBSE,true,495,Website
+AST-Q3-03,Golden English Grammar,9789352530670,S. Chand Editorial,English,K-12 / Reference,true,360,Telegram
+AST-Q3-04,JEE Main Physics Practice Series,9789355019127,S. Chand Editorial,Engineering Entrance,Test Prep,true,650,Website
+AST-Q3-05,Class 8 Mathematics,9789352530700,R.S. Aggarwal,Mathematics,K-12 CBSE,false,320,Telegram
+AST-Q3-06,Verbal & Non-Verbal Reasoning,9789352530731,R.S. Aggarwal,Reasoning,Competitive Exams,false,410,Website
+AST-Q3-07,Biology for Class 11,9789352530762,P.S. Verma,Science,K-12 CBSE,false,470,Telegram
+AST-Q3-08,Economics for Class 12,9789352530793,T.T. Sethi,Economics,K-12 CBSE,false,390,Website

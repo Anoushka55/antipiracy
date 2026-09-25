@@ -73,13 +73,15 @@ export default function DiscoveryPage() {
     if (!uploadFile) return;
     setBusy(true);
     try {
-      const r = await post<{ result: Record<string, unknown> }>('discovery/upload', { filename: uploadFile.name });
+      const content = await uploadFile.text();
+      const r = await post<{ result: Record<string, unknown> }>('discovery/upload', { filename: uploadFile.name, content });
       setScan(r.result);
       setScanLabel('Dataset Upload Complete');
       setHighlight(newIds(r.result));
-      setToast(`Dataset "${uploadFile.name}" processed`);
+      setToast(`Workspace replaced: ${String(r.result.titles)} titles, ${String(r.result.cases)} cases, ${String(r.result.newFindings)} findings`);
       setUploadOpen(false);
       setUploadFile(null);
+      setTab('all');
       await refresh();
     } catch (e) {
       setToast(e instanceof Error ? e.message : 'Upload failed');
@@ -168,12 +170,21 @@ export default function DiscoveryPage() {
         <Modal title="Upload Dataset" onClose={() => { setUploadOpen(false); setUploadFile(null); }}>
           <div className="space-y-4">
             <p className="text-xs text-[#6B7280]">
-              Upload a findings dataset (e.g. an export from a monitoring tool) to feed into the discovery pipeline. This is a synthetic demo — the file name is used to tag the resulting findings; file contents are not parsed.
+              Upload a catalogue CSV to replace the entire workspace — catalogue, cases, findings, evidence, notices and monitoring — with data generated from this dataset. <b className="text-[#1A1F36]">Nothing from the current dataset is kept.</b>
             </p>
+            <div className="rounded-xl border border-[#E2E8F0] bg-[#F4F6F9] p-3 text-[11px] text-[#6B7280] space-y-1.5">
+              <div className="font-semibold text-[#1A1F36]">Two sample datasets</div>
+              <div className="flex flex-wrap gap-x-4 gap-y-1">
+                <a href="/datasets/schand-q3-catalogue.csv" download className="text-[#00338D] font-semibold hover:underline">Download Q3 Catalogue Refresh</a>
+                <a href="/datasets/schand-q4-catalogue.csv" download className="text-[#00338D] font-semibold hover:underline">Download Q4 Catalogue Refresh</a>
+              </div>
+              <p>Each row is one title (id, title, isbn, author, category, segment, priorityTitle, indicativeValueInr, platformBias). Download one, then upload it below.</p>
+            </div>
             <div>
-              <label className="text-xs text-[#6B7280] block mb-1">Dataset file</label>
+              <label className="text-xs text-[#6B7280] block mb-1">Dataset file (.csv)</label>
               <input
                 type="file"
+                accept=".csv,text/csv"
                 onChange={(e) => setUploadFile(e.target.files?.[0] ?? null)}
                 className="w-full text-xs px-3 py-2 rounded-lg border border-[#E2E8F0] text-[#1A1F36] file:mr-3 file:py-1 file:px-3 file:rounded-md file:border-0 file:bg-[#00338D]/10 file:text-[#00338D] file:text-xs file:font-semibold"
               />
@@ -183,7 +194,7 @@ export default function DiscoveryPage() {
             </div>
             <div className="flex justify-end gap-2">
               <Button variant="ghost" size="sm" onClick={() => { setUploadOpen(false); setUploadFile(null); }} disabled={busy}>Cancel</Button>
-              <Button size="sm" onClick={uploadDataset} disabled={!uploadFile || busy}>{busy ? 'Uploading…' : 'Confirm Upload'}</Button>
+              <Button size="sm" onClick={uploadDataset} disabled={!uploadFile || busy}>{busy ? 'Uploading…' : 'Replace Workspace'}</Button>
             </div>
           </div>
         </Modal>
