@@ -172,14 +172,6 @@ export default function DiscoveryPage() {
             <p className="text-xs text-[#6B7280]">
               Upload a catalogue CSV to replace the entire workspace — catalogue, cases, findings, evidence, notices and monitoring — with data generated from this dataset. <b className="text-[#1A1F36]">Nothing from the current dataset is kept.</b>
             </p>
-            <div className="rounded-xl border border-[#E2E8F0] bg-[#F4F6F9] p-3 text-[11px] text-[#6B7280] space-y-1.5">
-              <div className="font-semibold text-[#1A1F36]">Two sample datasets</div>
-              <div className="flex flex-wrap gap-x-4 gap-y-1">
-                <a href="/datasets/schand-q3-catalogue.csv" download className="text-[#00338D] font-semibold hover:underline">Download Q3 Catalogue Refresh</a>
-                <a href="/datasets/schand-q4-catalogue.csv" download className="text-[#00338D] font-semibold hover:underline">Download Q4 Catalogue Refresh</a>
-              </div>
-              <p>Each row is one title (id, title, isbn, author, category, segment, priorityTitle, indicativeValueInr, platformBias). Download one, then upload it below.</p>
-            </div>
             <div>
               <label className="text-xs text-[#6B7280] block mb-1">Dataset file (.csv)</label>
               <input

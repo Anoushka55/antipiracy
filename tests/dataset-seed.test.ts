@@ -3,6 +3,8 @@ import fs from "fs";
 import path from "path";
 import { parseDatasetCsv } from "@/lib/csv";
 import { buildDatasetSeed } from "@/lib/dataset-seed";
+import { executiveOverview } from "@/lib/metrics";
+import { buildSeed } from "@/lib/seed";
 import type { AppState } from "@/lib/types";
 
 const Q3_PATH = path.join(process.cwd(), "data", "datasets", "schand-q3-catalogue.csv");
@@ -112,5 +114,39 @@ describe("uploadable dataset generator", () => {
     const header = "id,title,isbn,author,category,segment,priorityTitle,indicativeValueInr,platformBias";
     const row = "AST-X,Title,123,Author,Cat,Seg,false,400,Website";
     expect(() => parseDatasetCsv([header, row, row].join("\n"))).toThrow();
+  });
+});
+
+describe("Overview follows an uploaded dataset instead of staying on the built-in seed", () => {
+  it("computes different KPI numbers for the built-in seed, Q3 and Q4", () => {
+    const builtIn = executiveOverview(buildSeed());
+    const q3 = executiveOverview(buildDatasetSeed(parseDatasetCsv(fs.readFileSync(Q3_PATH, "utf8")), "S. Chand Q3 Catalogue Refresh", 31));
+    const q4 = executiveOverview(buildDatasetSeed(parseDatasetCsv(fs.readFileSync(Q4_PATH, "utf8")), "S. Chand Q4 Catalogue Refresh", 32));
+
+    // None of the three should share the same active-case count — proving the
+    // number isn't frozen on whichever dataset happened to seed first.
+    const counts = [builtIn.kpis.activeCases, q3.kpis.activeCases, q4.kpis.activeCases];
+    expect(new Set(counts).size).toBe(3);
+  });
+
+  it("matches the uploaded state's own record counts, not the built-in seed's", () => {
+    const rows = parseDatasetCsv(fs.readFileSync(Q3_PATH, "utf8"));
+    const state = buildDatasetSeed(rows, "S. Chand Q3 Catalogue Refresh", 41);
+    const ov = executiveOverview(state);
+
+    const active = state.cases.filter((c) => c.status !== "closed");
+    expect(ov.kpis.activeCases).toBe(active.length);
+    expect(ov.platformCounts.reduce((a, p) => a + p.value, 0)).toBe(active.length);
+    expect(ov.riskDist.reduce((a, r) => a + r.value, 0)).toBe(active.length);
+    expect(ov.flagship.reduce((a, f) => a + f.value, 0)).toBe(active.length);
+
+    const dispatched = state.notices.filter((n) => n.status === "dispatched").length;
+    const removed = state.platformResponses.filter((r) => r.outcome === "removed").length;
+    expect(ov.funnel.find((f) => f.stage === "Notice Sent")?.value).toBe(dispatched);
+    expect(ov.funnel.find((f) => f.stage === "Removed")?.value).toBe(removed);
+
+    // The financial estimate follows the uploaded catalogue's own indicative
+    // values, not the built-in demo's fixed ₹18.6 Cr / 4.2 lakh copies.
+    expect(ov.kpis.estimatedExposureCr).toBe(Math.round((state.financialEstimates[0].valueInr / 10000000) * 10) / 10);
   });
 });

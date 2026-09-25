@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { EXEC_KPI, executiveOverview, buildReport } from "@/lib/metrics";
 import { llmProbeDataset } from "@/lib/llm-probe";
+import { buildSeed } from "@/lib/seed";
 
 describe("executive KPI/KRI pack", () => {
   it("reconciles counts", () => {
@@ -14,8 +15,8 @@ describe("executive KPI/KRI pack", () => {
     expect(k.estimatedExposureCr).toBe(18.6);
   });
 
-  it("charts sum to the case book", () => {
-    const ov = executiveOverview();
+  it("charts sum to the case book, computed live from the built-in seed", () => {
+    const ov = executiveOverview(buildSeed());
     expect(ov.platformCounts.reduce((a, p) => a + p.value, 0)).toBe(EXEC_KPI.activeCases);
     expect(ov.geo.reduce((a, g) => a + g.value, 0)).toBe(100);
     expect(ov.flagship.reduce((a, f) => a + f.value, 0)).toBe(EXEC_KPI.activeCases);
@@ -48,7 +49,7 @@ describe("LLM unified assessment (Drive 1 + Drive 2)", () => {
 
 describe("LLM Exposure Report", () => {
   it("includes Drive 1 and Drive 2 charts", () => {
-    const report = buildReport("LLM Exposure Report");
+    const report = buildReport("LLM Exposure Report", buildSeed());
     expect(report.charts.length).toBeGreaterThanOrEqual(3);
     expect(report.charts.map((c) => c.kind)).toEqual(["llm-exposure", "llm-high", "llm-forensic"]);
     expect(report.llm?.exposure).toHaveLength(4);

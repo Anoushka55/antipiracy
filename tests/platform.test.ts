@@ -144,7 +144,7 @@ describe("seed integrity", () => {
     const priorityAssets = new Set(s.catalogue.filter((a) => a.priorityTitle).map((a) => a.id));
     expect(count(active, (c) => priorityAssets.has(c.assetId))).toBe(k.priorityCases);
 
-    const ov = executiveOverview();
+    const ov = executiveOverview(s);
     const platformName: Record<string, string> = {
       Telegram: "Telegram", "Google Drive": "Google Drive", Websites: "Website",
       Marketplaces: "Marketplace", "Social Media": "Social Media", Cyberlockers: "Cyberlocker",
@@ -157,6 +157,17 @@ describe("seed integrity", () => {
     expect(count(s.platformResponses, (r) => r.outcome === "removed")).toBe(k.removed);
     expect(s.monitoringJobs.length).toBe(k.monitored);
     expect(s.reappearances.length).toBe(k.reappearances);
+
+    // executiveOverview() computes live from state — on the built-in seed it
+    // must reproduce the same reference numbers EXEC_KPI documents. (SLA
+    // breach rate is the exception: EXEC_KPI's 7.2 was hand-picked rather
+    // than the exact 10/142 ratio, which rounds to 7.0 — the live figure is
+    // the more accurate one, so it's checked to one decimal of tolerance.)
+    expect(ov.kpis.activeCases).toBe(k.activeCases);
+    expect(ov.kpis.criticalHigh).toBe(k.criticalHigh);
+    expect(ov.kpis.takedownRate).toBe(k.takedownRate);
+    expect(Math.abs(ov.kpis.slaBreachRate - k.slaBreachRate)).toBeLessThan(0.5);
+    expect(ov.kpis.priorityTitleExposure).toBe(k.priorityTitleExposure);
   });
 });
 

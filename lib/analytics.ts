@@ -1,10 +1,10 @@
 import type { AppState, CaseRecord, RiskLevel } from "./types";
-import { EXEC_KPI, executiveOverview } from "./metrics";
+import { executiveOverview } from "./metrics";
 import { CASE_STATUS_LABEL } from "./constants";
 import { caseFilterHref, filterCases, type CaseFilter } from "./case-filters";
 
-export function computeOverview(_state: AppState) {
-  return executiveOverview();
+export function computeOverview(state: AppState) {
+  return executiveOverview(state);
 }
 
 export function searchAll(state: AppState, q: string) {
@@ -332,12 +332,15 @@ export function kpiDrilldown(state: AppState, kpi: KpiKey): KpiDrilldown {
         .sort((x, y) => y.n * y.a.indicativeValueInr - x.n * x.a.indicativeValueInr);
       const priciest = [...state.catalogue].sort((x, y) => y.indicativeValueInr - x.indicativeValueInr)[0];
       const priciestCases = active.filter((c) => c.assetId === priciest.id).length;
-      const multiple = Math.round((priciest.indicativeValueInr / EXEC_KPI.indicativeValueInr) * 10) / 10;
+      const avgValue = Math.round(state.catalogue.reduce((s, a) => s + a.indicativeValueInr, 0) / Math.max(1, state.catalogue.length));
+      const multiple = Math.round((priciest.indicativeValueInr / Math.max(1, avgValue)) * 10) / 10;
+      const financial = state.financialEstimates[0];
+      const exposureCr = financial ? Math.round((financial.valueInr / 10000000) * 10) / 10 : 0;
       return {
-        insight:
-          `₹${EXEC_KPI.estimatedExposureCr} Cr is ${EXEC_KPI.unauthorizedCopies.toLocaleString("en-IN")} estimated unauthorized copies × ${inr(EXEC_KPI.indicativeValueInr)} average price ` +
-          `(method FIN-v0.1, medium confidence). ${priciest.title} sells at ${inr(priciest.indicativeValueInr)}, ${multiple}× the average, ` +
-          `so each copy lost on its ${priciestCases} active cases costs the most.`,
+        insight: financial
+          ? `₹${exposureCr} Cr indicative exposure (${financial.methodology}, ${financial.confidence} confidence). ${priciest.title} sells at ${inr(priciest.indicativeValueInr)}, ${multiple}× the catalogue average, ` +
+            `so each copy lost on its ${priciestCases} active cases costs the most.`
+          : `No financial estimate is available for this dataset. ${priciest.title} sells at ${inr(priciest.indicativeValueInr)}, the highest in the catalogue, so each copy lost on its ${priciestCases} active cases costs the most.`,
         rowsTitle: "Titles carrying the most revenue risk (active cases × price per copy)",
         rows: ranked.slice(0, 5).map(({ a, n }) => ({
           id: a.id,

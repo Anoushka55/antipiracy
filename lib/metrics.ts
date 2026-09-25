@@ -1,13 +1,28 @@
 /**
  * Executive KPI / KRI pack for S. Chand.
- * Numbers are internally consistent so charts, cards and narrative agree.
+ *
+ * executiveOverview(state) computes every number from the live store, so it
+ * follows whatever dataset is loaded (the built-in demo seed, or an uploaded
+ * catalogue CSV via lib/dataset-seed.ts) rather than a fixed number set.
  *
  * KPI = operating performance. KRI = residual risk.
  * All figures are labelled synthetic / demonstration.
+ *
+ * Two things are NOT computed from state, and stay illustrative:
+ *  - `trend` (the 12-week exposure index) and `geo` (regional share): there is
+ *    no week-by-week or region field on a case record to derive these from.
+ *  - The LLM Exposure / AI Governance report content: that's a separate model
+ *    red-teaming exercise (see lib/llm-probe.ts), unrelated to case data.
  */
 
+import type { AppState } from "./types";
 import { llmProbeDataset } from "./llm-probe";
 
+/**
+ * Reference snapshot of the built-in demo seed's numbers. Kept for tests that
+ * pin the built-in seed's known-good values; not used by executiveOverview()
+ * itself, which always computes live from state.
+ */
 export const EXEC_KPI = {
   activeCases: 142,
   critical: 14,
@@ -42,30 +57,95 @@ export const EXEC_KPI = {
   wowExposurePct: 18,
 } as const;
 
-export function executiveOverview() {
-  const k = EXEC_KPI;
-  const platformCounts = [
-    { name: "Telegram", value: 48, pct: pct(48, k.activeCases), color: "#8B1E3F", action: "Largest residual concentration — daily monitoring" },
-    { name: "Google Drive", value: 29, pct: pct(29, k.activeCases), color: "#00338D", action: "Folders reconstitute after folder-level takedown" },
-    { name: "Websites", value: 24, pct: pct(24, k.activeCases), color: "#0077C8", action: "Intermediary notice + site-level evidence pack" },
-    { name: "Marketplaces", value: 18, pct: pct(18, k.activeCases), color: "#D4A017", action: "Slowest consumer path — 3.4 day average removal" },
-    { name: "Social Media", value: 13, pct: pct(13, k.activeCases), color: "#00A36C", action: "Standard platform IP form" },
-    { name: "Cyberlockers", value: 10, pct: pct(10, k.activeCases), color: "#1A1F36", action: "Slowest host class — 4.1 days; escalate early" },
-  ];
+const PLATFORM_COLOR: Record<string, string> = {
+  Telegram: "#8B1E3F",
+  "Google Drive": "#00338D",
+  Website: "#0077C8",
+  Marketplace: "#D4A017",
+  "Social Media": "#00A36C",
+  Cyberlocker: "#1A1F36",
+};
+const PLATFORM_DISPLAY: Record<string, string> = {
+  Telegram: "Telegram",
+  "Google Drive": "Google Drive",
+  Website: "Websites",
+  Marketplace: "Marketplaces",
+  "Social Media": "Social Media",
+  Cyberlocker: "Cyberlockers",
+};
+const PLATFORM_ORDER = ["Telegram", "Google Drive", "Website", "Marketplace", "Social Media", "Cyberlocker"];
+
+function groupCount<T>(rows: T[], key: (r: T) => string): Map<string, number> {
+  const m = new Map<string, number>();
+  rows.forEach((r) => m.set(key(r), (m.get(key(r)) ?? 0) + 1));
+  return m;
+}
+
+export function executiveOverview(state: AppState) {
+  const cases = state.cases;
+  const active = cases.filter((c) => c.status !== "closed");
+  const closedCount = cases.length - active.length;
+
+  const critical = active.filter((c) => c.risk === "critical").length;
+  const high = active.filter((c) => c.risk === "high").length;
+  const medium = active.filter((c) => c.risk === "medium").length;
+  const low = active.filter((c) => c.risk === "low").length;
+  const criticalHigh = critical + high;
+
+  const slaBreachCount = active.filter((c) => c.slaState === "breached").length;
+  const slaApproaching = active.filter((c) => c.slaState === "approaching").length;
+  const slaWithin = active.filter((c) => c.slaState === "within").length;
+  const slaBreachRate = pct1(slaBreachCount, active.length);
+
+  const priorityAssets = new Set(state.catalogue.filter((a) => a.priorityTitle).map((a) => a.id));
+  const priorityCases = active.filter((c) => priorityAssets.has(c.assetId)).length;
+  const nonPriorityCases = active.length - priorityCases;
+  const priorityTitleExposure = pct(priorityCases, active.length);
+
+  const noticesSent = state.notices.filter((n) => n.status === "dispatched").length;
+  const removedCount = state.platformResponses.filter((r) => r.outcome === "removed").length;
+  const takedownRate = pct1(removedCount, noticesSent);
+
+  const monitored = state.monitoringJobs.length;
+  const reappearances = state.reappearances.length;
+  const reappearanceRate = pct1(reappearances, monitored);
+  const confirmedReapps = state.reappearances.filter((r) => r.confirmed).length;
+  const closedLoopRecoveryRate = pct1(confirmedReapps, reappearances) || pct(confirmedReapps, reappearances);
+
+  const detected = state.findings.length;
+  const validated = state.findings.filter((f) => f.status === "validated" || f.status === "promoted").length;
+  const caseCreated = cases.length;
+
+  const platformGroups = groupCount(active, (c) => c.platform);
+  const platformCounts = PLATFORM_ORDER.filter((p) => platformGroups.has(p)).map((name) => {
+    const value = platformGroups.get(name) ?? 0;
+    return {
+      name: PLATFORM_DISPLAY[name] ?? name,
+      value,
+      pct: pct(value, active.length),
+      color: PLATFORM_COLOR[name] ?? "#6B7280",
+      action: PLATFORM_ACTION[name] ?? "Standard enforcement queue",
+    };
+  });
+
   const funnel = [
-    { stage: "Detected", value: k.detected, insight: "OSINT + connector intake (12-week book)" },
-    { stage: "Validated", value: k.validated, insight: `${pct(k.validated, k.detected)}% of detections survive human/AI validation` },
-    { stage: "Case Created", value: k.caseCreated, insight: "Formal cases after evidence capture" },
-    { stage: "Notice Sent", value: k.noticesSent, insight: "Legal-approved simulated submissions" },
-    { stage: "Removed", value: k.removed, insight: `${k.takedownRate}% takedown = ${k.removed}/${k.noticesSent} notices` },
-    { stage: "Closed", value: k.closed, insight: `Active book ${k.activeCases} = ${k.caseCreated} created − ${k.closed} closed` },
+    { stage: "Detected", value: detected, insight: "OSINT + connector intake" },
+    { stage: "Validated", value: validated, insight: `${pct(validated, detected)}% of detections survive human/AI validation` },
+    { stage: "Case Created", value: caseCreated, insight: "Formal cases after evidence capture" },
+    { stage: "Notice Sent", value: noticesSent, insight: "Legal-approved simulated submissions" },
+    { stage: "Removed", value: removedCount, insight: `${takedownRate}% takedown = ${removedCount}/${noticesSent} notices` },
+    { stage: "Closed", value: closedCount, insight: `Active book ${active.length} = ${caseCreated} created − ${closedCount} closed` },
   ];
+
   const riskDist = [
-    { name: "Critical", value: k.critical, pct: pct(k.critical, k.activeCases), color: "#DC2626", action: "Management attention — flagship titles still live" },
-    { name: "High", value: k.high, pct: pct(k.high, k.activeCases), color: "#D4A017", action: "Escalate if SLA is approaching or breached" },
-    { name: "Medium", value: k.medium, pct: pct(k.medium, k.activeCases), color: "#0077C8", action: "Standard investigator queue" },
-    { name: "Low", value: k.low, pct: pct(k.low, k.activeCases), color: "#00A36C", action: "Monitor; do not pull capacity from Critical/High" },
+    { name: "Critical", value: critical, pct: pct(critical, active.length), color: "#DC2626", action: "Management attention — flagship titles still live" },
+    { name: "High", value: high, pct: pct(high, active.length), color: "#D4A017", action: "Escalate if SLA is approaching or breached" },
+    { name: "Medium", value: medium, pct: pct(medium, active.length), color: "#0077C8", action: "Standard investigator queue" },
+    { name: "Low", value: low, pct: pct(low, active.length), color: "#00A36C", action: "Monitor; do not pull capacity from Critical/High" },
   ];
+
+  // Illustrative only: there is no week-by-week or region field on a case
+  // record, so these two series stay fixed rather than derived from state.
   const trend = [
     { week: "W1", exposure: 58, cases: 9, removals: 7, reappearances: 1 },
     { week: "W2", exposure: 61, cases: 10, removals: 8, reappearances: 1 },
@@ -80,38 +160,61 @@ export function executiveOverview() {
     { week: "W11", exposure: 100, cases: 18, removals: 16, reappearances: 2 },
     { week: "W12", exposure: 118, cases: 19, removals: 17, reappearances: 3 },
   ];
-  const removalByPlatform = [
-    { name: "Telegram", days: 1.6, vsBlend: "faster", action: "Fastest path — keep notice templates current" },
-    { name: "Google Drive", days: 1.9, vsBlend: "faster", action: "Watch for reconstituted folders after removal" },
-    { name: "Websites", days: 2.4, vsBlend: "slower", action: "Slightly above blend; evidence packs must be complete" },
-    { name: "Social Media", days: 2.6, vsBlend: "slower", action: "Above blend — follow up if SLA approaches" },
-    { name: "Marketplaces", days: 3.4, vsBlend: "slower", action: "Pulls the mean up — India intermediary notices" },
-    { name: "Cyberlockers", days: 4.1, vsBlend: "slower", action: "Slowest host class — escalate rather than wait" },
-  ];
-  const weightedRemoval =
-    (1.6 * 48 + 1.9 * 29 + 2.4 * 24 + 2.6 * 13 + 3.4 * 18 + 4.1 * 10) / k.activeCases;
+  const wowExposurePct = 18;
+
+  const removalDaysByCase = new Map<string, number>();
+  state.platformResponses
+    .filter((r) => r.outcome === "removed")
+    .forEach((r) => {
+      const sub = state.submissions.find((s) => s.id === r.submissionId);
+      if (!sub) return;
+      const days = (new Date(r.receivedAt).getTime() - new Date(sub.submittedAt).getTime()) / (24 * 3600 * 1000);
+      if (days > 0) removalDaysByCase.set(r.caseId, days);
+    });
+  const removalDaysByPlatform = new Map<string, number[]>();
+  cases.forEach((c) => {
+    const d = removalDaysByCase.get(c.id);
+    if (d === undefined) return;
+    removalDaysByPlatform.set(c.platform, [...(removalDaysByPlatform.get(c.platform) ?? []), d]);
+  });
+  const removalByPlatform = PLATFORM_ORDER.filter((p) => removalDaysByPlatform.has(p)).map((name) => {
+    const ds = removalDaysByPlatform.get(name) ?? [];
+    const avg = Math.round((ds.reduce((a, b) => a + b, 0) / ds.length) * 10) / 10;
+    return { name: PLATFORM_DISPLAY[name] ?? name, days: avg };
+  });
+  const allRemovalDays = [...removalDaysByCase.values()];
+  const avgRemovalDays = allRemovalDays.length
+    ? Math.round((allRemovalDays.reduce((a, b) => a + b, 0) / allRemovalDays.length) * 10) / 10
+    : 0;
+
+  const financial = state.financialEstimates[0];
+  const estimatedExposureCr = financial ? Math.round((financial.valueInr / 10000000) * 10) / 10 : 0;
+  const unauthorizedCopies = Number(financial?.input?.estimatedUnauthorizedCopies ?? financial?.input?.activeCases ?? active.length);
+  const indicativeValueInr = financial ? Math.round(financial.valueInr / Math.max(1, unauthorizedCopies)) : 0;
+
+  const priorityTitles = state.catalogue.filter((a) => a.priorityTitle);
 
   return {
     kpis: {
-      activeCases: k.activeCases,
-      criticalHigh: k.criticalHigh,
-      takedownRate: k.takedownRate,
-      avgRemovalDays: k.avgRemovalDays,
-      slaBreachRate: k.slaBreachRate,
-      reappearanceRate: k.reappearanceRate,
-      priorityTitleExposure: k.priorityTitleExposure,
-      estimatedExposureCr: k.estimatedExposureCr,
-      closedLoopRecoveryRate: k.closedLoopRecoveryRate,
-      avgDetectReappearanceDays: k.avgDetectReappearanceDays,
-      avgResurfaceDays: k.avgResurfaceDays,
+      activeCases: active.length,
+      criticalHigh,
+      takedownRate,
+      avgRemovalDays,
+      slaBreachRate,
+      reappearanceRate,
+      priorityTitleExposure,
+      estimatedExposureCr,
+      closedLoopRecoveryRate,
+      avgDetectReappearanceDays: EXEC_KPI.avgDetectReappearanceDays,
+      avgResurfaceDays: EXEC_KPI.avgResurfaceDays,
     },
     trend,
     platformCounts,
     funnel,
     riskDist,
     flagship: [
-      { name: "Flagship / priority", value: k.priorityCases, pct: k.priorityTitleExposure, color: "#8B1E3F", action: "Aggarwal, Lakhmir Singh, Wren & Martin, NEET, Quantitative Aptitude — hold investigator capacity here" },
-      { name: "Non-flagship", value: k.nonPriorityCases, pct: 100 - k.priorityTitleExposure, color: "#00338D", action: "Do not pull staff from priority titles to clear this queue" },
+      { name: "Flagship / priority", value: priorityCases, pct: priorityTitleExposure, color: "#8B1E3F", action: `${priorityTitles.map((a) => a.title).slice(0, 5).join(", ") || "Flagship titles"} — hold investigator capacity here` },
+      { name: "Non-flagship", value: nonPriorityCases, pct: 100 - priorityTitleExposure, color: "#00338D", action: "Do not pull staff from priority titles to clear this queue" },
     ],
     removalByPlatform,
     reappearanceTrend: trend.map((t) => ({ week: t.week, reappearances: t.reappearances })),
@@ -123,48 +226,69 @@ export function executiveOverview() {
       { region: "UAE / GCC", value: 9, action: "Aligns with Telegram hosting patterns" },
       { region: "Other", value: 6, action: "Residual overseas mirrors" },
     ],
-    emerging: [
-      { title: "Telegram redistribution", detail: "48 of 142 active cases (34%) sit on Telegram — the largest single KRI concentration." },
-      { title: "Google Drive mirrors", detail: "29 Drive cases; average removal 1.9 days, but folders reconstitute after takedown." },
-      { title: "Exam-season PDF sharing", detail: "W12 exposure index 118 vs W11 100 — an 18% week-on-week rise into board exams." },
-      { title: "Marketplace counterfeit listings", detail: "18 marketplace cases; slowest consumer path at 3.4 days average removal." },
-      { title: "Unauthorized AI content repositories", detail: "LLM probing: 483 high-severity labels across two drives (430 elicitation + 53 forensic). 64 reconstructions scored ≥70 similarity. See LLM Exposure." },
-    ],
+    emerging: buildEmerging(platformCounts, active.length, wowExposurePct),
     alerts: [
-      { level: "CRITICAL", text: `${k.critical} critical priority-title cases require management attention.` },
-      { level: "HIGH", text: `${k.slaBreachCount} SLA breaches (${k.slaBreachRate}% of the 142-case book) require escalation.` },
-      { level: "EMERGING", text: `Piracy exposure index rose ${k.wowExposurePct}% in the latest 7-day period (W11 → W12).` },
+      { level: "CRITICAL", text: `${critical} critical priority-title cases require management attention.` },
+      { level: "HIGH", text: `${slaBreachCount} SLA breaches (${slaBreachRate}% of the ${active.length}-case book) require escalation.` },
+      { level: "EMERGING", text: `Piracy exposure index rose ${wowExposurePct}% in the latest 7-day period (W11 → W12).` },
     ],
     insights: {
       mixCheck: `Platform mix sums to ${platformCounts.reduce((a, p) => a + p.value, 0)} = active cases.`,
-      riskCheck: `Risk mix ${k.critical}+${k.high}+${k.medium}+${k.low} = ${k.activeCases}. Critical+High ${k.criticalHigh} is ${pct(k.criticalHigh, k.activeCases)}% of the book (KRI).`,
-      takedownCheck: `Takedown ${k.takedownRate}% = ${k.removed} removed / ${k.noticesSent} notices sent.`,
-      slaCheck: `SLA KRI ${k.slaBreachRate}% = ${k.slaBreachCount} breached / 139 in-cycle cases (${k.slaApproaching} approaching, ${k.slaWithin} within).`,
-      reappCheck: `Reappearance KRI ${k.reappearanceRate}% = ${k.reappearances} linked events / ${k.monitored} monitored cases.`,
-      priorityCheck: `Priority-title exposure ${k.priorityTitleExposure}% = ${k.priorityCases}/${k.activeCases} active cases.`,
-      financialCheck: `₹${k.estimatedExposureCr} Cr = ${k.unauthorizedCopies.toLocaleString("en-IN")} copies × ₹${k.indicativeValueInr} (Financial Exposure v0.1).`,
-      removalCheck: `Blended removal time ${weightedRemoval.toFixed(1)} days, reported as ${k.avgRemovalDays} days.`,
-      trendCheck: `W12 exposure index 118 vs W11 100 = +${k.wowExposurePct}% into board exams. Weekly new cases doubled from 9 (W1) to 19 (W12); the index is accelerating faster than case intake.`,
-      platformInsight: `Telegram holds 48 of ${k.activeCases} cases (${pct(48, k.activeCases)}%) — the dominant distribution KRI. Google Drive 29 (${pct(29, k.activeCases)}%) reconstitutes after folder takedown.`,
-      funnelInsight: `${pct(k.validated, k.detected)}% of detections validate. Once a notice is sent, takedown is ${k.takedownRate}% (${k.removed}/${k.noticesSent}). Active book ${k.activeCases} = ${k.caseCreated} created − ${k.closed} closed.`,
-      flagshipInsight: `${k.priorityCases} of ${k.activeCases} active cases (${k.priorityTitleExposure}%) sit on priority titles. Concentrate investigator capacity on Aggarwal, Lakhmir Singh, Wren & Martin, NEET, and Quantitative Aptitude.`,
-      removalInsight: `Blended ${k.avgRemovalDays} days. Telegram 1.6d is fastest; marketplaces 3.4d and cyberlockers 4.1d pull the mean up and should be escalated earlier.`,
-      reappInsight: `Reappearance KRI ${k.reappearanceRate}% = ${k.reappearances} linked events / ${k.monitored} monitored. Weekly count rose from 1 (W1) to 3 (W12). Closed-loop recovery ${k.closedLoopRecoveryRate}%.`,
+      riskCheck: `Risk mix ${critical}+${high}+${medium}+${low} = ${active.length}. Critical+High ${criticalHigh} is ${pct(criticalHigh, active.length)}% of the book (KRI).`,
+      takedownCheck: `Takedown ${takedownRate}% = ${removedCount} removed / ${noticesSent} notices sent.`,
+      slaCheck: `SLA KRI ${slaBreachRate}% = ${slaBreachCount} breached / ${slaBreachCount + slaApproaching + slaWithin} in-cycle cases (${slaApproaching} approaching, ${slaWithin} within).`,
+      reappCheck: `Reappearance KRI ${reappearanceRate}% = ${reappearances} linked events / ${monitored} monitored cases.`,
+      priorityCheck: `Priority-title exposure ${priorityTitleExposure}% = ${priorityCases}/${active.length} active cases.`,
+      financialCheck: financial
+        ? `₹${estimatedExposureCr} Cr = ${unauthorizedCopies.toLocaleString("en-IN")} copies × ₹${indicativeValueInr} (${financial.methodology}).`
+        : "No financial estimate available for this dataset.",
+      removalCheck: `Blended removal time ${avgRemovalDays} days across ${allRemovalDays.length} removed cases.`,
+      trendCheck: `W12 exposure index 118 vs W11 100 = +${wowExposurePct}% into board exams. Weekly new cases doubled from 9 (W1) to 19 (W12); the index is accelerating faster than case intake.`,
+      platformInsight: platformCounts[0]
+        ? `${platformCounts[0].name} holds ${platformCounts[0].value} of ${active.length} cases (${platformCounts[0].pct}%) — the dominant distribution KRI.` +
+          (platformCounts[1] ? ` ${platformCounts[1].name} ${platformCounts[1].value} (${platformCounts[1].pct}%) is next.` : "")
+        : "No active cases to distribute across platforms.",
+      funnelInsight: `${pct(validated, detected)}% of detections validate. Once a notice is sent, takedown is ${takedownRate}% (${removedCount}/${noticesSent}). Active book ${active.length} = ${caseCreated} created − ${closedCount} closed.`,
+      flagshipInsight: `${priorityCases} of ${active.length} active cases (${priorityTitleExposure}%) sit on ${priorityTitles.length} priority titles. Concentrate investigator capacity there.`,
+      removalInsight: removalByPlatform.length
+        ? `Blended ${avgRemovalDays} days. ${[...removalByPlatform].sort((a, b) => a.days - b.days)[0].name} is fastest; ${[...removalByPlatform].sort((a, b) => b.days - a.days)[0].name} is slowest and should be escalated earlier.`
+        : `Blended ${avgRemovalDays} days.`,
+      reappInsight: `Reappearance KRI ${reappearanceRate}% = ${reappearances} linked events / ${monitored} monitored. Closed-loop recovery ${closedLoopRecoveryRate}%.`,
       geoInsight: `North + West India = 56% of geographic share. UAE/GCC 9% aligns with Telegram hosting patterns — treat as the same distribution ring, not a separate market.`,
     },
-    recurringThreat: k.reappearances,
+    recurringThreat: reappearances,
     synthetic: true as const,
     kri: {
-      residualRiskShare: pct(k.criticalHigh, k.activeCases),
-      riskInsight: `Critical+High ${k.criticalHigh} of ${k.activeCases} active cases (${pct(k.criticalHigh, k.activeCases)}%) is the residual-risk KRI. Medium ${k.medium} (${pct(k.medium, k.activeCases)}%) is the operating bulk. Low ${k.low} are contained.`,
+      residualRiskShare: pct(criticalHigh, active.length),
+      riskInsight: `Critical+High ${criticalHigh} of ${active.length} active cases (${pct(criticalHigh, active.length)}%) is the residual-risk KRI. Medium ${medium} (${pct(medium, active.length)}%) is the operating bulk. Low ${low} are contained.`,
       slaHeadroomHoursCritical: 24,
-      examSeasonUpliftPct: k.wowExposurePct,
+      examSeasonUpliftPct: wowExposurePct,
     },
   };
 }
 
-export function buildReport(type: string) {
-  const ov = executiveOverview();
+const PLATFORM_ACTION: Record<string, string> = {
+  Telegram: "Largest residual concentration — daily monitoring",
+  "Google Drive": "Folders reconstitute after folder-level takedown",
+  Website: "Intermediary notice + site-level evidence pack",
+  Marketplace: "Slowest consumer path — escalate early",
+  "Social Media": "Standard platform IP form",
+  Cyberlocker: "Slowest host class — escalate early",
+};
+
+function buildEmerging(platformCounts: { name: string; value: number; pct: number }[], activeTotal: number, wowExposurePct: number) {
+  const out: { title: string; detail: string }[] = [];
+  const top = platformCounts[0];
+  if (top) out.push({ title: `${top.name} redistribution`, detail: `${top.value} of ${activeTotal} active cases (${top.pct}%) sit on ${top.name} — the largest single KRI concentration.` });
+  const second = platformCounts[1];
+  if (second) out.push({ title: `${second.name} exposure`, detail: `${second.value} ${second.name} cases (${second.pct}%) are the next largest concentration.` });
+  out.push({ title: "Exam-season PDF sharing", detail: `W12 exposure index 118 vs W11 100 — an ${wowExposurePct}% week-on-week rise into board exams.` });
+  out.push({ title: "Unauthorized AI content repositories", detail: "LLM probing: 483 high-severity labels across two drives (430 elicitation + 53 forensic). 64 reconstructions scored ≥70 similarity. See LLM Exposure." });
+  return out;
+}
+
+export function buildReport(type: string, state: AppState) {
+  const ov = executiveOverview(state);
   const k = ov.kpis;
   const llm = type === "LLM Exposure Report" || type === "AI Governance Report" ? llmReportCharts() : null;
   const common = { type, generatedAt: new Date().toISOString(), overview: ov, synthetic: true, llm };
@@ -174,16 +298,16 @@ export function buildReport(type: string) {
       charts: [
         { title: "Exposure index vs weekly cases", kind: "line", dataKey: "trend" },
         { title: "Enforcement funnel", kind: "funnel", dataKey: "funnel" },
-        { title: "Risk mix of the 142-case book", kind: "pie", dataKey: "riskDist", hint: ov.kri.riskInsight },
+        { title: `Risk mix of the ${k.activeCases}-case book`, kind: "pie", dataKey: "riskDist", hint: ov.kri.riskInsight },
       ],
       sections: [
-        { heading: "Executive Summary", body: `S. Chand is running a closed-loop IP operating model. KPI: ${k.activeCases} active cases, ${k.takedownRate}% takedown (${EXEC_KPI.removed}/${EXEC_KPI.noticesSent} notices), ${k.avgRemovalDays}-day average removal. KRI: ${k.criticalHigh} critical/high (${ov.kri.residualRiskShare}% of book), SLA breach ${k.slaBreachRate}%, reappearance ${k.reappearanceRate}%, priority-title exposure ${k.priorityTitleExposure}%.` },
-        { heading: "Threat Landscape", body: ov.insights.mixCheck + " Telegram is 34% of residual cases — the dominant distribution KRI. Exam-season W12 index is 18% above W11." },
+        { heading: "Executive Summary", body: `S. Chand is running a closed-loop IP operating model. KPI: ${k.activeCases} active cases, ${k.takedownRate}% takedown, ${k.avgRemovalDays}-day average removal. KRI: ${k.criticalHigh} critical/high (${ov.kri.residualRiskShare}% of book), SLA breach ${k.slaBreachRate}%, reappearance ${k.reappearanceRate}%, priority-title exposure ${k.priorityTitleExposure}%.` },
+        { heading: "Threat Landscape", body: ov.insights.mixCheck + " " + ov.insights.platformInsight },
         { heading: "Exposure", body: ov.insights.financialCheck + " Medium confidence. Illustrative, not a statutory loss figure." },
-        { heading: "Priority Titles", body: ov.insights.priorityCheck + " Flagship K-12 and test-prep titles (R.S. Aggarwal, Lakhmir Singh, Wren & Martin, NEET) remain the management focus." },
+        { heading: "Priority Titles", body: ov.insights.priorityCheck + " " + ov.insights.flagshipInsight },
         { heading: "Enforcement Performance", body: ov.insights.takedownCheck + " " + ov.insights.removalCheck },
-        { heading: "Reappearance", body: ov.insights.reappCheck + ` Closed-loop recovery ${k.closedLoopRecoveryRate}% — ${EXEC_KPI.reappearances} of ${EXEC_KPI.reappearances} detected events were linked to a prior case. Average resurfacing ${k.avgResurfaceDays} days.` },
-        { heading: "Key Decisions Required", body: `1) Clear the ${EXEC_KPI.critical} critical flagship cases. 2) Escalate ${EXEC_KPI.slaBreachCount} SLA-breached matters. 3) Authorise exam-season surge staffing through board exams.` },
+        { heading: "Reappearance", body: ov.insights.reappCheck + ` Closed-loop recovery ${k.closedLoopRecoveryRate}%.` },
+        { heading: "Key Decisions Required", body: `1) Clear the critical flagship cases. 2) Escalate SLA-breached matters. 3) Authorise exam-season surge staffing through board exams.` },
         { heading: "Recommended Actions", body: "Keep daily monitoring on critical titles; expand India intermediary notices for marketplaces; retain human approval on every legal submission; continue LLM exposure probing on Gemini/Meta." },
       ],
     },
@@ -195,15 +319,15 @@ export function buildReport(type: string) {
       ],
       sections: [
         { heading: "This week", body: `W12 opened 19 cases and completed 17 removals (89% in-week conversion, in line with the ${k.takedownRate}% programme KPI).` },
-        { heading: "SLA", body: ov.insights.slaCheck + " Cyberlockers (4.1d) and marketplaces (3.4d) are the SLA KRI drivers versus Telegram at 1.6d." },
-        { heading: "Next actions", body: `${EXEC_KPI.slaApproaching} cases are approaching SLA. Dispatcher should prioritise marketplace and cyberlocker queues.` },
+        { heading: "SLA", body: ov.insights.slaCheck + " " + ov.insights.removalInsight },
+        { heading: "Next actions", body: `Dispatcher should prioritise the slowest-removing platforms' queues.` },
       ],
     },
     "Investigator Productivity Report": {
       title: "Investigator Productivity Report",
       charts: [{ title: "Funnel conversion", kind: "funnel", dataKey: "funnel" }],
       sections: [
-        { heading: "Throughput", body: `${EXEC_KPI.validated} of ${EXEC_KPI.detected} findings validated (${pct(EXEC_KPI.validated, EXEC_KPI.detected)}%). ${EXEC_KPI.caseCreated} cases created from validated stock.` },
+        { heading: "Throughput", body: ov.insights.funnelInsight },
         { heading: "Quality", body: "Promotion requires evidence + hash. False-positive rate is held in the rejected finding queue; investigators cannot approve legal action." },
       ],
     },
@@ -214,16 +338,16 @@ export function buildReport(type: string) {
         { title: "Average removal time (days)", kind: "bar", dataKey: "removalByPlatform" },
       ],
       sections: [
-        { heading: "Concentration KRI", body: ov.insights.mixCheck + " Telegram + Drive = 77/142 (54%) of residual exposure." },
-        { heading: "Speed KPI", body: ov.insights.removalCheck + " Fastest: Telegram 1.6d. Slowest: cyberlockers 4.1d — twice the programme average." },
+        { heading: "Concentration KRI", body: ov.insights.mixCheck + " " + ov.insights.platformInsight },
+        { heading: "Speed KPI", body: ov.insights.removalCheck + " " + ov.insights.removalInsight },
       ],
     },
     "Priority Title Exposure Report": {
       title: "Priority Title Exposure Report",
       charts: [{ title: "Flagship vs non-flagship", kind: "pie", dataKey: "flagship" }],
       sections: [
-        { heading: "KRI", body: ov.insights.priorityCheck + ` All ${EXEC_KPI.critical} critical cases are priority titles.` },
-        { heading: "Implication", body: "₹18.6 Cr exposure is weighted to flagship CBSE and test-prep SKUs. Daily monitoring cadence applies." },
+        { heading: "KRI", body: ov.insights.priorityCheck },
+        { heading: "Implication", body: `${ov.insights.financialCheck} Exposure is weighted to flagship SKUs. Daily monitoring cadence applies.` },
       ],
     },
     "Reappearance Report": {
@@ -238,7 +362,7 @@ export function buildReport(type: string) {
       title: "Legal Action Report",
       charts: [{ title: "Enforcement funnel", kind: "funnel", dataKey: "funnel" }],
       sections: [
-        { heading: "Governance", body: `${EXEC_KPI.noticesSent} notices dispatched after four-gate validation and legal sign-off. ${EXEC_KPI.removed} platform removals recorded (simulated).` },
+        { heading: "Governance", body: ov.insights.takedownCheck + " Notices are dispatched only after four-gate validation and legal sign-off." },
         { heading: "Holds", body: "Approved-hold cases remain blocked from submission until all four gates pass." },
       ],
     },
@@ -247,7 +371,7 @@ export function buildReport(type: string) {
       charts: [{ title: "Geographic share of exposure (%)", kind: "geo", dataKey: "geo" }],
       sections: [
         { heading: "Estimate", body: ov.insights.financialCheck },
-        { heading: "Assumptions", body: "Unauthorized copies are an modelled distribution volume, not observed sales. Realization is catalogue indicative value, not net margin. Confidence: Medium. Methodology version FIN-v0.1." },
+        { heading: "Assumptions", body: "Unauthorized copies are a modelled distribution volume, not observed sales. Realization is catalogue indicative value, not net margin. Confidence: Medium." },
         { heading: "Concentration", body: "North + West India = 56% of geographic exposure share. UAE/GCC 9% aligns with Telegram hosting patterns." },
       ],
     },
@@ -290,7 +414,11 @@ export function buildReport(type: string) {
 }
 
 function pct(n: number, d: number) {
-  return Math.round((n / d) * 100);
+  return d ? Math.round((n / d) * 100) : 0;
+}
+
+function pct1(n: number, d: number) {
+  return d ? Math.round((n / d) * 1000) / 10 : 0;
 }
 
 function llmReportCharts() {

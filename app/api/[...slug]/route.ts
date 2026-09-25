@@ -260,7 +260,7 @@ export async function GET(req: NextRequest) {
   if (path === "report") {
     const { buildReport } = await import("@/lib/metrics");
     const type = searchParams.get("type") ?? "Executive Anti-Piracy Report";
-    return json({ tenant: state.tenant, ...buildReport(type) });
+    return json({ tenant: state.tenant, ...buildReport(type, state) });
   }
 
   if (path === "llm-probing") {
