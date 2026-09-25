@@ -213,22 +213,6 @@ function mulberry32(a: number) {
   };
 }
 
-const CASE_FLOW: { status: CaseStatus; needsNotice: boolean; needsResponse: boolean; needsMonitor: boolean }[] = [
-  { status: "new", needsNotice: false, needsResponse: false, needsMonitor: false },
-  { status: "investigating", needsNotice: false, needsResponse: false, needsMonitor: false },
-  { status: "rights_validation", needsNotice: false, needsResponse: false, needsMonitor: false },
-  { status: "legal_review", needsNotice: false, needsResponse: false, needsMonitor: false },
-  { status: "legal_approved", needsNotice: false, needsResponse: false, needsMonitor: false },
-  { status: "notice_ready", needsNotice: true, needsResponse: false, needsMonitor: false },
-  { status: "submitted", needsNotice: true, needsResponse: false, needsMonitor: false },
-  { status: "awaiting_response", needsNotice: true, needsResponse: false, needsMonitor: false },
-  { status: "removed", needsNotice: true, needsResponse: true, needsMonitor: true },
-  { status: "monitoring", needsNotice: true, needsResponse: true, needsMonitor: true },
-  { status: "closed", needsNotice: true, needsResponse: true, needsMonitor: true },
-  { status: "escalated", needsNotice: true, needsResponse: false, needsMonitor: false },
-  { status: "approved_hold", needsNotice: false, needsResponse: false, needsMonitor: false },
-];
-
 function routeFor(platform: string): NoticeRoute {
   if (platform === "Telegram" || platform === "Google Drive") return "platform_ip_form";
   if (platform === "Marketplace") return "india_intermediary";
@@ -370,7 +354,8 @@ export function buildSeed(): AppState {
     const u = UPLOADERS[i % UPLOADERS.length];
     const match = 68 + Math.floor(rng() * 30);
     const risk: RiskLevel = match >= 95 ? "critical" : match >= 88 ? "high" : match >= 78 ? "medium" : "low";
-    const statuses: Finding["status"][] = ["new", "ai_flagged", "needs_validation", "validated", "promoted", "rejected"];
+    // "promoted" is reserved for findings that back a case (generated below).
+    const statuses: Finding["status"][] = ["new", "ai_flagged", "needs_validation", "validated", "rejected"];
     const status = i < 34 ? "new" : statuses[i % statuses.length];
     const n = 1100 + i >= 1148 ? 1101 + i : 1100 + i; // 1148 reserved for signature reappearance
     findings.push({
@@ -666,46 +651,197 @@ export function buildSeed(): AppState {
     humanValidationRequired: true,
   });
 
-  const extraCaseFindings = findings
-    .filter((f) => f.id !== "FND-2026-1092")
-    .slice(-39);
+  // ---------------------------------------------------------------------------
+  // Case book. Generated from fixed quotas so the records reconcile exactly with
+  // the executive KPI pack (EXEC_KPI in lib/metrics.ts): 184 cases created, 42
+  // closed, 142 active with the same risk, platform, SLA and priority-title mix,
+  // 156 notices dispatched, 138 removals, 143 monitored and 16 reappearances.
+  // The signature case above counts toward every quota. tests/platform.test.ts
+  // asserts the reconciliation, so the tiles and the records cannot drift apart.
+  // ---------------------------------------------------------------------------
+  const NOW = new Date("2026-09-04T10:00:00Z");
+  const HOUR = 3600 * 1000;
+  const caseRng = mulberry32(20260926);
+  function shuffle<T>(arr: T[]): T[] {
+    const a = [...arr];
+    for (let i = a.length - 1; i > 0; i--) {
+      const j = Math.floor(caseRng() * (i + 1));
+      [a[i], a[j]] = [a[j], a[i]];
+    }
+    return a;
+  }
+  function repeat<T>(pairs: [T, number][]): T[] {
+    return pairs.flatMap(([v, n]) => Array.from({ length: n }, () => v));
+  }
 
-  extraCaseFindings.forEach((f, idx) => {
-    const flow = CASE_FLOW[idx % CASE_FLOW.length];
-    const createdAt = f.detectedAt;
-    const slaHours = slaHoursFor(f.risk, slaRules, f.platform === "Telegram" ? 72 : undefined);
+  type Sla = CaseRecord["slaState"];
+  type Slot = { status: CaseStatus; sla: Sla };
+  // 141 active cases besides the signature case.
+  const activeSlots: Slot[] = [
+    ...repeat<Slot>([
+      [{ status: "removed", sla: "within" }, 25],
+      [{ status: "monitoring", sla: "within" }, 65],
+      [{ status: "reopened", sla: "within" }, 5],
+      [{ status: "escalated", sla: "breached" }, 5],
+      [{ status: "awaiting_response", sla: "breached" }, 4],
+      [{ status: "awaiting_response", sla: "approaching" }, 3],
+      [{ status: "submitted", sla: "approaching" }, 6],
+      [{ status: "new", sla: "approaching" }, 2],
+      [{ status: "new", sla: "within" }, 3],
+      [{ status: "investigating", sla: "approaching" }, 2],
+      [{ status: "investigating", sla: "within" }, 4],
+      [{ status: "rights_validation", sla: "approaching" }, 2],
+      [{ status: "rights_validation", sla: "within" }, 3],
+      [{ status: "legal_review", sla: "approaching" }, 1],
+      [{ status: "legal_review", sla: "within" }, 3],
+      [{ status: "legal_approved", sla: "approaching" }, 1],
+      [{ status: "legal_approved", sla: "within" }, 2],
+      [{ status: "notice_ready", sla: "approaching" }, 1],
+      [{ status: "notice_ready", sla: "within" }, 2],
+      [{ status: "approved_hold", sla: "within" }, 2],
+    ]),
+  ].map((s) => ({ ...s }));
+
+  const activeRisks = shuffle(repeat<RiskLevel>([["critical", 13], ["high", 24], ["medium", 71], ["low", 33]]));
+  const activePlatforms = shuffle(
+    repeat<string>([["Telegram", 47], ["Google Drive", 29], ["Website", 24], ["Marketplace", 18], ["Social Media", 13], ["Cyberlocker", 10]])
+  );
+  // Every critical case is on a priority title; 77 of the other 128 are too (91 in all with the signature case).
+  const priorityFlags = shuffle(repeat<boolean>([[true, 77], [false, 51]]));
+  const PRIORITY_ROTATION = ["AST-0001", "AST-0002", "AST-0001", "AST-0004", "AST-0003", "AST-0006", "AST-0001", "AST-0002"];
+  const OTHER_ROTATION = ["AST-0005", "AST-0007", "AST-0008"];
+  let pRot = 0;
+  let oRot = 0;
+
+  type Spec = Slot & { risk: RiskLevel; platform: string; assetId: string; closed: boolean };
+  const specs: Spec[] = activeSlots.map((slot, i) => {
+    const risk = activeRisks[i];
+    const onPriority = risk === "critical" ? true : (priorityFlags.pop() as boolean);
+    const assetId = onPriority ? PRIORITY_ROTATION[pRot++ % PRIORITY_ROTATION.length] : OTHER_ROTATION[oRot++ % OTHER_ROTATION.length];
+    return { ...slot, risk, platform: activePlatforms[i], assetId, closed: false };
+  });
+  const closedRisks = shuffle(repeat<RiskLevel>([["critical", 3], ["high", 8], ["medium", 19], ["low", 12]]));
+  closedRisks.forEach((risk, i) => {
+    specs.push({ status: "closed", sla: "within", risk, platform: PLATFORMS[i % PLATFORMS.length].name, assetId: TITLES[i % TITLES.length].id, closed: true });
+  });
+  const book = shuffle(specs);
+
+  // Days from notice dispatch to removal, by platform (matches removalByPlatform in lib/metrics.ts).
+  const REMOVAL_DAYS: Record<string, number> = {
+    Telegram: 1.6, "Google Drive": 1.9, Website: 2.4, "Social Media": 2.6, Marketplace: 3.4, Cyberlocker: 4.1,
+  };
+  const RIGHTS_ON: CaseStatus[] = ["rights_validation", "legal_review", "legal_approved", "notice_ready", "submitted", "awaiting_response", "removed", "monitoring", "closed", "escalated", "reopened", "approved_hold"];
+  const LEGAL_ON: CaseStatus[] = ["legal_review", "legal_approved", "notice_ready", "submitted", "awaiting_response", "removed", "monitoring", "closed", "escalated", "reopened"];
+  const DISPATCHED: CaseStatus[] = ["submitted", "awaiting_response", "escalated", "removed", "monitoring", "closed", "reopened"];
+  const REMOVED: CaseStatus[] = ["removed", "monitoring", "closed", "reopened"];
+  const MONITORED: CaseStatus[] = ["removed", "monitoring", "closed", "reopened", "escalated"];
+  const LAST_ACTION: Partial<Record<CaseStatus, string>> = {
+    new: "Case opened from validated finding",
+    investigating: "Investigator gathering evidence",
+    rights_validation: "Four-gate rights validation in progress",
+    legal_review: "Awaiting legal review",
+    legal_approved: "Legal approved — notice to be drafted",
+    notice_ready: "Notice approved — ready to dispatch",
+    submitted: "Notice submitted to platform",
+    awaiting_response: "Awaiting platform response",
+    escalated: "SLA breached — escalated to Lead and Legal",
+    removed: "Content removed — monitoring started",
+    monitoring: "Content removed — monitoring active",
+    reopened: "Reappearance confirmed — case reopened",
+    closed: "Closed — monitoring window completed",
+    approved_hold: "Rights on hold — clarification needed",
+  };
+
+  book.forEach((spec, idx) => {
     const caseId = `SC-2026-${900 + idx}`;
-    f.status = "promoted";
-    f.relatedCaseId = caseId;
+    const fid = `FND-2026-${1200 + idx}`;
+    const plat = PLATFORMS.find((p) => p.name === spec.platform) ?? PLATFORMS[0];
+    const asset = TITLES.find((t) => t.id === spec.assetId) ?? TITLES[0];
+    const uploader = UPLOADERS[idx % UPLOADERS.length];
+    const slaHours = slaHoursFor(spec.risk, slaRules, spec.platform === "Telegram" ? 72 : undefined);
+    const removalDays = Math.round((REMOVAL_DAYS[spec.platform] + ((idx % 5) - 2) * 0.1) * 10) / 10;
+    const removed = REMOVED.includes(spec.status);
+    const dispatched = DISPATCHED.includes(spec.status);
+
+    let createdMs: number;
+    if (removed) {
+      const daysAgo = spec.closed ? 20 + (idx % 45) : 3 + Math.ceil(removalDays) + (idx % 18);
+      createdMs = NOW.getTime() - daysAgo * 24 * HOUR;
+    } else if (spec.sla === "breached") {
+      createdMs = NOW.getTime() - (slaHours + 6 + (idx % 30)) * HOUR;
+    } else if (spec.sla === "approaching") {
+      createdMs = NOW.getTime() - slaHours * 0.9 * HOUR;
+    } else {
+      createdMs = NOW.getTime() - slaHours * (0.2 + (idx % 5) * 0.1) * HOUR;
+    }
+    const createdAt = new Date(createdMs).toISOString();
+    const elapsedH = (NOW.getTime() - createdMs) / HOUR;
+    const at = (hoursAfterCreate: number) => new Date(createdMs + hoursAfterCreate * HOUR).toISOString();
+    const noticeAtH = removed ? 12 : Math.min(4, elapsedH / 4);
+    const submittedAtH = removed ? 24 : Math.min(6, elapsedH / 3);
+    const removedAtH = submittedAtH + removalDays * 24;
+
+    const match =
+      spec.risk === "critical" ? 95 + (idx % 5) : spec.risk === "high" ? 88 + (idx % 7) : spec.risk === "medium" ? 78 + (idx % 10) : 68 + (idx % 10);
+    const url = `https://example-demo.com/${plat.cat}/${spec.assetId.toLowerCase()}/${1200 + idx}`;
+
+    findings.push({
+      id: fid,
+      tenantId: TENANT_ID,
+      detectedAt: new Date(createdMs - 2 * HOUR).toISOString(),
+      platform: plat.name,
+      platformCategory: plat.cat,
+      url,
+      suspectedTitle: asset.title,
+      assetId: asset.id,
+      uploader: uploader.name,
+      entityId: uploader.entity,
+      matchScore: match,
+      aiConfidence: Math.min(99, match + 2),
+      priority: spec.risk,
+      risk: spec.risk,
+      status: "promoted",
+      assignedInvestigatorId: idx % 2 === 0 ? "USR-INV-02" : "USR-INV-01",
+      hostingCountry: plat.country,
+      watermarkDetected: match >= 85,
+      ocrSimilarity: Math.max(60, match - 4),
+      metadata: { simulated: true, region: plat.country },
+      relatedFindingIds: [],
+      relatedCaseId: caseId,
+      notes: "",
+      sourceConnector:
+        plat.cat === "messaging" ? "MockTelegramConnector" : plat.cat === "marketplace" ? "MockMarketplaceConnector" : plat.cat === "cloud_storage" ? "MockCloudStorageConnector" : "MockWebConnector",
+      jobId: null,
+    });
+
     const invId = `INV-${900 + idx}`;
-    const evIds = addEvidence(caseId, f.id, idx % 3 === 0 ? 2 : 1, f.url);
     const rec: CaseRecord = {
       id: caseId,
       tenantId: TENANT_ID,
-      findingId: f.id,
+      findingId: fid,
       investigationId: invId,
-      assetId: f.assetId,
-      title: f.suspectedTitle,
-      platform: f.platform,
-      url: f.url,
-      uploader: f.uploader,
-      entityId: f.entityId,
-      risk: f.risk,
-      priority: f.priority,
+      assetId: asset.id,
+      title: asset.title,
+      platform: plat.name,
+      url,
+      uploader: uploader.name,
+      entityId: uploader.entity,
+      risk: spec.risk,
+      priority: spec.risk,
       ownerId: idx % 2 === 0 ? "USR-INV-02" : "USR-INV-01",
-      status: flow.status,
-      noticeRoute: flow.needsNotice ? routeFor(f.platform) : idx % 5 === 0 ? routeFor(f.platform) : null,
-      daysOpen: daysOpen(createdAt, new Date("2026-09-04T10:00:00Z")),
+      status: spec.status,
+      noticeRoute: LEGAL_ON.includes(spec.status) ? routeFor(plat.name) : null,
+      daysOpen: daysOpen(createdAt, NOW),
       slaHours,
       slaDueAt: slaDueAt(createdAt, slaHours),
-      slaState: slaState(createdAt, slaHours, new Date("2026-09-04T10:00:00Z")),
+      slaState: removed ? "within" : slaState(createdAt, slaHours, NOW),
       reappearance: false,
-      lastAction: `Status ${flow.status}`,
-      lastActionAt: createdAt,
+      lastAction: LAST_ACTION[spec.status] ?? `Status ${spec.status}`,
+      lastActionAt: removed ? at(removedAtH) : dispatched ? at(submittedAtH) : createdAt,
       createdAt,
-      hostingCountry: f.hostingCountry,
+      hostingCountry: plat.country,
       parentCaseId: null,
-      evidenceIds: evIds,
+      evidenceIds: addEvidence(caseId, fid, idx % 3 === 0 ? 2 : 1, url),
       noticeId: null,
       submissionId: null,
       monitoringJobId: null,
@@ -714,134 +850,135 @@ export function buildSeed(): AppState {
     investigations.push({
       id: invId,
       tenantId: TENANT_ID,
-      findingId: f.id,
+      findingId: fid,
       caseId,
       investigatorId: rec.ownerId,
-      status: flow.status === "rejected" ? "false_positive" : "confirmed",
-      notes: [`Investigation opened for ${f.suspectedTitle}`],
+      status: spec.status === "new" || spec.status === "investigating" ? "open" : "confirmed",
+      notes: [`Investigation opened for ${asset.title}`],
       createdAt,
       updatedAt: createdAt,
     });
 
-    if (["rights_validation", "legal_review", "legal_approved", "notice_ready", "submitted", "awaiting_response", "removed", "monitoring", "closed", "escalated"].includes(flow.status)) {
-      const pass = flow.status !== "approved_hold";
+    if (RIGHTS_ON.includes(spec.status)) {
+      const hold = spec.status === "approved_hold";
       rights.push({
         id: `RV-${900 + idx}`,
         tenantId: TENANT_ID,
         caseId,
         gates: {
           rightsOwnership: "pass",
-          infringementSubstantiated: pass ? "pass" : "hold",
+          infringementSubstantiated: hold ? "hold" : "pass",
           authorization: "pass",
-          actionableTarget: pass ? "pass" : "hold",
+          actionableTarget: hold ? "hold" : "pass",
         },
         inheritedFromCaseId: null,
         confirmationRequired: false,
-        confirmed: pass,
+        confirmed: !hold && spec.status !== "rights_validation",
         reviewerId: "USR-LEG-01",
         reviewedAt: createdAt,
-        notes: pass ? "4/4 validated" : "Hold — further clarification",
-        title: f.suspectedTitle,
-        isbn: TITLES.find((t) => t.id === f.assetId)?.isbn ?? "",
+        notes: hold ? "Hold — further clarification" : "4/4 validated",
+        title: asset.title,
+        isbn: asset.isbn,
         edition: "2025",
-        author: TITLES.find((t) => t.id === f.assetId)?.author ?? "",
+        author: asset.author,
         rightsOwner: "S. Chand & Company Limited",
         territory: "IN",
       });
     }
 
-    if (["legal_approved", "notice_ready", "submitted", "awaiting_response", "removed", "monitoring", "closed", "escalated"].includes(flow.status)) {
+    if (LEGAL_ON.includes(spec.status)) {
       legal.push({
         id: `LR-${900 + idx}`,
         tenantId: TENANT_ID,
         caseId,
         reviewerId: "USR-LEG-01",
-        status: flow.status === "approved_hold" ? "hold" : "approved",
+        status: spec.status === "legal_review" ? "pending" : "approved",
         jurisdiction: "India",
-        recommendedRoute: routeFor(f.platform),
+        recommendedRoute: routeFor(plat.name),
         routeConfidence: "high",
         routeReason: "Configured route for platform.",
-        approvedAt: createdAt,
+        approvedAt: spec.status === "legal_review" ? null : at(noticeAtH),
         notes: "",
       });
     }
 
-    if (flow.needsNotice) {
+    if (spec.status === "notice_ready" || dispatched) {
       const nid = `NTC-${900 + idx}`;
       rec.noticeId = nid;
       notices.push({
         id: nid,
         tenantId: TENANT_ID,
         caseId,
-        route: routeFor(f.platform),
-        status: flow.status === "notice_ready" ? "approved" : "dispatched",
+        route: routeFor(plat.name),
+        status: dispatched ? "dispatched" : "approved",
         complainant: "S. Chand & Company Limited",
-        copyrightedWork: `${f.suspectedTitle}`,
+        copyrightedWork: asset.title,
         ownership: "S. Chand & Company Limited",
-        infringingMaterial: `Unauthorized copy at ${f.url}`,
-        location: f.url,
+        infringingMaterial: `Unauthorized copy at ${url}`,
+        location: url,
         description: "Unauthorized distribution of a S. Chand protected work.",
         goodFaithDeclaration: "Simulated prototype notice — not a live legal filing.",
         authorization: "Legal Reviewer 01",
         signature: "Legal Reviewer 01 (demo)",
-        generatedAt: createdAt,
+        generatedAt: at(noticeAtH),
         approvedBy: "USR-LEG-01",
-        approvedAt: createdAt,
+        approvedAt: at(noticeAtH),
       });
-      const sid = `SUB-${900 + idx}`;
-      rec.submissionId = sid;
-      if (["submitted", "awaiting_response", "removed", "monitoring", "closed", "escalated"].includes(flow.status)) {
-        submissions.push({
-          id: sid,
-          tenantId: TENANT_ID,
-          caseId,
-          noticeId: nid,
-          ticketId: `${f.platform.slice(0, 2).toUpperCase()}-IP-${70000 + idx}`,
-          destination: `${f.platform} IP reporting workflow`,
-          status: flow.status === "removed" || flow.status === "monitoring" || flow.status === "closed" ? "removed" : "awaiting_response",
-          submittedAt: createdAt,
-          submittedBy: "USR-OPS-01",
-          simulated: true,
-        });
-      }
     }
 
-    if (flow.needsResponse) {
-      responses.push({
-        id: `PR-${900 + idx}`,
+    if (dispatched) {
+      const sid = `SUB-${900 + idx}`;
+      rec.submissionId = sid;
+      submissions.push({
+        id: sid,
         tenantId: TENANT_ID,
-        submissionId: rec.submissionId ?? `SUB-${900 + idx}`,
         caseId,
-        outcome: "removed",
-        receivedAt: createdAt,
-        summary: "SIMULATED RESPONSE — removed",
+        noticeId: rec.noticeId as string,
+        ticketId: `${plat.name.slice(0, 2).toUpperCase()}-IP-${70000 + idx}`,
+        destination: `${plat.name} IP reporting workflow`,
+        status: removed ? "removed" : spec.status === "submitted" ? "submitted" : "awaiting_response",
+        submittedAt: at(submittedAtH),
+        submittedBy: "USR-OPS-01",
         simulated: true,
       });
     }
 
-    if (flow.needsMonitor) {
+    if (removed) {
+      responses.push({
+        id: `PR-${900 + idx}`,
+        tenantId: TENANT_ID,
+        submissionId: rec.submissionId as string,
+        caseId,
+        outcome: "removed",
+        receivedAt: at(removedAtH),
+        summary: `SIMULATED RESPONSE — removed after ${removalDays} days`,
+        simulated: true,
+      });
+    }
+
+    if (MONITORED.includes(spec.status)) {
       const mid = `MON-${900 + idx}`;
       rec.monitoringJobId = mid;
       monitoring.push({
         id: mid,
         tenantId: TENANT_ID,
         caseId,
-        status: flow.status === "closed" ? "completed" : "active",
-        windowDays: f.risk === "critical" || f.risk === "high" ? 30 : f.risk === "medium" ? 60 : 90,
-        cadence: f.risk === "critical" || f.risk === "high" ? "daily" : f.risk === "medium" ? "weekly" : "monthly",
-        startedAt: createdAt,
+        status: spec.closed ? "completed" : "active",
+        windowDays: spec.risk === "critical" || spec.risk === "high" ? 30 : spec.risk === "medium" ? 60 : 90,
+        cadence: spec.risk === "critical" || spec.risk === "high" ? "daily" : spec.risk === "medium" ? "weekly" : "monthly",
+        startedAt: removed ? at(removedAtH) : at(submittedAtH),
         nextScanAt: iso(0, 9),
-        lastScanAt: createdAt,
+        lastScanAt: removed ? at(removedAtH) : null,
       });
     }
 
-    if (flow.status === "escalated") {
+    if (spec.status === "escalated") {
       escalations.push({
         id: `ESC-${900 + idx}`,
         tenantId: TENANT_ID,
         caseId,
         reason: "SLA breached — escalation required",
-        createdAt,
+        createdAt: at(slaHours),
         status: "open",
         notifyRoles: ["legal", "lead"],
         recommendedRoute: "escalated_legal",
@@ -851,14 +988,13 @@ export function buildSeed(): AppState {
     cases.push(rec);
   });
 
-  const monitorCases = [
-    ...cases.filter((c) => c.status === "monitoring" || c.status === "closed" || c.status === "removed"),
-    ...cases.filter((c) => c.id !== "SC-2026-0842"),
-  ]
-    .filter((c, i, arr) => arr.findIndex((x) => x.id === c.id) === i)
-    .filter((c) => c.id !== "SC-2026-0842")
-    .slice(0, 15);
-  monitorCases.forEach((c, i) => {
+  // 16 reappearances, all on content that was actually removed: the 5 reopened
+  // cases plus 11 cases still in post-removal monitoring.
+  const reappearedCases = [
+    ...cases.filter((c) => c.status === "reopened"),
+    ...cases.filter((c) => c.status === "monitoring" && c.id !== "SC-2026-0842").slice(0, 11),
+  ];
+  reappearedCases.forEach((c, i) => {
     const f: Finding = {
       id: `FND-2026-${1400 + i}`,
       tenantId: TENANT_ID,
@@ -906,7 +1042,7 @@ export function buildSeed(): AppState {
       detectedAt: f.detectedAt,
       confidence: 0.9 + i / 200,
       reasons: ["Same ISBN", "Same protected asset", "High content similarity"],
-      confirmed: i % 2 === 0,
+      confirmed: c.status === "reopened" || i % 2 === 0,
     });
   });
 

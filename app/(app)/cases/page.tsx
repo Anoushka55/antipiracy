@@ -2,17 +2,24 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
+import { useSearchParams } from 'next/navigation';
+import { X } from 'lucide-react';
 import { useApi } from '@/hooks/useApi';
 import { PageLoader } from '@/components/shared/LoadingDots';
 import { Badge, PlatformBadge, RiskBadge, SlaBadge } from '@/components/shared/Badge';
 import { CASE_STATUS_LABEL } from '@/lib/constants';
+import { caseFilterQuery, describeCaseFilter, hasCaseFilter, parseCaseFilter } from '@/lib/case-filters';
 import type { CaseRecord } from '@/lib/types';
 
 export default function CasesPage() {
   const [view, setView] = useState<'table' | 'kanban' | 'timeline'>('table');
   const [q, setQ] = useState('');
-  const { data, loading } = useApi<{ items: CaseRecord[] }>(`cases?q=${encodeURIComponent(q)}`);
-  if (loading || !data) return <PageLoader />;
+  // Filters arrive in the URL from KPI drill-down shortcuts, e.g. /cases?active=1&risk=critical,high.
+  const filter = parseCaseFilter(new URLSearchParams(useSearchParams().toString()));
+  const filtered = hasCaseFilter(filter);
+  const { data } = useApi<{ items: CaseRecord[]; total: number }>(`cases?${caseFilterQuery({ ...filter, q: q || filter.q })}`);
+  // Keep the last result on screen while a new search loads, so typing doesn't flash the loader.
+  if (!data) return <PageLoader />;
   const statuses = Array.from(new Set(data.items.map((c) => c.status)));
 
   return (
@@ -20,7 +27,7 @@ export default function CasesPage() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold">Master Case Registry</h1>
-          <p className="text-sm text-[#6B7280]">{data.items.length} tenant cases · SCHAND</p>
+          <p className="text-sm text-[#6B7280]">{data.total} tenant cases · SCHAND</p>
         </div>
         <div className="flex gap-2">
           {(['table', 'kanban', 'timeline'] as const).map((v) => (
@@ -28,6 +35,15 @@ export default function CasesPage() {
           ))}
         </div>
       </div>
+      {filtered && (
+        <div className="flex flex-wrap items-center gap-3 rounded-xl border border-[#00338D]/15 bg-[#00338D]/5 px-4 py-2.5 text-sm">
+          <span className="font-semibold text-[#00338D]">{describeCaseFilter(filter)}</span>
+          <span className="text-[#6B7280]">{data.items.length} {data.items.length === 1 ? 'case' : 'cases'}</span>
+          <Link href="/cases" className="ml-auto inline-flex items-center gap-1 text-xs font-semibold text-[#00338D] hover:underline">
+            <X size={13} /> Clear filters
+          </Link>
+        </div>
+      )}
       <input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Filter by ID, title, platform…" className="w-full max-w-md px-3 py-2 text-sm rounded-lg border border-[#E2E8F0]" />
       {view === 'table' && (
         <div className="bg-white rounded-2xl border border-[#E2E8F0] overflow-x-auto">

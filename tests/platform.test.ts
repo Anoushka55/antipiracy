@@ -5,6 +5,8 @@ import { allGatesPass, slaHoursFor, slaState, repeatOffenderScore, emptyGates, g
 import { buildSeed } from "@/lib/seed";
 import { CaseWorkflowService, verifyEvidenceHash } from "@/lib/workflow";
 import { runFullStory } from "@/lib/demo";
+import { EXEC_KPI, executiveOverview } from "@/lib/metrics";
+import { kpiDrilldown, type KpiKey } from "@/lib/analytics";
 import type { SessionUser } from "@/lib/types";
 
 const inv: SessionUser = {
@@ -116,6 +118,71 @@ describe("seed integrity", () => {
     const findingIds = s.findings.map((f) => f.id);
     expect(new Set(findingIds).size).toBe(findingIds.length);
     expect(findingIds).not.toContain("FND-2026-1148");
+  });
+
+  it("reconciles exactly with the executive KPI pack", () => {
+    const s = buildSeed();
+    const k = EXEC_KPI;
+    const active = s.cases.filter((c) => c.status !== "closed");
+    const count = <T,>(rows: T[], pred: (r: T) => boolean) => rows.filter(pred).length;
+
+    expect(s.cases.length).toBe(k.caseCreated);
+    expect(count(s.cases, (c) => c.status === "closed")).toBe(k.closed);
+    expect(active.length).toBe(k.activeCases);
+
+    expect(count(active, (c) => c.risk === "critical")).toBe(k.critical);
+    expect(count(active, (c) => c.risk === "high")).toBe(k.high);
+    expect(count(active, (c) => c.risk === "medium")).toBe(k.medium);
+    expect(count(active, (c) => c.risk === "low")).toBe(k.low);
+
+    expect(count(active, (c) => c.slaState === "breached")).toBe(k.slaBreachCount);
+    expect(count(active, (c) => c.slaState === "approaching")).toBe(k.slaApproaching);
+    expect(count(active, (c) => c.slaState === "within")).toBe(k.slaWithin);
+
+    const priorityAssets = new Set(s.catalogue.filter((a) => a.priorityTitle).map((a) => a.id));
+    expect(count(active, (c) => priorityAssets.has(c.assetId))).toBe(k.priorityCases);
+
+    const ov = executiveOverview();
+    const platformName: Record<string, string> = {
+      Telegram: "Telegram", "Google Drive": "Google Drive", Websites: "Website",
+      Marketplaces: "Marketplace", "Social Media": "Social Media", Cyberlockers: "Cyberlocker",
+    };
+    ov.platformCounts.forEach((p) => {
+      expect(count(active, (c) => c.platform === platformName[p.name])).toBe(p.value);
+    });
+
+    expect(count(s.notices, (n) => n.status === "dispatched")).toBe(k.noticesSent);
+    expect(count(s.platformResponses, (r) => r.outcome === "removed")).toBe(k.removed);
+    expect(s.monitoringJobs.length).toBe(k.monitored);
+    expect(s.reappearances.length).toBe(k.reappearances);
+  });
+});
+
+describe("KPI drill-downs", () => {
+  it("link to lists whose counts match the tiles", () => {
+    const s = buildSeed();
+    const k = EXEC_KPI;
+    const label = (kpi: KpiKey) => kpiDrilldown(s, kpi).link.label;
+    expect(label("activeCases")).toBe(`View all ${k.activeCases} active cases`);
+    expect(label("criticalHigh")).toBe(`View all ${k.criticalHigh} critical and high cases`);
+    expect(label("slaBreachRate")).toBe(`View all ${k.slaBreachCount} breached cases`);
+    expect(label("priorityTitleExposure")).toBe(`View all ${k.priorityCases} flagship-title cases`);
+    expect(label("takedownRate")).toBe(`View all ${k.noticesSent - k.removed} open notices`);
+    expect(label("avgRemovalDays")).toBe(`View all ${k.removed} removed cases`);
+    expect(label("reappearanceRate")).toBe(`Open Reappearance Radar (${k.reappearances})`);
+  });
+
+  it("returns an insight and up to five rows for every KPI", () => {
+    const s = buildSeed();
+    const kpis: KpiKey[] = ["activeCases", "criticalHigh", "takedownRate", "avgRemovalDays", "slaBreachRate", "reappearanceRate", "closedLoop", "priorityTitleExposure", "estimatedExposureCr"];
+    kpis.forEach((kpi) => {
+      const d = kpiDrilldown(s, kpi);
+      expect(d.insight.length).toBeGreaterThan(40);
+      expect(d.insight).not.toMatch(/undefined|NaN/);
+      expect(d.rows.length).toBeGreaterThan(0);
+      expect(d.rows.length).toBeLessThanOrEqual(5);
+      if (process.env.PRINT_KPI) console.log(`\n[${kpi}] ${d.insight}\n  ${d.rows.map((r) => `${r.id} | ${r.title} | ${r.subtitle} | ${r.metric ?? ""}`).join("\n  ")}\n  -> ${d.link.label} ${d.link.href}`);
+    });
   });
 });
 

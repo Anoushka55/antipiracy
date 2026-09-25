@@ -4,7 +4,8 @@ import { SESSION_COOKIE } from "@/lib/constants";
 import { can } from "@/lib/rbac";
 import { getStore, mutate, resetStore } from "@/lib/store";
 import { CaseWorkflowService, verifyEvidenceHash, accessEvidence } from "@/lib/workflow";
-import { computeOverview, searchAll } from "@/lib/analytics";
+import { computeOverview, kpiDrilldown, searchAll, type KpiKey } from "@/lib/analytics";
+import { filterCases, parseCaseFilter } from "@/lib/case-filters";
 import {
   generateAdditionalFindings,
   runFullStory,
@@ -115,16 +116,15 @@ export async function GET(req: NextRequest) {
   }
 
   if (path === "cases") {
-    let rows = state.cases.filter((c) => c.tenantId === user.tenantId);
-    const status = searchParams.get("status");
-    const risk = searchParams.get("risk");
-    if (status) rows = rows.filter((c) => c.status === status);
-    if (risk) rows = rows.filter((c) => c.risk === risk);
-    if (q) {
-      const s = q.toLowerCase();
-      rows = rows.filter((c) => `${c.id} ${c.title} ${c.platform} ${c.uploader}`.toLowerCase().includes(s));
-    }
-    return json({ items: rows, view: view ?? "table" });
+    const rows = filterCases(state, parseCaseFilter(searchParams), user.tenantId);
+    return json({ items: rows, total: state.cases.filter((c) => c.tenantId === user.tenantId).length, view: view ?? "table" });
+  }
+
+  if (path === "kpi-detail") {
+    const kpi = searchParams.get("kpi") as KpiKey | null;
+    const KPIS: KpiKey[] = ["activeCases", "criticalHigh", "takedownRate", "avgRemovalDays", "slaBreachRate", "reappearanceRate", "closedLoop", "priorityTitleExposure", "estimatedExposureCr"];
+    if (!kpi || !KPIS.includes(kpi)) return err("Unknown KPI", 400);
+    return json(kpiDrilldown(state, kpi));
   }
 
   if (path === "case" && id) {

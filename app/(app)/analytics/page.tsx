@@ -1,25 +1,22 @@
 'use client';
 
 import { useState } from 'react';
-import { Line, LineChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis, BarChart, Bar } from 'recharts';
+import { Line, LineChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
 import { useApi } from '@/hooks/useApi';
 import { PageLoader } from '@/components/shared/LoadingDots';
 import { Drawer, DetailModal } from '@/components/shared/Overlay';
 import { AIRecommendationCard } from '@/components/shared/Domain';
 import { KPICard } from '@/components/shared/Card';
+import { KpiDrilldownPanel } from '@/components/shared/KpiDrilldownPanel';
+import type { KpiKey } from '@/lib/analytics';
 import type { FinancialEstimate } from '@/lib/types';
 
-type FunnelRow = { stage: string; value: number; insight?: string };
 
 export default function AnalyticsPage() {
   const { data, loading } = useApi<{
     overview: {
       kpis: Record<string, number>;
       trend: { week: string; exposure: number }[];
-      funnel: FunnelRow[];
-      geo: { region: string; value: number; action?: string }[];
-      reappearanceTrend: { week: string; reappearances: number }[];
-      insights?: Record<string, string>;
     };
     forecast: { statement: string; confidence: string; methodologyVersion: string };
     financial: FinancialEstimate[];
@@ -29,95 +26,15 @@ export default function AnalyticsPage() {
   const [openDrilldown, setOpenDrilldown] = useState<string | null>(null);
   if (loading || !data) return <PageLoader />;
   const f = data.financial[0];
-  const ins = data.overview.insights ?? {};
 
-  const DRILLDOWNS: Record<string, { title: string; subtitle?: string; summary: string; render: () => React.ReactNode }> = {
-    closedLoopRecovery: {
-      title: 'Closed-loop Recovery — Reappearance Trend',
-      subtitle: `${data.overview.kpis.closedLoopRecoveryRate}% of detected reappearances are linked back to their original case`,
-      summary: `${data.overview.kpis.closedLoopRecoveryRate}% of the time, when previously-removed content resurfaces, the system successfully links it back to the original case rather than treating it as a brand-new finding. This is what keeps enforcement history and evidence lineage intact across repeat infringements.`,
-      render: () => (
-        <div className="space-y-4">
-          <ResponsiveContainer width="100%" height={260}>
-            <LineChart data={data.overview.reappearanceTrend}>
-              <CartesianGrid stroke="#E2E8F0" vertical={false} />
-              <XAxis dataKey="week" tick={{ fontSize: 11 }} />
-              <YAxis tick={{ fontSize: 11 }} allowDecimals={false} />
-              <Tooltip />
-              <Line type="monotone" dataKey="reappearances" name="Linked reappearances" stroke="#8B1E3F" strokeWidth={2} />
-            </LineChart>
-          </ResponsiveContainer>
-          <p className="text-xs text-[#6B7280] leading-relaxed">{ins.reappInsight}</p>
-        </div>
-      ),
-    },
-    reappearanceRate: {
-      title: 'Reappearance Rate — KRI',
-      subtitle: `${data.overview.kpis.reappearanceRate}% of the monitored book has resurfaced`,
-      summary: `${data.overview.kpis.reappearanceRate}% of removed content has come back somewhere else, usually as a mirror or re-upload. This is why every removal keeps a monitoring job running rather than closing the case immediately.`,
-      render: () => (
-        <div className="space-y-4">
-          <ResponsiveContainer width="100%" height={260}>
-            <LineChart data={data.overview.reappearanceTrend}>
-              <CartesianGrid stroke="#E2E8F0" vertical={false} />
-              <XAxis dataKey="week" tick={{ fontSize: 11 }} />
-              <YAxis tick={{ fontSize: 11 }} allowDecimals={false} />
-              <Tooltip />
-              <Line type="monotone" dataKey="reappearances" name="Linked reappearances" stroke="#8B1E3F" strokeWidth={2} />
-            </LineChart>
-          </ResponsiveContainer>
-          <p className="text-xs text-[#6B7280] leading-relaxed">{ins.reappCheck}</p>
-        </div>
-      ),
-    },
-    estimatedExposure: {
-      title: 'Estimated Exposure Value',
-      subtitle: `₹${data.overview.kpis.estimatedExposureCr} Cr indicative financial exposure`,
-      summary: `The ₹${data.overview.kpis.estimatedExposureCr} Cr figure is a modelled estimate — unauthorized copies in circulation multiplied by an indicative per-copy value — not an observed real-world loss. It's meant to help prioritise where to focus enforcement, and the regional breakdown below shows where that exposure is concentrated.`,
-      render: () => (
-        <div className="space-y-4">
-          <p className="text-xs text-[#6B7280] leading-relaxed">{ins.financialCheck}</p>
-          <ResponsiveContainer width="100%" height={220}>
-            <BarChart data={data.overview.geo} layout="vertical" margin={{ left: 8 }}>
-              <CartesianGrid stroke="#E2E8F0" horizontal={false} />
-              <XAxis type="number" unit="%" tick={{ fontSize: 11 }} />
-              <YAxis type="category" dataKey="region" width={88} tick={{ fontSize: 11 }} />
-              <Tooltip />
-              <Bar dataKey="value" radius={[0, 6, 6, 0]} fill="#00338D" />
-            </BarChart>
-          </ResponsiveContainer>
-          <p className="text-xs text-[#6B7280] leading-relaxed">{ins.geoInsight}</p>
-        </div>
-      ),
-    },
-    takedownSuccess: {
-      title: 'Takedown Success — Enforcement Funnel',
-      subtitle: `${data.overview.kpis.takedownRate}% of dispatched notices result in removal`,
-      summary: `${data.overview.kpis.takedownRate}% of notices that get sent to a platform successfully result in the content being removed. The funnel below shows every stage a finding passes through before it gets to that point, and where the biggest drop-offs happen.`,
-      render: () => (
-        <div className="space-y-4">
-          <ResponsiveContainer width="100%" height={220}>
-            <BarChart data={data.overview.funnel} layout="vertical" margin={{ left: 8 }}>
-              <CartesianGrid stroke="#E2E8F0" horizontal={false} />
-              <XAxis type="number" tick={{ fontSize: 11 }} />
-              <YAxis type="category" dataKey="stage" width={100} tick={{ fontSize: 11 }} />
-              <Tooltip />
-              <Bar dataKey="value" fill="#00338D" radius={[0, 6, 6, 0]} />
-            </BarChart>
-          </ResponsiveContainer>
-          <div className="space-y-1.5">
-            {data.overview.funnel.map((row) => (
-              <div key={row.stage} className="flex items-start justify-between gap-3 text-xs">
-                <span className="font-semibold text-[#1A1F36] w-32 shrink-0">{row.stage}</span>
-                <span className="font-mono text-[#1A1F36] w-16">{row.value.toLocaleString()}</span>
-                <span className="text-[#6B7280] flex-1">{row.insight}</span>
-              </div>
-            ))}
-          </div>
-          <p className="text-xs text-[#6B7280] leading-relaxed">{ins.funnelInsight}</p>
-        </div>
-      ),
-    },
+  const close = () => setOpenDrilldown(null);
+  const tile = (kpi: KpiKey, title: string, subtitle: string) => ({ title, subtitle, render: () => <KpiDrilldownPanel kpi={kpi} onNavigate={close} /> });
+
+  const DRILLDOWNS: Record<string, { title: string; subtitle?: string; summary?: string; render: () => React.ReactNode }> = {
+    closedLoopRecovery: tile('closedLoop', 'Closed-loop Recovery', `${data.overview.kpis.closedLoopRecoveryRate}% of detected reappearances are linked back to their original case`),
+    reappearanceRate: tile('reappearanceRate', 'Reappearance Rate', `${data.overview.kpis.reappearanceRate}% of the monitored book has resurfaced`),
+    estimatedExposure: tile('estimatedExposureCr', 'Estimated Exposure', `₹${data.overview.kpis.estimatedExposureCr} Cr indicative exposure, a modelled estimate`),
+    takedownSuccess: tile('takedownRate', 'Takedown Success', `${data.overview.kpis.takedownRate}% of dispatched notices result in removal`),
     aiRecommendation: {
       title: 'AI Recommendation — Full Detail',
       subtitle: 'Methodology, model provenance, and confidence for this forecast',
