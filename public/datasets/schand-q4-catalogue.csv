@@ -1,9 +1,42 @@
 id,title,isbn,author,category,segment,priorityTitle,indicativeValueInr,platformBias
-AST-Q4-01,Quantitative Aptitude for Competitive Exams,9789355019226,R.S. Aggarwal,Reasoning,Competitive Exams,true,520,Marketplace
-AST-Q4-02,NEET Preparation Series 2027,9789355019240,S. Chand Editorial,Medical Entrance,Test Prep,true,680,Cyberlocker
-AST-Q4-03,Chemistry for Class 12,9789352530885,O.P. Tandon,Science,K-12 CBSE,true,505,Google Drive
-AST-Q4-04,Data Structures Using C,9789352530908,S. Chand Editorial,Computer Science,Engineering,true,540,Marketplace
-AST-Q4-05,Basic Electrical Engineering,9789352530922,S. Chand Editorial,Engineering,Diploma / ITI,false,460,Cyberlocker
-AST-Q4-06,Financial Accounting for Class 12,9789352530946,T.S. Grewal,Commerce,K-12 CBSE,false,415,Google Drive
-AST-Q4-07,Objective General English,9789352530960,S.P. Bakshi,English,Competitive Exams,false,375,Marketplace
-AST-Q4-08,Industrial Electronics (ITI Vocational),9789352530984,S. Chand Editorial,Vocational,Diploma / ITI,false,330,Cyberlocker
+AST-Q4-01,Quantitative Aptitude for Competitive Exams,9789355011000,R.S. Aggarwal,Reasoning,Competitive Exams,true,520,Marketplace
+AST-Q4-02,NEET Preparation Series 2027,9789355011037,S. Chand Editorial,Medical Entrance,Test Prep,true,680,Cyberlocker
+AST-Q4-03,Chemistry for Class 12,9789355011074,O.P. Tandon,Science,K-12 CBSE,true,505,Google Drive
+AST-Q4-04,Data Structures Using C,9789355011111,S. Chand Editorial,Computer Science,Engineering,true,540,Marketplace
+AST-Q4-05,Basic Electrical Engineering,9789355011148,S. Chand Editorial,Engineering,Diploma / ITI,false,460,Cyberlocker
+AST-Q4-06,Financial Accounting for Class 12,9789355011185,T.S. Grewal,Commerce,K-12 CBSE,false,415,Google Drive
+AST-Q4-07,Objective General English,9789355011222,S.P. Bakshi,English,Competitive Exams,false,375,Marketplace
+AST-Q4-08,Industrial Electronics (ITI Vocational),9789355011259,S. Chand Editorial,Vocational,Diploma / ITI,false,330,Cyberlocker
+AST-Q4-09,NEET Preparation Series - Biology,9789355011296,S. Chand Editorial,Medical Entrance,Test Prep,true,660,Google Drive
+AST-Q4-10,NEET Preparation Series - Physics,9789355011333,S. Chand Editorial,Medical Entrance,Test Prep,true,670,Marketplace
+AST-Q4-11,Verbal Reasoning for Bank Exams,9789355011370,R.S. Aggarwal,Reasoning,Competitive Exams,true,430,Cyberlocker
+AST-Q4-12,Quantitative Aptitude for Bank Exams,9789355011407,R.S. Aggarwal,Reasoning,Competitive Exams,true,450,Google Drive
+AST-Q4-13,Data Structures Using Cpp,9789355011444,S. Chand Editorial,Computer Science,Engineering,false,555,Marketplace
+AST-Q4-14,Digital Electronics,9789355011481,S. Chand Editorial,Engineering,Engineering,false,500,Cyberlocker
+AST-Q4-15,Engineering Mechanics,9789355011518,S. Chand Editorial,Engineering,Engineering,false,520,Google Drive
+AST-Q4-16,Thermodynamics for Engineers,9789355011555,S. Chand Editorial,Engineering,Engineering,false,530,Marketplace
+AST-Q4-17,Cost Accounting for B.Com,9789355011592,T.S. Grewal,Commerce,Undergraduate,false,420,Cyberlocker
+AST-Q4-18,Corporate Accounting for B.Com,9789355011629,T.S. Grewal,Commerce,Undergraduate,false,425,Google Drive
+AST-Q4-19,Business Statistics,9789355011666,S. Chand Editorial,Commerce,Undergraduate,false,395,Marketplace
+AST-Q4-20,Auditing and Assurance,9789355011703,S. Chand Editorial,Commerce,Professional,false,480,Cyberlocker
+AST-Q4-21,Automobile Engineering (ITI Vocational),9789355011740,S. Chand Editorial,Vocational,Diploma / ITI,false,340,Google Drive
+AST-Q4-22,Welding Technology (ITI Vocational),9789355011777,S. Chand Editorial,Vocational,Diploma / ITI,false,320,Marketplace
+AST-Q4-23,Refrigeration and Air Conditioning (ITI),9789355011814,S. Chand Editorial,Vocational,Diploma / ITI,false,335,Cyberlocker
+AST-Q4-24,Objective Physics for NEET JEE,9789355011851,S.L. Arora,Science,Test Prep,true,610,Google Drive
+AST-Q4-25,Objective Chemistry for NEET JEE,9789355011888,O.P. Tandon,Science,Test Prep,true,600,Marketplace
+AST-Q4-26,Objective Biology for NEET,9789355011925,P.S. Verma,Science,Test Prep,true,590,Cyberlocker
+AST-Q4-27,CAT Quantitative Aptitude,9789355011962,R.S. Aggarwal,Reasoning,Competitive Exams,false,470,Google Drive
+AST-Q4-28,CAT Verbal Ability and Reading Comprehension,9789355011999,S.P. Bakshi,English,Competitive Exams,false,455,Marketplace
+AST-Q4-29,SSC General Studies,9789355012036,S. Chand Editorial,Reference,Competitive Exams,false,360,Cyberlocker
+AST-Q4-30,Railways General Awareness,9789355012073,S. Chand Editorial,Reference,Competitive Exams,false,350,Google Drive
+AST-Q4-31,Operating Systems Concepts,9789355012110,S. Chand Editorial,Computer Science,Engineering,false,545,Marketplace
+AST-Q4-32,Computer Networks,9789355012147,S. Chand Editorial,Computer Science,Engineering,false,550,Cyberlocker
+AST-Q4-33,Database Management Systems,9789355012184,S. Chand Editorial,Computer Science,Engineering,false,535,Google Drive
+AST-Q4-34,Object Oriented Programming with Java,9789355012221,S. Chand Editorial,Computer Science,Engineering,false,525,Marketplace
+AST-Q4-35,Strength of Materials,9789355012258,S. Chand Editorial,Engineering,Engineering,false,510,Cyberlocker
+AST-Q4-36,Fluid Mechanics,9789355012295,S. Chand Editorial,Engineering,Engineering,false,515,Google Drive
+AST-Q4-37,Managerial Economics for MBA,9789355012332,S. Chand Editorial,Commerce,Postgraduate,false,460,Marketplace
+AST-Q4-38,Human Resource Management for MBA,9789355012369,S. Chand Editorial,Commerce,Postgraduate,false,450,Cyberlocker
+AST-Q4-39,Marketing Management for MBA,9789355012406,S. Chand Editorial,Commerce,Postgraduate,false,465,Google Drive
+AST-Q4-40,Fitting and Machining (ITI Vocational),9789355012443,S. Chand Editorial,Vocational,Diploma / ITI,false,325,Marketplace
+AST-Q4-41,Plumbing Technology (ITI Vocational),9789355012480,S. Chand Editorial,Vocational,Diploma / ITI,false,315,Cyberlocker

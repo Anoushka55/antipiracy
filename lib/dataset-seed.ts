@@ -430,10 +430,13 @@ export function buildDatasetSeed(rows: DatasetCsvRow[], datasetLabel: string, ru
 
     // One reappearance per title, on its monitoring/removed case, so the
     // Reappearance Radar is never empty for an uploaded dataset either.
+    // reappBase sits well past the last main-loop finding id (1200 + catalogue.length
+    // * SLOTS.length) regardless of catalogue size, so the two ranges never collide.
+    const reappBase = 1200 + catalogue.length * SLOTS.length + 200;
     const monitored = cases.filter((c) => c.assetId === asset.id && (c.status === "monitoring" || c.status === "removed"))[0];
     if (monitored) {
-      const rfid = `FND-${run}-${1400 + ai}`;
-      const rurl = `https://mirror.example-demo.com/${asset.id.toLowerCase()}/${run}-${1400 + ai}`;
+      const rfid = `FND-${run}-${reappBase + ai}`;
+      const rurl = `https://mirror.example-demo.com/${asset.id.toLowerCase()}/${run}-${reappBase + ai}`;
       findings.push({
         id: rfid,
         tenantId: TENANT_ID,
@@ -463,7 +466,7 @@ export function buildDatasetSeed(rows: DatasetCsvRow[], datasetLabel: string, ru
       });
       monitored.reappearance = true;
       reappearances.push({
-        id: `REA-${run}-${1400 + ai}`,
+        id: `REA-${run}-${reappBase + ai}`,
         tenantId: TENANT_ID,
         originalCaseId: monitored.id,
         newFindingId: rfid,

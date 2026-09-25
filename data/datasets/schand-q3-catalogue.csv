@@ -1,9 +1,41 @@
 id,title,isbn,author,category,segment,priorityTitle,indicativeValueInr,platformBias
-AST-Q3-01,Mathematics for Class 10 (2026 Edition),9789352533978,R.S. Aggarwal,Mathematics,K-12 CBSE,true,445,Telegram
-AST-Q3-02,Lakhmir Singh Science Class 9,9789352530649,Lakhmir Singh & Manjit Kaur,Science,K-12 CBSE,true,495,Website
-AST-Q3-03,Golden English Grammar,9789352530670,S. Chand Editorial,English,K-12 / Reference,true,360,Telegram
-AST-Q3-04,JEE Main Physics Practice Series,9789355019127,S. Chand Editorial,Engineering Entrance,Test Prep,true,650,Website
-AST-Q3-05,Class 8 Mathematics,9789352530700,R.S. Aggarwal,Mathematics,K-12 CBSE,false,320,Telegram
-AST-Q3-06,Verbal & Non-Verbal Reasoning,9789352530731,R.S. Aggarwal,Reasoning,Competitive Exams,false,410,Website
-AST-Q3-07,Biology for Class 11,9789352530762,P.S. Verma,Science,K-12 CBSE,false,470,Telegram
-AST-Q3-08,Economics for Class 12,9789352530793,T.T. Sethi,Economics,K-12 CBSE,false,390,Website
+AST-Q3-01,Mathematics for Class 10 (2026 Edition),9789352531000,R.S. Aggarwal,Mathematics,K-12 CBSE,true,445,Telegram
+AST-Q3-02,Lakhmir Singh Science Class 9,9789352531037,Lakhmir Singh & Manjit Kaur,Science,K-12 CBSE,true,495,Website
+AST-Q3-03,Golden English Grammar,9789352531074,S. Chand Editorial,English,K-12 / Reference,true,360,Telegram
+AST-Q3-04,JEE Main Physics Practice Series,9789352531111,S. Chand Editorial,Engineering Entrance,Test Prep,true,650,Website
+AST-Q3-05,Class 8 Mathematics,9789352531148,R.S. Aggarwal,Mathematics,K-12 CBSE,false,320,Telegram
+AST-Q3-06,Verbal & Non-Verbal Reasoning,9789352531185,R.S. Aggarwal,Reasoning,Competitive Exams,false,410,Website
+AST-Q3-07,Biology for Class 11,9789352531222,P.S. Verma,Science,K-12 CBSE,false,470,Telegram
+AST-Q3-08,Economics for Class 12,9789352531259,T.T. Sethi,Economics,K-12 CBSE,false,390,Website
+AST-Q3-09,Mathematics for Class 9,9789352531296,R.S. Aggarwal,Mathematics,K-12 CBSE,true,410,Telegram
+AST-Q3-10,Mathematics for Class 8,9789352531333,R.S. Aggarwal,Mathematics,K-12 CBSE,false,300,Website
+AST-Q3-11,Lakhmir Singh Science Class 10,9789352531370,Lakhmir Singh & Manjit Kaur,Science,K-12 CBSE,true,505,Telegram
+AST-Q3-12,Lakhmir Singh Physics Class 9,9789352531407,Lakhmir Singh & Manjit Kaur,Science,K-12 CBSE,false,340,Website
+AST-Q3-13,High School English Grammar and Composition,9789352531444,Wren & Martin,English,K-12 / Reference,true,395,Telegram
+AST-Q3-14,Objective Arithmetic,9789352531481,R.S. Aggarwal,Mathematics,Competitive Exams,false,420,Marketplace
+AST-Q3-15,JEE Main Chemistry Practice Series,9789352531518,S. Chand Editorial,Engineering Entrance,Test Prep,true,640,Website
+AST-Q3-16,JEE Main Mathematics Practice Series,9789352531555,S. Chand Editorial,Engineering Entrance,Test Prep,true,660,Telegram
+AST-Q3-17,Biology for Class 12,9789352531592,P.S. Verma,Science,K-12 CBSE,false,480,Website
+AST-Q3-18,Chemistry for Class 11,9789352531629,O.P. Tandon,Science,K-12 CBSE,false,455,Telegram
+AST-Q3-19,Physics for Class 11,9789352531666,S.L. Arora,Science,K-12 CBSE,false,460,Website
+AST-Q3-20,Accountancy for Class 11,9789352531703,T.S. Grewal,Commerce,K-12 CBSE,false,400,Telegram
+AST-Q3-21,Business Studies for Class 12,9789352531740,Poonam Gandhi,Commerce,K-12 CBSE,false,385,Website
+AST-Q3-22,Political Science for Class 12,9789352531777,S. Chand Editorial,Social Science,K-12 CBSE,false,340,Telegram
+AST-Q3-23,History for Class 10,9789352531814,S. Chand Editorial,Social Science,K-12 CBSE,false,330,Website
+AST-Q3-24,Geography for Class 10,9789352531851,S. Chand Editorial,Social Science,K-12 CBSE,false,325,Telegram
+AST-Q3-25,Sanskrit Vyakaran Class 9,9789352531888,S. Chand Editorial,Languages,K-12 CBSE,false,280,Website
+AST-Q3-26,Hindi Vyakaran Class 10,9789352531925,S. Chand Editorial,Languages,K-12 CBSE,false,290,Telegram
+AST-Q3-27,Computer Applications Class 10,9789352531962,Sumita Arora,Computer Science,K-12 CBSE,false,410,Website
+AST-Q3-28,Informatics Practices Class 12,9789352531999,Sumita Arora,Computer Science,K-12 CBSE,false,430,Telegram
+AST-Q3-29,Environmental Science Class 8,9789352532036,S. Chand Editorial,Science,K-12 CBSE,false,270,Website
+AST-Q3-30,General Knowledge 2026,9789352532073,S. Chand Editorial,Reference,Competitive Exams,false,310,Telegram
+AST-Q3-31,Quantitative Aptitude for Class 10,9789352532110,R.S. Aggarwal,Mathematics,K-12 CBSE,false,350,Marketplace
+AST-Q3-32,Golden Guide to Physics Class 11,9789352532147,S. Chand Editorial,Science,K-12 CBSE,false,420,Website
+AST-Q3-33,Golden Guide to Chemistry Class 12,9789352532184,S. Chand Editorial,Science,K-12 CBSE,false,430,Telegram
+AST-Q3-34,Value Based Mathematics Class 9,9789352532221,R.S. Aggarwal,Mathematics,K-12 CBSE,false,315,Website
+AST-Q3-35,English Reader Class 8,9789352532258,S. Chand Editorial,English,K-12 CBSE,false,260,Telegram
+AST-Q3-36,Communicative English Class 9,9789352532295,S. Chand Editorial,English,K-12 CBSE,false,275,Website
+AST-Q3-37,Simplified Physics Class 10,9789352532332,S.L. Arora,Science,K-12 CBSE,false,400,Telegram
+AST-Q3-38,Simplified Chemistry Class 10,9789352532369,O.P. Tandon,Science,K-12 CBSE,false,405,Website
+AST-Q3-39,Mathematics Foundation Class 7,9789352532406,R.S. Aggarwal,Mathematics,K-12 CBSE,false,290,Telegram
+AST-Q3-40,Science Foundation Class 7,9789352532443,S. Chand Editorial,Science,K-12 CBSE,false,285,Website
