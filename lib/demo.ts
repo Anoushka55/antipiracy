@@ -21,7 +21,7 @@ function job(type: Job["type"], message: string): Job {
 }
 
 export function startDiscoveryJob(state: AppState, user: SessionUser) {
-  const j = job("discovery", "SIMULATED DISCOVERY RUN — scanning mock connectors");
+  const j = job("discovery", "Discovery run — scanning connectors");
   state.jobs.unshift(j);
   const urls = new Set(state.findings.map((f) => f.url));
   const result = runDiscoveryScan(urls);
@@ -39,6 +39,7 @@ export function startDiscoveryJob(state: AppState, user: SessionUser) {
     duplicatesRemoved: result.duplicatesRemoved,
     highConfidence: result.highConfidence,
     critical: result.critical,
+    newFindingIds: result.findings.map((f) => f.id),
     simulated: true,
   };
   j.logs.push(
@@ -73,6 +74,7 @@ export function uploadDiscoveryDataset(state: AppState, user: SessionUser, filen
     duplicatesRemoved: result.duplicatesRemoved,
     highConfidence: result.highConfidence,
     critical: result.critical,
+    newFindingIds: result.findings.map((f) => f.id),
     filename: label,
     simulated: true,
   };

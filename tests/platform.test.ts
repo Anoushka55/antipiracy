@@ -7,6 +7,8 @@ import { CaseWorkflowService, verifyEvidenceHash } from "@/lib/workflow";
 import { runFullStory } from "@/lib/demo";
 import { EXEC_KPI, executiveOverview } from "@/lib/metrics";
 import { kpiDrilldown, type KpiKey } from "@/lib/analytics";
+import { runDiscoveryScan } from "@/lib/connectors";
+import { SCAN_SOURCES } from "@/lib/scan-sources";
 import type { SessionUser } from "@/lib/types";
 
 const inv: SessionUser = {
@@ -245,5 +247,21 @@ describe("executive cannot mutate cases", () => {
   it("forbids promote", () => {
     const s = buildSeed();
     expect(() => CaseWorkflowService.createCaseFromFinding(s, "FND-2026-1093", exec)).toThrow();
+  });
+});
+
+describe("discovery scan playback", () => {
+  it("lists every connector hit as a matching document, and counts its sources", () => {
+    const result = runDiscoveryScan(new Set());
+    const docs = new Map(SCAN_SOURCES.flatMap((s) => s.docs).map((d) => [d.url, d]));
+    expect(result.sourcesScanned).toBe(SCAN_SOURCES.length);
+    for (const f of result.findings) {
+      const doc = docs.get(f.url);
+      expect(doc?.match?.score, f.url).toBe(f.matchScore);
+      expect(doc?.match?.watermark, f.url).toBe(f.watermarkDetected);
+      expect(doc?.match?.catalogueTitle, f.url).toBe(f.suspectedTitle);
+    }
+    const hits = [...docs.values()].filter((d) => d.match).length;
+    expect(hits).toBe(result.findings.length);
   });
 });

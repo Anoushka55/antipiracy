@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Upload } from 'lucide-react';
 import { useApi } from '@/hooks/useApi';
@@ -10,6 +10,7 @@ import { Badge, PlatformBadge, RiskBadge } from '@/components/shared/Badge';
 import { Drawer, Modal, Toast } from '@/components/shared/Overlay';
 import { AIRecommendationCard } from '@/components/shared/Domain';
 import { PageLoader } from '@/components/shared/LoadingDots';
+import { DiscoveryScanPanel } from '@/components/shared/DiscoveryScanPanel';
 import type { Finding } from '@/lib/types';
 
 const TABS = [
@@ -29,23 +30,41 @@ export default function DiscoveryPage() {
   const [selected, setSelected] = useState<string | null>(params.get('id'));
   const [toast, setToast] = useState('');
   const [scan, setScan] = useState<Record<string, unknown> | null>(null);
-  const [scanLabel, setScanLabel] = useState('Simulated Discovery Run');
+  const [scanLabel, setScanLabel] = useState('Discovery Run');
   const [busy, setBusy] = useState(false);
+  const [scanning, setScanning] = useState(false);
+  const [highlight, setHighlight] = useState<Set<string>>(new Set());
+  const playbackDone = useRef<() => void>(() => {});
   const [uploadOpen, setUploadOpen] = useState(false);
   const [uploadFile, setUploadFile] = useState<File | null>(null);
   const { data, loading, refresh } = useApi<{ items: Finding[]; total: number; newCount: number }>(`findings?tab=${tab}`);
 
+  // New rows keep their highlight for a few seconds after a scan or upload.
+  useEffect(() => {
+    if (!highlight.size) return;
+    const t = setTimeout(() => setHighlight(new Set()), 4000);
+    return () => clearTimeout(t);
+  }, [highlight]);
+
+  const newIds = (result: Record<string, unknown>) => new Set(Array.isArray(result.newFindingIds) ? (result.newFindingIds as string[]) : []);
+
   async function runScan() {
     setBusy(true);
+    setScan(null);
+    setScanning(true);
+    // Results show once both the scan playback and the API call have finished.
+    const playback = new Promise<void>((resolve) => { playbackDone.current = resolve; });
     try {
-      const r = await post<{ result: Record<string, unknown> }>('discovery/run');
-      setScan(r.result);
-      setScanLabel('Simulated Discovery Run');
-      setToast('SIMULATED DISCOVERY RUN complete');
+      const [r] = await Promise.all([post<{ result: Record<string, unknown> }>('discovery/run'), playback]);
       await refresh();
+      setScan(r.result);
+      setScanLabel('Discovery Run');
+      setHighlight(newIds(r.result));
+      setToast('Discovery completed');
     } catch (e) {
       setToast(e instanceof Error ? e.message : 'Scan failed');
     } finally {
+      setScanning(false);
       setBusy(false);
     }
   }
@@ -57,6 +76,7 @@ export default function DiscoveryPage() {
       const r = await post<{ result: Record<string, unknown> }>('discovery/upload', { filename: uploadFile.name });
       setScan(r.result);
       setScanLabel('Dataset Upload Complete');
+      setHighlight(newIds(r.result));
       setToast(`Dataset "${uploadFile.name}" processed`);
       setUploadOpen(false);
       setUploadFile(null);
@@ -80,7 +100,8 @@ export default function DiscoveryPage() {
           <Button onClick={runScan} disabled={busy}>{busy ? 'Scanning…' : 'Run Discovery Scan'}</Button>
         </div>
       </div>
-      {scan && (
+      {scanning && <DiscoveryScanPanel onComplete={() => playbackDone.current()} />}
+      {!scanning && scan && (
         <div className="rounded-2xl border border-[#0077C8]/20 bg-[#0077C8]/5 p-4 text-sm">
           <div className="text-[10px] font-bold uppercase tracking-widest text-[#0077C8] mb-1">{scanLabel}</div>
           Sources scanned: {String(scan.sourcesScanned)} · New findings: {String(scan.newFindings)} · Duplicates removed: {String(scan.duplicatesRemoved)} · High-confidence: {String(scan.highConfidence)} · Critical: {String(scan.critical)}
@@ -111,7 +132,7 @@ export default function DiscoveryPage() {
             </thead>
             <tbody>
               {data.items.map((f) => (
-                <tr key={f.id} className="border-b border-[#E2E8F0] hover:bg-[#F4F6F9] cursor-pointer" onClick={() => setSelected(f.id)}>
+                <tr key={f.id} className={`border-b border-[#E2E8F0] hover:bg-[#F4F6F9] cursor-pointer transition-colors duration-1000 ${highlight.has(f.id) ? 'bg-[#0077C8]/10' : ''}`} onClick={() => setSelected(f.id)}>
                   <td className="px-3 py-3 font-mono font-semibold text-[#00338D]">{f.id}</td>
                   <td className="px-3 py-3 text-[#6B7280] whitespace-nowrap">{f.detectedAt.slice(0, 16).replace('T', ' ')}</td>
                   <td className="px-3 py-3"><PlatformBadge platform={f.platform} /></td>

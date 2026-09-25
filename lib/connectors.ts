@@ -2,6 +2,7 @@ import type { Finding, PlatformCategory } from "./types";
 import { TENANT_ID } from "./constants";
 import { nextSeq } from "./ids";
 import { MockAIService } from "./ai";
+import { SCAN_SOURCES } from "./scan-sources";
 
 export interface DiscoveryConnector {
   id: string;
@@ -186,7 +187,7 @@ export function runDiscoveryScan(existingUrls: Set<string>): {
   critical: number;
 } {
   const raw = CONNECTORS.flatMap((c) => c.discover().map((d) => c.score(c.normalize(d))));
-  const sourcesScanned = 12;
+  const sourcesScanned = SCAN_SOURCES.length;
   let duplicatesRemoved = 0;
   const unique: FindingDraft[] = [];
   for (const item of raw) {
