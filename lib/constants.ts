@@ -111,3 +111,18 @@ export const ROLE_LABEL: Record<Role, string> = {
   operations: "Platform Operations",
   admin: "Administrator",
 };
+
+/**
+ * Where a demo persona lands after signing in, keyed by email prefix.
+ * The single source of truth for this mapping — used by the login page
+ * (to redirect to /welcome first) and the welcome screen (to redirect
+ * onward once the user continues past it).
+ */
+export function destinationForEmail(email: string): string {
+  if (email.startsWith("sourabh")) return "/overview";
+  if (email.startsWith("inv")) return "/discovery";
+  if (email.startsWith("legal")) return "/cases";
+  if (email.startsWith("ops")) return "/enforcement";
+  if (email.startsWith("b.pradhan")) return "/administration";
+  return "/overview";
+}
