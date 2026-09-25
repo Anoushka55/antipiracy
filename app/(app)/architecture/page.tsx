@@ -20,6 +20,7 @@ import {
   Workflow,
 } from 'lucide-react';
 import { ArchitectureFlow, FlowCard, type FlowBand } from '@/components/shared/ArchitectureFlow';
+import { PlatformArchitecture } from '@/components/shared/PlatformArchitecture';
 import { Badge } from '@/components/shared/Badge';
 
 const SYSTEM_BANDS: FlowBand[] = [
@@ -258,8 +259,14 @@ function CaseLifecycleView() {
   );
 }
 
+const TABS = [
+  { id: 'platform', label: 'Platform Architecture' },
+  { id: 'system', label: 'Technical Stack' },
+  { id: 'lifecycle', label: 'Case Lifecycle' },
+] as const;
+
 export default function ArchitecturePage() {
-  const [tab, setTab] = useState<'system' | 'lifecycle'>('system');
+  const [tab, setTab] = useState<(typeof TABS)[number]['id']>('platform');
 
   return (
     <div className="max-w-screen-xl mx-auto px-6 py-8 space-y-6">
@@ -270,20 +277,22 @@ export default function ArchitecturePage() {
       </div>
 
       <div className="flex gap-1">
-        {(['system', 'lifecycle'] as const).map((t) => (
+        {TABS.map((t) => (
           <button
-            key={t}
-            onClick={() => setTab(t)}
+            key={t.id}
+            onClick={() => setTab(t.id)}
             className={`px-4 py-2 rounded-lg text-xs font-semibold transition-colors ${
-              tab === t ? 'bg-[#00338D] text-white' : 'bg-white border border-[#E2E8F0] text-[#6B7280] hover:text-[#1A1F36]'
+              tab === t.id ? 'bg-[#00338D] text-white' : 'bg-white border border-[#E2E8F0] text-[#6B7280] hover:text-[#1A1F36]'
             }`}
           >
-            {t === 'system' ? 'System Architecture' : 'Case Lifecycle'}
+            {t.label}
           </button>
         ))}
       </div>
 
-      {tab === 'system' ? <SystemArchitectureView /> : <CaseLifecycleView />}
+      {tab === 'platform' && <PlatformArchitecture />}
+      {tab === 'system' && <SystemArchitectureView />}
+      {tab === 'lifecycle' && <CaseLifecycleView />}
     </div>
   );
 }

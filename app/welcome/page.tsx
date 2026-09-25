@@ -156,7 +156,6 @@ export default function WelcomePage() {
         <div className="lg:col-span-3 relative flex flex-col justify-center px-2">
           <LoopGraphic />
           <div className="relative">
-            <div className="text-[10px] font-bold uppercase tracking-widest text-white/55 mb-3">Client demonstration</div>
             <h1 className="text-4xl lg:text-5xl font-bold leading-tight text-white" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
               Anti-piracy enforcement,<br /><span className="text-[#0077C8]">at your fingertips</span>
             </h1>
@@ -176,7 +175,6 @@ export default function WelcomePage() {
               Enter Command Center
               <ArrowRight size={16} />
             </button>
-            <p className="text-[11px] text-white/60 mt-4">Prototype / Synthetic Data · No live scraping, model calls or legal filings</p>
           </div>
         </div>
 
