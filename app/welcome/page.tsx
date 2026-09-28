@@ -11,7 +11,7 @@ import { KPMG_LOGO, ROLE_LABEL, SCHAND_LOGO, destinationForEmail } from '@/lib/c
 import type { Role, SessionUser } from '@/lib/types';
 
 const PILLARS = ['Discover', 'Investigate', 'Validate', 'Enforce', 'Monitor', 'LLM Probe'];
-const ROLE_ORDER: Role[] = ['executive', 'lead', 'investigator', 'legal', 'operations', 'admin'];
+const ROLE_ORDER: Role[] = ['executive', 'lead', 'admin'];
 
 interface QuickStartSpec {
   pageId: string;

@@ -110,7 +110,7 @@ export const ROLE_LABEL: Record<Role, string> = {
   investigator: "Investigator",
   legal: "Legal Reviewer",
   operations: "Platform Operations",
-  admin: "Administrator",
+  admin: "Technology Lead",
 };
 
 /**
