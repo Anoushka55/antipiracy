@@ -43,7 +43,7 @@ export function KpiDrilldownPanel({ kpi, onNavigate }: { kpi: KpiKey; onNavigate
           {data.stats?.map((s) => (
             <div key={s.label} className="flex-1 min-w-[110px] rounded-xl border border-[#E2E8F0] px-3 py-2">
               <div className="text-sm font-bold font-mono text-[#1A1F36] tabular-nums">{s.value}</div>
-              <div className="text-[10px] text-[#9CA3AF] uppercase tracking-wide leading-tight mt-0.5">{s.label}</div>
+              <div className="text-[10px] text-[#9CA3AF] tracking-wide leading-tight mt-0.5">{s.label}</div>
             </div>
           ))}
         </div>
@@ -113,8 +113,8 @@ function TrendChip({ trend }: { trend: NonNullable<import('@/lib/analytics').Kpi
           {trend.changePct === null ? 'New' : `${trend.changePct >= 0 ? '+' : ''}${trend.changePct}%`}
         </span>
       </div>
-      <div className="text-[10px] uppercase tracking-wide leading-tight mt-0.5 opacity-80">
-        {trend.current} vs {trend.previous} in the prior {trend.windowLabel.replace('last ', '')}
+      <div className="text-[10px] tracking-wide leading-tight mt-0.5 opacity-80">
+        {trend.current} vs {trend.previous} in the previous {trend.windowLabel.replace('last ', '')}
       </div>
     </div>
   );

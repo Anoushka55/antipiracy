@@ -96,7 +96,7 @@ export const ARCH_LAYERS: ArchLayer[] = [
     n: '07', name: 'Reporting', purpose: 'Enforcement as business value', kpi: '11 report types', cols: 'repeat(3, minmax(0, 1fr))',
     boxes: [
       { key: 'reports', title: 'Standard Report Creation', icon: 'file', items: ['11 report types', 'Weekly enforcement', 'Legal action', 'Audit'], why: 'Consistent numbers everywhere.' },
-      { key: 'cxo', title: 'CXO View', icon: 'chart', items: ['KPI / KRI pack', '₹18.6 Cr exposure', 'Drill-down insights'], why: 'Revenue at risk for leadership.' },
+      { key: 'cxo', title: 'CXO View', icon: 'chart', items: ['KPI / KRI pack', '₹18.6 lakh exposure', 'Drill-down insights'], why: 'Revenue at risk for leadership.' },
       { key: 'llm', title: 'LLM Exposure Intelligence', icon: 'globe', ai: true, items: ['4 models probed', '2,000 executions', 'Reconstruction risk'], why: 'A new piracy channel, tracked.' },
     ],
   },
@@ -139,6 +139,6 @@ export const ARCH_DETAILS: Record<string, ArchDetail> = {
   enforcement: { title: 'Enforcement', module: 'submitNotice · recordResponse · SLA rules · escalation', ai: 'None.', human: 'Platform Operations submits. SLA breaches escalate to Lead and Legal.', why: 'Removal time and SLA breaches become measurable: 2.1-day average removal, 7.2% breach rate.' },
   radar: { title: 'Reappearance Radar', module: 'Reappearance Radar · monitoring jobs · reopenCase', ai: 'Similarity matching finds re-uploads and mirrors of removed content.', human: 'An investigator confirms the link and decides whether to reopen.', why: 'Closes the loop: resurfaced copies go back to the data layer with their history attached.' },
   reports: { title: 'Standard Report Creation', module: 'lib/metrics.ts · buildReport (11 report types)', ai: 'None in report assembly.', human: 'Read-only.', why: 'Every report draws on the same numbers, so charts, cards and narrative agree.' },
-  cxo: { title: 'CXO View', module: 'Overview page · executiveOverview · drill-down modals', ai: 'The exposure forecast feeds the trend view.', human: 'Read-only.', why: 'Turns enforcement into revenue at risk (₹18.6 Cr) and program ROI for the CFO.' },
+  cxo: { title: 'CXO View', module: 'Overview page · executiveOverview · drill-down modals', ai: 'The exposure forecast feeds the trend view.', human: 'Read-only.', why: 'Turns enforcement into revenue at risk (₹18.6 lakh) and program ROI for the CFO.' },
   llm: { title: 'LLM Exposure Intelligence', module: 'LLM Exposure page · lib/llm-probe.ts', ai: 'Red-team probes of four public models, judged for content reconstruction.', human: 'Read-only analysis.', why: 'Shows whether S. Chand content is being reproduced by public AI models, a new piracy channel.' },
 };

@@ -24,6 +24,8 @@ import {
   LogOut,
   Bot,
   Network,
+  Scale,
+  FileText,
 } from 'lucide-react';
 import { NAV_GROUPS, ROLE_LABEL, KPMG_LOGO, SCHAND_LOGO } from '@/lib/constants';
 import { navAllowed } from '@/lib/rbac';
@@ -41,6 +43,8 @@ const ICONS: Record<string, React.ComponentType<{ size?: number; className?: str
   evidence: FolderArchive,
   enforcement: Gavel,
   radar: Radar,
+  legal: Scale,
+  notices: FileText,
   catalogue: BookOpen,
   entities: Users,
   llm: Bot,
@@ -57,6 +61,8 @@ const PAGE_TITLES: Record<string, string> = {
   '/evidence': 'Evidence Vault',
   '/enforcement': 'Enforcement',
   '/radar': 'Reappearance Radar',
+  '/legal': 'Legal Review',
+  '/notices': 'Notices',
   '/catalogue': 'Catalogue',
   '/analytics': 'Analytics',
   '/reports': 'Reports',

@@ -1286,9 +1286,9 @@ export function buildSeed(): AppState {
         id: "FIN-EXP-1",
         tenantId: TENANT_ID,
         label: "Estimated Exposure",
-        valueInr: 186060000,
+        valueInr: 1860600,
         input: {
-          estimatedUnauthorizedCopies: 420000,
+          estimatedUnauthorizedCopies: 4200,
           indicativeRealizationInr: 443,
           priorityTitleShare: 0.64,
         },

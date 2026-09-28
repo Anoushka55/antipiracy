@@ -88,7 +88,7 @@ export default function OverviewPage() {
     slaBreachRate: tile('slaBreachRate', 'SLA Breach Rate', `${k.slaBreachRate}% of active cases are past their SLA`),
     reappearanceRate: tile('reappearanceRate', 'Reappearance Rate', `${k.reappearanceRate}% of removed content has resurfaced`),
     priorityTitleExposure: tile('priorityTitleExposure', 'Priority Title Exposure', `${k.priorityTitleExposure}% of active cases are on flagship titles`),
-    estimatedExposureCr: tile('estimatedExposureCr', 'Estimated Exposure Value', `₹${k.estimatedExposureCr} Cr indicative revenue at risk`),
+    estimatedExposureCr: tile('estimatedExposureCr', 'Estimated Exposure Value', `₹${k.estimatedExposureCr} lakh indicative revenue at risk`),
     trendChart: {
       title: 'Piracy Exposure Trend',
       subtitle: '12-week exposure index vs. new cases and removals',
@@ -138,11 +138,11 @@ export default function OverviewPage() {
         <MetricCard label="SLA Breach Rate" value={k.slaBreachRate} unit="%" icon={Clock} color="#D4A017" trend={trends.slaBreachRate?.changePct} trendGood={trends.slaBreachRate?.risingIsGood} statLine={statLine('slaBreachRate')} onDoubleClick={() => setOpenDrilldown('slaBreachRate')} />
         <MetricCard label="Reappearance Rate" value={k.reappearanceRate} unit="%" icon={Radar} color="#8B1E3F" trend={trends.reappearanceRate?.changePct} trendGood={trends.reappearanceRate?.risingIsGood} statLine={statLine('reappearanceRate')} onDoubleClick={() => setOpenDrilldown('reappearanceRate')} />
         <MetricCard label="Priority Title Exposure" value={k.priorityTitleExposure} unit="%" icon={AlertTriangle} color="#D4A017" trend={trends.priorityTitleExposure?.changePct} trendGood={trends.priorityTitleExposure?.risingIsGood} statLine={statLine('priorityTitleExposure')} onDoubleClick={() => setOpenDrilldown('priorityTitleExposure')} />
-        <MetricCard label="Estimated Exposure Value" value={`₹${k.estimatedExposureCr}`} unit="Cr" icon={IndianRupee} color="#00338D" trend={trends.estimatedExposureCr?.changePct} trendGood={trends.estimatedExposureCr?.risingIsGood} statLine={statLine('estimatedExposureCr')} onDoubleClick={() => setOpenDrilldown('estimatedExposureCr')} />
+        <MetricCard label="Estimated Exposure Value" value={`₹${k.estimatedExposureCr}`} unit="lakh" icon={IndianRupee} color="#00338D" trend={trends.estimatedExposureCr?.changePct} trendGood={trends.estimatedExposureCr?.risingIsGood} statLine={statLine('estimatedExposureCr')} onDoubleClick={() => setOpenDrilldown('estimatedExposureCr')} />
       </div>
       <p className="text-[11px] text-[#9CA3AF]">Double-click any tile or chart for a detailed breakdown.</p>
       <p className="text-[11px] text-[#9CA3AF]">
-        Synthetic / demonstration pack. Takedown {k.takedownRate}% = 138 removed / 156 notices. Critical+High {k.criticalHigh} / {k.activeCases} active ({Math.round((k.criticalHigh / k.activeCases) * 100)}% KRI). Reappearance {k.reappearanceRate}% = 16 / 143 monitored. Exposure ₹{k.estimatedExposureCr} Cr = 4,20,000 copies × ₹443 (FIN-v0.1, medium confidence).
+        Synthetic / demonstration pack. Takedown {k.takedownRate}% = 138 removed / 156 notices. Critical+High {k.criticalHigh} / {k.activeCases} active ({Math.round((k.criticalHigh / k.activeCases) * 100)}% KRI). Reappearance {k.reappearanceRate}% = 16 / 143 monitored. Exposure ₹{k.estimatedExposureCr} lakh = 4,200 copies × ₹443 (FIN-v0.1, medium confidence).
       </p>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">

@@ -98,7 +98,7 @@ export const EXEC_KPI = {
   nonPriorityCases: 51,
   priorityTitleExposure: 64,
   estimatedExposureCr: 18.6,
-  unauthorizedCopies: 420000,
+  unauthorizedCopies: 4200,
   indicativeValueInr: 443,
   closedLoopRecoveryRate: 92,
   avgDetectReappearanceDays: 1.8,
@@ -241,7 +241,8 @@ export function executiveOverview(state: AppState) {
     : 0;
 
   const financial = state.financialEstimates[0];
-  const estimatedExposureCr = financial ? Math.round((financial.valueInr / 10000000) * 10) / 10 : 0;
+  // Displayed in lakhs, not crore — the underlying exposure is a few tens of lakhs, not crores.
+  const estimatedExposureCr = financial ? Math.round((financial.valueInr / 100000) * 10) / 10 : 0;
   const unauthorizedCopies = Number(financial?.input?.estimatedUnauthorizedCopies ?? financial?.input?.activeCases ?? active.length);
   const indicativeValueInr = financial ? Math.round(financial.valueInr / Math.max(1, unauthorizedCopies)) : 0;
 
@@ -293,14 +294,14 @@ export function executiveOverview(state: AppState) {
 
   const kpiStats: Record<string, KpiStat[]> = {
     activeCases: [
-      { label: "Median days open", value: `${median(daysOpenAll)}d` },
-      { label: "p90 days open", value: `${percentile(daysOpenAll, 90)}d` },
-      { label: "Top platform share", value: `${topPlatformShare}%${platformCounts[0] ? ` (${platformCounts[0].name})` : ""}` },
+      { label: "Typical days open", value: `${median(daysOpenAll)}d` },
+      { label: "Longest-running cases run", value: `${percentile(daysOpenAll, 90)}d` },
+      { label: "Busiest platform", value: `${topPlatformShare}%${platformCounts[0] ? ` (${platformCounts[0].name})` : ""}` },
     ],
     criticalHigh: [
-      { label: "Critical of book", value: `${pct(critical, active.length)}%` },
-      { label: "High of book", value: `${pct(high, active.length)}%` },
-      { label: "Critical breach rate", value: `${criticalBreachRate}%` },
+      { label: "Share that's critical", value: `${pct(critical, active.length)}%` },
+      { label: "Share that's high risk", value: `${pct(high, active.length)}%` },
+      { label: "Critical cases past SLA", value: `${criticalBreachRate}%` },
     ],
     takedownRate: [
       { label: "Removed", value: `${removedCount}` },
@@ -308,27 +309,27 @@ export function executiveOverview(state: AppState) {
       { label: "Still open", value: `${noticesSent - removedCount}` },
     ],
     avgRemovalDays: [
-      { label: "Median", value: `${Math.round(median(allRemovalDays) * 10) / 10}d` },
-      { label: "p90", value: `${Math.round(percentile(allRemovalDays, 90) * 10) / 10}d` },
+      { label: "Typical removal time", value: `${Math.round(median(allRemovalDays) * 10) / 10}d` },
+      { label: "Slowest removals take", value: `${Math.round(percentile(allRemovalDays, 90) * 10) / 10}d` },
       { label: "Slowest platform", value: removalByPlatform.length ? [...removalByPlatform].sort((a, b) => b.days - a.days)[0].name : "—" },
     ],
     slaBreachRate: [
-      { label: "Critical-risk breach rate", value: `${criticalBreachRate}%` },
-      { label: "Median hours overdue", value: `${Math.round(median(overdueHours))}h` },
-      { label: "p90 hours overdue", value: `${Math.round(percentile(overdueHours, 90))}h` },
+      { label: "Critical cases past SLA", value: `${criticalBreachRate}%` },
+      { label: "Typical time overdue", value: `${Math.round(median(overdueHours))}h` },
+      { label: "Worst case overdue by", value: `${Math.round(percentile(overdueHours, 90))}h` },
     ],
     reappearanceRate: [
       { label: "Confirmed", value: `${confirmedReapps} of ${reappearances}` },
-      { label: "Mean days to resurface", value: reappDays.length ? `${Math.round((reappDays.reduce((a, b) => a + b, 0) / reappDays.length) * 10) / 10}d` : "—" },
-      { label: "Monitored book", value: `${monitored}` },
+      { label: "Typical time to resurface", value: reappDays.length ? `${Math.round((reappDays.reduce((a, b) => a + b, 0) / reappDays.length) * 10) / 10}d` : "—" },
+      { label: "Cases being watched", value: `${monitored}` },
     ],
     priorityTitleExposure: [
       { label: "Flagship titles", value: `${priorityTitles.length}` },
-      { label: "Top title share", value: `${topPriorityTitleShare}%` },
-      { label: "Non-flagship cases", value: `${nonPriorityCases}` },
+      { label: "Top title's share", value: `${topPriorityTitleShare}%` },
+      { label: "Other cases", value: `${nonPriorityCases}` },
     ],
     estimatedExposureCr: [
-      { label: "Per active case", value: active.length ? `₹${Math.round((estimatedExposureCr * 10000000) / active.length).toLocaleString("en-IN")}` : "—" },
+      { label: "Per active case", value: active.length ? `₹${Math.round((estimatedExposureCr * 100000) / active.length).toLocaleString("en-IN")}` : "—" },
       { label: "Top 3 titles' share", value: `${top3ExposureShare}%` },
       { label: "Confidence", value: financial?.confidence ?? "—" },
     ],
@@ -346,7 +347,9 @@ export function executiveOverview(state: AppState) {
       takedownRate,
       avgRemovalDays,
       slaBreachRate,
+      slaBreachCount,
       reappearanceRate,
+      reappearances,
       priorityTitleExposure,
       estimatedExposureCr,
       closedLoopRecoveryRate,
@@ -387,7 +390,7 @@ export function executiveOverview(state: AppState) {
       reappCheck: `Reappearance KRI ${reappearanceRate}% = ${reappearances} linked events / ${monitored} monitored cases.`,
       priorityCheck: `Priority-title exposure ${priorityTitleExposure}% = ${priorityCases}/${active.length} active cases.`,
       financialCheck: financial
-        ? `₹${estimatedExposureCr} Cr = ${unauthorizedCopies.toLocaleString("en-IN")} copies × ₹${indicativeValueInr} (${financial.methodology}).`
+        ? `₹${estimatedExposureCr} lakh = ${unauthorizedCopies.toLocaleString("en-IN")} copies × ₹${indicativeValueInr} (${financial.methodology}).`
         : "No financial estimate available for this dataset.",
       removalCheck: `Blended removal time ${avgRemovalDays} days across ${allRemovalDays.length} removed cases.`,
       trendCheck: `W12 exposure index 118 vs W11 100 = +${wowExposurePct}% into board exams. Weekly new cases doubled from 9 (W1) to 19 (W12); the index is accelerating faster than case intake.`,

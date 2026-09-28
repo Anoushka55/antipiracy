@@ -118,8 +118,30 @@ export function ChatThread({
   // static page description. Silently ignored if the request fails.
   useEffect(() => {
     let cancelled = false;
-    api<{ kpis: LiveOverviewStats }>('overview')
-      .then((data) => { if (!cancelled) setLiveStats(data.kpis); })
+    api<{
+      kpis: Record<string, number>;
+      kpiTrends?: Record<string, { current: number }>;
+      platformCounts?: { name: string; value: number }[];
+    }>('overview')
+      .then((data) => {
+        if (cancelled) return;
+        const k = data.kpis;
+        setLiveStats({
+          activeCases: k.activeCases,
+          criticalHigh: k.criticalHigh,
+          takedownRate: k.takedownRate,
+          slaBreachRate: k.slaBreachRate,
+          reappearanceRate: k.reappearanceRate,
+          estimatedExposureCr: k.estimatedExposureCr,
+          avgRemovalDays: k.avgRemovalDays,
+          priorityTitleExposure: k.priorityTitleExposure,
+          newCasesThisWeek: data.kpiTrends?.activeCases?.current ?? 0,
+          newReappearancesThisWeek: data.kpiTrends?.reappearanceRate?.current ?? 0,
+          platforms: data.platformCounts ?? [],
+          slaBreachCount: k.slaBreachCount ?? 0,
+          reappearances: k.reappearances ?? 0,
+        });
+      })
       .catch(() => {});
     return () => { cancelled = true; };
   }, []);

@@ -11,7 +11,7 @@ describe("executive KPI/KRI pack", () => {
     expect(k.priorityCases + k.nonPriorityCases).toBe(k.activeCases);
     expect(k.caseCreated - k.closed).toBe(k.activeCases);
     expect(Math.round((k.removed / k.noticesSent) * 1000) / 10).toBe(k.takedownRate);
-    expect(k.unauthorizedCopies * k.indicativeValueInr).toBe(186060000);
+    expect(k.unauthorizedCopies * k.indicativeValueInr).toBe(1860600);
     expect(k.estimatedExposureCr).toBe(18.6);
   });
 

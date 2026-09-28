@@ -28,7 +28,7 @@ export interface CaseChatContext {
   legalStatus?: string | null;
 }
 
-/** The handful of live Overview KPIs K.Bot can quote when describing that page — see ChatThread's overview fetch. */
+/** The live Overview numbers K.Bot can quote when describing that page — see ChatThread's overview fetch. */
 export interface LiveOverviewStats {
   activeCases: number;
   criticalHigh: number;
@@ -36,6 +36,16 @@ export interface LiveOverviewStats {
   slaBreachRate: number;
   reappearanceRate: number;
   estimatedExposureCr: number;
+  avgRemovalDays: number;
+  priorityTitleExposure: number;
+  /** New active cases opened in the last 7 days (see kpiTrends.activeCases in lib/metrics.ts). */
+  newCasesThisWeek: number;
+  /** New confirmed reappearances (resurfaced piracy) in the last 7 days. */
+  newReappearancesThisWeek: number;
+  /** Active cases by platform, highest first — used to name where new piracy is showing up. */
+  platforms: { name: string; value: number }[];
+  slaBreachCount: number;
+  reappearances: number;
 }
 
 export interface KBotQuery {
@@ -62,12 +72,46 @@ function pageGuideForRole(page: PageGuide, role: Role): PageGuide & { accessible
   return { ...page, accessible: navAllowed(role, page.roles) };
 }
 
-/** A quoted, live snapshot line appended to the Overview page guide, when K.Bot has fetched current KPIs (see ChatThread). */
-function liveOverviewSummary(stats: LiveOverviewStats): string {
+/**
+ * A live snapshot appended to the Overview page guide, tailored to what each
+ * role actually needs to see first. Executive gets the business picture
+ * (exposure, risk, programme health); Anti-Piracy Lead and Legal get the
+ * operational picture (new cases, new platforms, reappearances, notices);
+ * everyone else gets a short general summary.
+ */
+function liveOverviewSummary(stats: LiveOverviewStats, role: Role): string {
+  const topPlatforms = stats.platforms.slice(0, 3).map((p) => `${p.name} (${p.value})`).join(", ") || "no active platform data";
+
+  if (role === "executive") {
+    return (
+      `**Business snapshot**\n` +
+      `- **${stats.activeCases} active cases** open, **${stats.criticalHigh} critical/high risk**\n` +
+      `- **${stats.takedownRate}% takedown success** — notices sent that end in removal\n` +
+      `- **${stats.slaBreachRate}% SLA breach rate** (${stats.slaBreachCount} cases past their deadline)\n` +
+      `- **${stats.reappearanceRate}% reappearance rate** — removed content resurfacing elsewhere\n` +
+      `- **${stats.priorityTitleExposure}% of active cases** are on flagship/priority titles\n` +
+      `- **₹${stats.estimatedExposureCr} lakh** estimated revenue exposure\n` +
+      `- Highest activity on: ${topPlatforms}\n\n` +
+      `This is the picture a CXO should check daily: how much risk is open, how fast it's being closed, and where the money is at stake.`
+    );
+  }
+
+  if (role === "lead" || role === "legal") {
+    return (
+      `**Enforcement snapshot**\n` +
+      `- **${stats.newCasesThisWeek} new case${stats.newCasesThisWeek === 1 ? "" : "s"}** opened in the last 7 days (${stats.activeCases} active in total)\n` +
+      `- Piracy activity is concentrated on: ${topPlatforms}\n` +
+      `- **${stats.newReappearancesThisWeek} new reappearance${stats.newReappearancesThisWeek === 1 ? "" : "s"}** this week (${stats.reappearances} total resurfaced items being tracked)\n` +
+      `- **${stats.slaBreachCount} cases are past their SLA** and need escalation\n` +
+      `- **${stats.avgRemovalDays} days** average time from notice to removal\n\n` +
+      `Start with the SLA breaches and the newest cases on the busiest platform — that's where enforcement time matters most today.`
+    );
+  }
+
   return (
     `Right now: **${stats.activeCases} active cases** (${stats.criticalHigh} critical/high), ` +
     `**${stats.takedownRate}% takedown rate**, **${stats.slaBreachRate}% SLA breach rate**, ` +
-    `**${stats.reappearanceRate}% reappearance rate**, and **₹${stats.estimatedExposureCr} Cr** estimated exposure.`
+    `**${stats.reappearanceRate}% reappearance rate**, and **₹${stats.estimatedExposureCr} lakh** estimated exposure.`
   );
 }
 
@@ -75,11 +119,11 @@ function describePage(page: PageGuide, role: Role, liveStats?: LiveOverviewStats
   const guide = pageGuideForRole(page, role);
   if (!guide.accessible) {
     return {
-      text: `**${guide.title}** (${guide.href}) — ${guide.whatItIs}\n\nHeads up: your role (${ROLE_LABEL[role]}) doesn't have access to this page, so I can't route you there directly. If you need it, check with an Anti-Piracy Lead or Administrator.`,
+      text: `**${guide.title}** (${guide.href}) — ${guide.whatItIs}\n\nHeads up: your role (${ROLE_LABEL[role]}) doesn't have access to this page, so I can't route you there directly. If you need it, check with an Anti-Piracy Lead or Technology Lead.`,
     };
   }
   const steps = guide.howToUseIt.map((s) => `- ${s}`).join("\n");
-  const summary = guide.id === "overview" && liveStats ? `\n\n${liveOverviewSummary(liveStats)}` : "";
+  const summary = guide.id === "overview" && liveStats ? `\n\n${liveOverviewSummary(liveStats, role)}` : "";
   return {
     text: `**${guide.title}** — ${guide.whatItIs}${summary}\n\nHow to use it:\n${steps}`,
     suggestedLinks: [

@@ -358,10 +358,10 @@ export function kpiDrilldown(state: AppState, kpi: KpiKey): KpiDrilldown {
       const avgValue = Math.round(state.catalogue.reduce((s, a) => s + a.indicativeValueInr, 0) / Math.max(1, state.catalogue.length));
       const multiple = Math.round((priciest.indicativeValueInr / Math.max(1, avgValue)) * 10) / 10;
       const financial = state.financialEstimates[0];
-      const exposureCr = financial ? Math.round((financial.valueInr / 10000000) * 10) / 10 : 0;
+      const exposureCr = financial ? Math.round((financial.valueInr / 100000) * 10) / 10 : 0;
       return withStats({
         insight: financial
-          ? `₹${exposureCr} Cr indicative exposure (${financial.methodology}, ${financial.confidence} confidence). ${priciest.title} sells at ${inr(priciest.indicativeValueInr)}, ${multiple}× the catalogue average, ` +
+          ? `₹${exposureCr} lakh indicative exposure (${financial.methodology}, ${financial.confidence} confidence). ${priciest.title} sells at ${inr(priciest.indicativeValueInr)}, ${multiple}× the catalogue average, ` +
             `so each copy lost on its ${priciestCases} active cases costs the most.`
           : `No financial estimate is available for this dataset. ${priciest.title} sells at ${inr(priciest.indicativeValueInr)}, the highest in the catalogue, so each copy lost on its ${priciestCases} active cases costs the most.`,
         rowsTitle: "Titles carrying the most revenue risk (active cases × price per copy)",

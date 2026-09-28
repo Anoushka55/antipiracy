@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import { useParams, useRouter } from 'next/navigation';
+import { useParams, useRouter, useSearchParams } from 'next/navigation';
 import { useApi } from '@/hooks/useApi';
 import { post } from '@/lib/client';
 import { Button } from '@/components/shared/Button';
@@ -11,6 +11,7 @@ import { PageLoader } from '@/components/shared/LoadingDots';
 import { Drawer, Toast } from '@/components/shared/Overlay';
 import { AIRecommendationCard, ClosedLoopDiagram, DecisionGates, Timeline } from '@/components/shared/Domain';
 import { JourneyStepper } from '@/components/shared/JourneyStepper';
+import { NoticeDocumentLoader, NoticeTemplatePicker } from '@/components/shared/NoticeDocumentView';
 import { CASE_STATUS_LABEL, NOTICE_ROUTE_LABEL } from '@/lib/constants';
 import { slaProgressLabel } from '@/lib/sla';
 import type { CaseRecord, Evidence, Finding, LegalReview, Notice, Reappearance, Role, RightsValidation } from '@/lib/types';
@@ -19,7 +20,8 @@ export default function CaseDetailPage() {
   const { id } = useParams<{ id: string }>();
   const router = useRouter();
   const { data, loading, refresh } = useApi<CasePayload>(`case?id=${id}`);
-  const [tab, setTab] = useState('overview');
+  // Legal Review and Notices link straight to a tab, e.g. /cases/SC-2026-0842?tab=notice.
+  const [tab, setTab] = useState(useSearchParams().get('tab') ?? 'overview');
   const [toast, setToast] = useState('');
   const [noticeOpen, setNoticeOpen] = useState(false);
   const [busy, setBusy] = useState(false);

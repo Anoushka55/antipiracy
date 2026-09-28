@@ -146,8 +146,8 @@ describe("Overview follows an uploaded dataset instead of staying on the built-i
     expect(ov.funnel.find((f) => f.stage === "Removed")?.value).toBe(removed);
 
     // The financial estimate follows the uploaded catalogue's own indicative
-    // values, not the built-in demo's fixed ₹18.6 Cr / 4.2 lakh copies.
-    expect(ov.kpis.estimatedExposureCr).toBe(Math.round((state.financialEstimates[0].valueInr / 10000000) * 10) / 10);
+    // values, not the built-in demo's fixed ₹18.6 lakh / 4,200 copies.
+    expect(ov.kpis.estimatedExposureCr).toBe(Math.round((state.financialEstimates[0].valueInr / 100000) * 10) / 10);
   });
 
   it("gives every tile a populated trend and stats block for an uploaded dataset too", () => {

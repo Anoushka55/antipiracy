@@ -38,7 +38,7 @@ export default function AnalyticsPage() {
   const DRILLDOWNS: Record<string, { title: string; subtitle?: string; summary?: string; render: () => React.ReactNode }> = {
     closedLoopRecovery: tile('closedLoop', 'Closed-loop Recovery', `${data.overview.kpis.closedLoopRecoveryRate}% of detected reappearances are linked back to their original case`),
     reappearanceRate: tile('reappearanceRate', 'Reappearance Rate', `${data.overview.kpis.reappearanceRate}% of the monitored book has resurfaced`),
-    estimatedExposure: tile('estimatedExposureCr', 'Estimated Exposure', `₹${data.overview.kpis.estimatedExposureCr} Cr indicative exposure, a modelled estimate`),
+    estimatedExposure: tile('estimatedExposureCr', 'Estimated Exposure', `₹${data.overview.kpis.estimatedExposureCr} lakh indicative exposure, a modelled estimate`),
     takedownSuccess: tile('takedownRate', 'Takedown Success', `${data.overview.kpis.takedownRate}% of dispatched notices result in removal`),
     aiRecommendation: {
       title: 'AI Recommendation — Full Detail',
@@ -88,8 +88,8 @@ export default function AnalyticsPage() {
       </div>
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         <KPICard title="Closed-loop recovery (KPI)" value={`${data.overview.kpis.closedLoopRecoveryRate}%`} unit="linked reappearances / detected" statusColor="#00A36C" trend={trends.closedLoopRecoveryRate?.changePct} trendGood={trends.closedLoopRecoveryRate?.risingIsGood} statLine={statLine('closedLoopRecoveryRate')} onDoubleClick={() => setOpenDrilldown('closedLoopRecovery')} />
-        <KPICard title="Reappearance rate (KRI)" value={`${data.overview.kpis.reappearanceRate}%`} unit="of the monitored book" statusColor="#8B1E3F" trend={trends.reappearanceRate?.changePct} trendGood={trends.reappearanceRate?.risingIsGood} statLine={statLine('reappearanceRate')} onDoubleClick={() => setOpenDrilldown('reappearanceRate')} />
-        <KPICard title="Estimated exposure" value={`₹${data.overview.kpis.estimatedExposureCr} Cr`} unit="modelled indicative exposure" statusColor="#8B1E3F" trend={trends.estimatedExposureCr?.changePct} trendGood={trends.estimatedExposureCr?.risingIsGood} statLine={statLine('estimatedExposureCr')} onDoubleClick={() => setOpenDrilldown('estimatedExposure')} />
+        <KPICard title="Reappearance rate (KRI)" value={`${data.overview.kpis.reappearanceRate}%`} unit="of cases being watched" statusColor="#8B1E3F" trend={trends.reappearanceRate?.changePct} trendGood={trends.reappearanceRate?.risingIsGood} statLine={statLine('reappearanceRate')} onDoubleClick={() => setOpenDrilldown('reappearanceRate')} />
+        <KPICard title="Estimated exposure" value={`₹${data.overview.kpis.estimatedExposureCr} lakh`} unit="modelled indicative exposure" statusColor="#8B1E3F" trend={trends.estimatedExposureCr?.changePct} trendGood={trends.estimatedExposureCr?.risingIsGood} statLine={statLine('estimatedExposureCr')} onDoubleClick={() => setOpenDrilldown('estimatedExposure')} />
         <KPICard title="Takedown success (KPI)" value={`${data.overview.kpis.takedownRate}%`} unit="of dispatched notices" statusColor="#00A36C" trend={trends.takedownRate?.changePct} trendGood={trends.takedownRate?.risingIsGood} statLine={statLine('takedownRate')} onDoubleClick={() => setOpenDrilldown('takedownSuccess')} />
       </div>
       <p className="text-[11px] text-[#6B7280]">W12 exposure index 118 vs W11 100 = +18% exam-season KRI. Forecast is a scenario, not a fact. Double-click any tile or the AI card for detail.</p>
@@ -124,8 +124,8 @@ export default function AnalyticsPage() {
           <div className="flex items-center justify-between">
             <div>
               <div className="text-[10px] font-bold uppercase tracking-widest text-[#9CA3AF]">Estimated Exposure</div>
-              <div className="font-mono font-bold text-3xl">₹{((f.valueInr) / 10000000).toFixed(1)} Cr</div>
-              <div className="text-xs text-[#6B7280] mt-1">Reconciles to dashboard KPI ₹18.6 Cr = 4,20,000 × ₹443</div>
+              <div className="font-mono font-bold text-3xl">₹{((f.valueInr) / 100000).toFixed(1)} lakh</div>
+              <div className="text-xs text-[#6B7280] mt-1">Reconciles to dashboard KPI ₹18.6 lakh = 4,200 × ₹443</div>
               <div className="text-xs text-[#6B7280]">Confidence: {f.confidence} · {f.methodology}</div>
             </div>
             <button className="text-xs text-[#00338D] font-semibold" onClick={() => setFin(f)}>View methodology</button>

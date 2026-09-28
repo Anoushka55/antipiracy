@@ -15,6 +15,7 @@ import {
   uploadDatasetCsv,
 } from "@/lib/demo";
 import { MockAIService } from "@/lib/ai";
+import { buildNoticeDocument } from "@/lib/notice-templates";
 import type { FourGates, SessionUser } from "@/lib/types";
 
 export const dynamic = "force-dynamic";
@@ -167,6 +168,68 @@ export async function GET(req: NextRequest) {
       custody: state.custodyEvents.filter((c) => c.evidenceId === id),
       case: state.cases.find((c) => c.id === ev.caseId),
     });
+  }
+
+  if (path === "legal") {
+    const LEGAL_STAGES = ["rights_validation", "legal_review", "legal_approved", "approved_hold", "notice_ready"];
+    const items = state.cases
+      .filter((c) => c.tenantId === user.tenantId && LEGAL_STAGES.includes(c.status))
+      .map((c) => {
+        const rights = state.rightsValidations.find((r) => r.caseId === c.id);
+        const gatesPassed = rights ? Object.values(rights.gates).filter((g) => g === "pass").length : 0;
+        return {
+          id: c.id,
+          title: c.title,
+          platform: c.platform,
+          risk: c.risk,
+          status: c.status,
+          slaState: c.slaState,
+          daysOpen: c.daysOpen,
+          gatesPassed,
+          gatesHeld: rights ? Object.values(rights.gates).filter((g) => g === "hold").length : 0,
+          legalStatus: state.legalReviews.find((l) => l.caseId === c.id)?.status ?? null,
+          recommendedRoute: MockAIService.recommendNoticeRoute(c.platform).route,
+          noticeId: c.noticeId,
+        };
+      });
+    const count = (s: string) => items.filter((i) => i.status === s).length;
+    return json({
+      counts: {
+        rightsValidation: count("rights_validation"),
+        legalReview: count("legal_review"),
+        onHold: count("approved_hold"),
+        readyForNotice: count("legal_approved") + count("notice_ready"),
+      },
+      items,
+    });
+  }
+
+  if (path === "notices") {
+    const items = state.notices
+      .filter((n) => n.tenantId === user.tenantId)
+      .map((n) => {
+        const c = state.cases.find((x) => x.id === n.caseId);
+        return {
+          id: n.id,
+          caseId: n.caseId,
+          title: c?.title ?? n.caseId,
+          platform: c?.platform ?? "",
+          uploader: c?.uploader ?? "",
+          caseStatus: c?.status ?? "",
+          route: n.route,
+          status: n.status,
+          generatedAt: n.generatedAt,
+          approvedAt: n.approvedAt,
+        };
+      })
+      .sort((a, b) => b.generatedAt.localeCompare(a.generatedAt));
+    return json({ items });
+  }
+
+  if (path === "notice-document" && id) {
+    const notice = state.notices.find((n) => n.id === id && n.tenantId === user.tenantId);
+    if (!notice) return err("Notice not found", 404);
+    return json(buildNoticeDocument(state, notice));
   }
 
   if (path === "enforcement") {

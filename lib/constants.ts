@@ -46,15 +46,23 @@ export const NAV_GROUPS: {
     ],
   },
   {
+    label: "Legal",
+    roles: ["lead", "legal"],
+    items: [
+      { id: "legal", label: "Legal Review", href: "/legal" },
+      { id: "notices", label: "Notices", href: "/notices" },
+    ],
+  },
+  {
     label: "Catalogue",
-    roles: ["lead", "investigator", "legal", "admin"],
+    roles: ["investigator", "legal", "admin"],
     items: [{ id: "catalogue", label: "Catalogue", href: "/catalogue" }],
   },
   {
     label: "Intelligence",
-    roles: ["lead", "investigator", "admin", "executive"],
+    roles: ["investigator", "admin", "executive"],
     items: [
-      { id: "entities", label: "Repeat Offenders", href: "/entities", roles: ["lead", "investigator", "admin"] },
+      { id: "entities", label: "Repeat Offenders", href: "/entities", roles: ["investigator", "admin"] },
       { id: "llm", label: "LLM Exposure", href: "/llm-probing" },
     ],
   },
@@ -68,6 +76,21 @@ export const NAV_GROUPS: {
     ],
   },
 ];
+
+/**
+ * The rights holder's authorised representative and contact block used on
+ * every notice, taken from S. Chand's own draft notices.
+ */
+export const RIGHTS_HOLDER_CONTACT = {
+  company: "S. Chand & Company Limited",
+  shortName: "S. Chand",
+  representative: "Mr. Murli",
+  title: "Anti-Piracy Lead",
+  address: "Building No. D-92, Sector 2, Noida - 201301, Uttar Pradesh, India",
+  telephone: "1800-103-1926",
+  email: "info@schandpublishing.com",
+  jurisdiction: "India",
+} as const;
 
 export const NOTICE_ROUTE_LABEL: Record<NoticeRoute, string> = {
   platform_ip_form: "Platform IP Form",

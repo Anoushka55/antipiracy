@@ -40,6 +40,12 @@ const ROLE_PERMISSIONS: Record<Role, Permission[]> = {
     "case.edit",
     "case.assign",
     "evidence.view",
+    // The Anti-Piracy Lead is the rights holder's authorised representative
+    // and signs every notice, so he can also clear the legal steps.
+    "rights.approve",
+    "legal.approve",
+    "notice.generate",
+    "notice.approve",
     "reports.view",
     "reports.export",
     "audit.view",

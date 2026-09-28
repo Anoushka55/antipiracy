@@ -69,17 +69,24 @@ function assessment(
   };
 }
 
+/**
+ * The classification label for a match score. Pure, so notices can quote it
+ * without the side effects of classifyFinding (which issues an assessment ID).
+ */
+export function classificationLabel(matchScore: number): string {
+  return matchScore >= 95
+    ? "LIKELY INFRINGEMENT — priority title exposure"
+    : matchScore >= 85
+      ? "LIKELY INFRINGEMENT"
+      : matchScore >= 70
+        ? "POSSIBLE INFRINGEMENT — human review"
+        : "WEAK MATCH — validate before promotion";
+}
+
 export const MockAIService: AIService = {
   classifyFinding(finding) {
     const score = finding.matchScore ?? 80;
-    const rec =
-      score >= 95
-        ? "LIKELY INFRINGEMENT — priority title exposure"
-        : score >= 85
-          ? "LIKELY INFRINGEMENT"
-          : score >= 70
-            ? "POSSIBLE INFRINGEMENT — human review"
-            : "WEAK MATCH — validate before promotion";
+    const rec = classificationLabel(score);
     return assessment(
       "finding",
       finding.id ?? "unknown",

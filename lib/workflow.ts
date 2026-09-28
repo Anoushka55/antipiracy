@@ -11,7 +11,7 @@ import type {
   SessionUser,
 } from "./types";
 import { assertCan, type Permission } from "./rbac";
-import { TENANT_ID, TOOL_VERSION } from "./constants";
+import { RIGHTS_HOLDER_CONTACT, TENANT_ID, TOOL_VERSION } from "./constants";
 import { evidenceHash } from "./hash";
 import { nextSeq } from "./ids";
 import { allGatesPass, emptyGates, repeatOffenderScore, slaDueAt, slaHoursFor, slaState } from "./sla";
@@ -116,25 +116,29 @@ function assetFor(id: string) {
   return CATALOGUE_SEED.find((a) => a.id === id);
 }
 
-function noticeBody(caseRec: CaseRecord, route: NoticeRoute): Notice {
-  const asset = assetFor(caseRec.assetId);
+/**
+ * The stored summary of a notice. The full letter is built from S. Chand's
+ * sample drafts at view time by buildNoticeDocument() in lib/notice-templates.ts.
+ */
+function noticeBody(state: AppState, caseRec: CaseRecord, route: NoticeRoute): Notice {
+  const asset = state.catalogue.find((a) => a.id === caseRec.assetId) ?? assetFor(caseRec.assetId);
+  const c = RIGHTS_HOLDER_CONTACT;
   return {
     id: `NTC-${nextSeq()}`,
     tenantId: caseRec.tenantId,
     caseId: caseRec.id,
     route,
     status: "draft",
-    complainant: "S. Chand & Company Limited",
-    copyrightedWork: `${caseRec.title}${asset ? ` — ${asset.author} — ISBN ${asset.isbn}` : ""}`,
-    ownership:
-      "S. Chand & Company Limited is the rights owner of the identified work in the relevant territories.",
-    infringingMaterial: `Unauthorized reproduction distributed via ${caseRec.platform}.`,
+    complainant: c.company,
+    copyrightedWork: `${caseRec.title}${asset ? ` by ${asset.author} (ISBN ${asset.isbn})` : ""}`,
+    ownership: `${c.company} owns or is authorised to enforce the copyright in the identified work.`,
+    infringingMaterial: `Material corresponding to ${caseRec.title} made available on ${caseRec.platform} by ${caseRec.uploader} without authorisation.`,
     location: caseRec.url,
-    description: `The listed location makes available an unauthorized copy of a S. Chand protected title (${caseRec.title}).`,
+    description: `The identified ${caseRec.platform} posting appears to make available material corresponding to ${caseRec.title}, published by ${c.company}, without authorisation from the rights holder or its authorised representative.`,
     goodFaithDeclaration:
-      "The information in this notice is accurate and the complainant is authorized to act on behalf of the rights owner. This is a simulated prototype notice and is not a live legal filing.",
-    authorization: "Pending legal approval",
-    signature: "",
+      "I have a good-faith belief that the use of the copyrighted material identified in this notice is not authorised by the copyright owner, its authorised agent, or the law. The information in this notice is accurate, and I am authorised to act on behalf of the copyright owner.",
+    authorization: "Pending approval",
+    signature: `${c.representative}, ${c.title}, for and on behalf of ${c.company}`,
     generatedAt: now(),
     approvedBy: null,
     approvedAt: null,
@@ -301,7 +305,7 @@ export const CaseWorkflowService = {
       });
     }
     ensureLegal(state, rec);
-    notify(state, "Legal approval required", `${rec.id} passed rights validation`, `/cases/${rec.id}`, "high", ["legal"]);
+    notify(state, "Legal approval required", `${rec.id} passed rights validation`, `/legal`, "high", ["legal", "lead"]);
     return { rec, rv, eligible: true as const };
   },
 
@@ -329,7 +333,17 @@ export const CaseWorkflowService = {
     }
     const chosen = route ?? rec.noticeRoute ?? MockAIService.recommendNoticeRoute(rec.platform).route;
     rec.noticeRoute = chosen;
-    const notice = noticeBody(rec, chosen);
+    // Redrafting (e.g. switching template) updates the case's open draft in
+    // place rather than piling up superseded drafts.
+    const existingDraft = state.notices.find((n) => n.caseId === rec.id && n.status === "draft");
+    if (existingDraft) {
+      const fresh = noticeBody(state, rec, chosen);
+      Object.assign(existingDraft, { ...fresh, id: existingDraft.id });
+      rec.noticeId = existingDraft.id;
+      audit(state, user, "NOTICE_REDRAFTED", "Notice", existingDraft.id, null, { route: chosen });
+      return existingDraft;
+    }
+    const notice = noticeBody(state, rec, chosen);
     state.notices.unshift(notice);
     rec.noticeId = notice.id;
     if (rec.status === "legal_approved") transition(state, rec, "notice_ready", user, "Draft notice generated");
@@ -352,8 +366,11 @@ export const CaseWorkflowService = {
     n.status = "approved";
     n.approvedBy = user.id;
     n.approvedAt = now();
-    n.signature = `${user.name} / S. Chand Legal`;
-    n.authorization = `Authorized by ${user.name}`;
+    // Every notice is signed by the rights holder's authorised representative,
+    // as in S. Chand's drafts; approvedBy records who actually approved it.
+    const c = RIGHTS_HOLDER_CONTACT;
+    n.signature = `${c.representative}, ${c.title}, for and on behalf of ${c.company}`;
+    n.authorization = `Approved by ${user.name}`;
     const rec = mustCase(state, n.caseId);
     rec.lastAction = "Notice approved — ready for dispatcher";
     rec.lastActionAt = now();
