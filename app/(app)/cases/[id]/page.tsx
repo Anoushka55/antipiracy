@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import Link from 'next/link';
 import { useParams, useRouter, useSearchParams } from 'next/navigation';
 import { useApi } from '@/hooks/useApi';
@@ -12,6 +12,7 @@ import { Drawer, Toast } from '@/components/shared/Overlay';
 import { AIRecommendationCard, ClosedLoopDiagram, DecisionGates, Timeline } from '@/components/shared/Domain';
 import { JourneyStepper } from '@/components/shared/JourneyStepper';
 import { NoticeDocumentLoader, NoticeTemplatePicker } from '@/components/shared/NoticeDocumentView';
+import { ReappearanceScanPanel } from '@/components/shared/ReappearanceScanPanel';
 import { CASE_STATUS_LABEL, NOTICE_ROUTE_LABEL } from '@/lib/constants';
 import { slaProgressLabel } from '@/lib/sla';
 import type { CaseRecord, Evidence, Finding, LegalReview, Notice, NoticeRoute as NoticeRouteType, Reappearance, Role, RightsValidation } from '@/lib/types';
@@ -25,6 +26,9 @@ export default function CaseDetailPage() {
   const [toast, setToast] = useState('');
   const [noticeOpen, setNoticeOpen] = useState(false);
   const [busy, setBusy] = useState(false);
+  const [scanning, setScanning] = useState(false);
+  const [scanResult, setScanResult] = useState<Reappearance | null>(null);
+  const playbackDone = useRef<() => void>(() => {});
 
   async function act(path: string, body: Record<string, unknown>, ok: string) {
     setBusy(true);
@@ -35,6 +39,26 @@ export default function CaseDetailPage() {
     } catch (e) {
       setToast(e instanceof Error ? e.message : 'Failed');
     } finally {
+      setBusy(false);
+    }
+  }
+
+  async function simulateReappearance(caseId: string) {
+    setBusy(true);
+    setScanResult(null);
+    setScanning(true);
+    // Results show once both the scan playback and the API call have finished.
+    const playback = new Promise<void>((resolve) => { playbackDone.current = resolve; });
+    try {
+      const r = await post<{ reappearance: Reappearance }>('radar/simulate', { caseId });
+      setScanResult(r.reappearance);
+      await playback;
+      setToast('REAPPEARANCE DETECTED');
+      await refresh();
+    } catch (e) {
+      setToast(e instanceof Error ? e.message : 'Failed');
+    } finally {
+      setScanning(false);
       setBusy(false);
     }
   }
@@ -78,6 +102,10 @@ export default function CaseDetailPage() {
             <span>Cadence: <b>{monitoring.cadence.toUpperCase()}</b></span>
           </div>
         </div>
+      )}
+
+      {scanning && (
+        <ReappearanceScanPanel caseId={c.id} result={scanResult} onComplete={() => playbackDone.current()} />
       )}
 
       {data.reappearances[0] && (
@@ -200,7 +228,7 @@ export default function CaseDetailPage() {
             <Button className="w-full" size="sm" disabled={busy || !notice} onClick={() => notice && act('notices/approve', { noticeId: notice.id }, 'Notice approved')}>Approve Notice</Button>
             <Button className="w-full" size="sm" variant="success" disabled={busy} onClick={() => act('enforcement/submit', { caseId: c.id }, 'SIMULATED SUBMISSION')}>Submit Notice</Button>
             <Button className="w-full" size="sm" variant="outline" disabled={busy} onClick={() => act('enforcement/response', { caseId: c.id, outcome: 'removed' }, 'Removed — monitoring active')}>Simulate Removal</Button>
-            <Button className="w-full" size="sm" variant="amber" disabled={busy} onClick={() => act('radar/simulate', { caseId: c.id }, 'REAPPEARANCE DETECTED')}>Simulate Reappearance</Button>
+            <Button className="w-full" size="sm" variant="amber" disabled={busy} onClick={() => simulateReappearance(c.id)}>Simulate Reappearance</Button>
             <Button className="w-full" size="sm" variant="ghost" disabled={busy} onClick={() => act('cases/close', { caseId: c.id, reason: 'Monitoring complete' }, 'Case closed')}>Close Case</Button>
           </div>
         </div>

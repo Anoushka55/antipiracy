@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import Link from 'next/link';
 import { Bar, BarChart, CartesianGrid, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
 import { useApi } from '@/hooks/useApi';
@@ -8,19 +8,11 @@ import { post } from '@/lib/client';
 import { Button } from '@/components/shared/Button';
 import { Badge, RiskBadge } from '@/components/shared/Badge';
 import { KPICard } from '@/components/shared/Card';
-import { PageLoader, LoadingDots } from '@/components/shared/LoadingDots';
+import { PageLoader } from '@/components/shared/LoadingDots';
 import { ClosedLoopDiagram } from '@/components/shared/Domain';
 import { Toast } from '@/components/shared/Overlay';
+import { ReappearanceScanPanel } from '@/components/shared/ReappearanceScanPanel';
 import type { EntityRecord, Reappearance } from '@/lib/types';
-
-const STEPS = [
-  'Scanning monitored sources...',
-  'Checking content fingerprints...',
-  'Comparing protected assets...',
-  'Checking known entities...',
-  'Analyzing relationships...',
-  'Potential reappearance detected.',
-];
 
 export default function RadarPage() {
   const { data, loading, refresh } = useApi<{
@@ -30,27 +22,31 @@ export default function RadarPage() {
     cases: { id: string; title: string; status: string }[];
   }>('radar');
   const [busy, setBusy] = useState(false);
-  const [step, setStep] = useState(-1);
+  const [scanning, setScanning] = useState(false);
   const [toast, setToast] = useState('');
   const [wow, setWow] = useState<null | { finding: { id: string; url: string }; reappearance: Reappearance }>(null);
+  const [scanResult, setScanResult] = useState<Reappearance | null>(null);
+  const playbackDone = useRef<() => void>(() => {});
 
   async function simulate() {
     setBusy(true);
     setWow(null);
-    for (let i = 0; i < STEPS.length; i++) {
-      setStep(i);
-      await new Promise((r) => setTimeout(r, 450));
-    }
+    setScanResult(null);
+    setScanning(true);
+    // Results show once both the scan playback and the API call have finished.
+    const playback = new Promise<void>((resolve) => { playbackDone.current = resolve; });
     try {
       const r = await post<{ finding: { id: string; url: string }; reappearance: Reappearance }>('radar/simulate', { caseId: 'SC-2026-0842' });
+      setScanResult(r.reappearance);
+      await playback;
       setWow(r);
       setToast('REAPPEARANCE DETECTED · 97% CONFIDENCE');
       await refresh();
     } catch (e) {
       setToast(e instanceof Error ? e.message : 'Failed');
     } finally {
+      setScanning(false);
       setBusy(false);
-      setStep(-1);
     }
   }
 
@@ -66,11 +62,8 @@ export default function RadarPage() {
         <Button onClick={simulate} disabled={busy}>Simulate Reappearance</Button>
       </div>
 
-      {busy && (
-        <div className="rounded-2xl border border-[#00338D]/20 bg-[#00338D]/5 p-5 flex items-center gap-3">
-          <LoadingDots />
-          <div className="text-sm font-semibold">{STEPS[Math.max(0, step)]}</div>
-        </div>
+      {scanning && (
+        <ReappearanceScanPanel caseId="SC-2026-0842" result={scanResult} onComplete={() => playbackDone.current()} />
       )}
 
       {wow && (

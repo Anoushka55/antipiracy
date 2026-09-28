@@ -55,7 +55,7 @@ export const NAV_GROUPS: {
   },
   {
     label: "Catalogue",
-    roles: ["investigator", "legal"],
+    roles: ["investigator", "legal", "admin"],
     items: [{ id: "catalogue", label: "Catalogue", href: "/catalogue" }],
   },
   {
