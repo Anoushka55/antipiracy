@@ -257,9 +257,14 @@ export const CaseWorkflowService = {
       inv.updatedAt = now();
     }
     if (outcome === "confirmed") {
+      // A freshly created case can still be "new" (not yet investigating) —
+      // step it through investigating first so the rights_validation
+      // transition below is always valid instead of silently no-op'ing.
+      if (rec.status === "new") transition(state, rec, "investigating", user, "Investigation started");
       if (rec.status === "investigating") transition(state, rec, "rights_validation", user, "Infringement confirmed — rights validation");
       ensureRightsDraft(state, rec);
     } else if (outcome === "false_positive") {
+      if (rec.status === "new") transition(state, rec, "investigating", user, "Investigation started");
       transition(state, rec, "rejected", user, "False positive");
     } else {
       rec.lastAction = "Additional evidence requested";
@@ -400,14 +405,13 @@ export const CaseWorkflowService = {
     state.submissions.unshift(sub);
     rec.submissionId = sub.id;
     notice.status = "dispatched";
-    if (rec.status === "notice_ready" || rec.status === "legal_approved") {
-      rec.status = "submitted";
-      transition(state, rec, "awaiting_response", user, "SIMULATED SUBMISSION");
-    } else if (rec.status === "submitted") {
-      transition(state, rec, "awaiting_response", user, "SIMULATED SUBMISSION");
-    } else {
-      rec.status = "awaiting_response";
-    }
+    // Step through every intermediate status via transition() (not a raw
+    // assignment) so each one lands in the case's journey stepper. Covers
+    // the normal path (legal_approved -> ... -> awaiting_response) as well
+    // as resubmitting from escalated or reopened.
+    if (rec.status === "legal_approved" || rec.status === "reopened") transition(state, rec, "notice_ready", user, "Notice approved — ready to dispatch");
+    if (rec.status === "notice_ready") transition(state, rec, "submitted", user, "SIMULATED SUBMISSION");
+    if (rec.status === "submitted" || rec.status === "escalated") transition(state, rec, "awaiting_response", user, "SIMULATED SUBMISSION");
     rec.lastAction = `Notice submitted (${ticketId}) — SIMULATED`;
     audit(state, user, "NOTICE_SUBMITTED", "Submission", ticketId, null, { simulated: true, destination: sub.destination });
     return sub;
@@ -430,9 +434,10 @@ export const CaseWorkflowService = {
     const sub = state.submissions.find((s) => s.id === rec.submissionId);
     if (sub) sub.status = outcome === "removed" ? "removed" : "rejected";
     if (outcome === "removed") {
-      if (rec.status === "awaiting_response" || rec.status === "submitted") {
-        rec.status = "removed";
-      }
+      // Go through transition() (not a raw status assignment) so this shows
+      // up in the case's journey stepper, not just its status badge.
+      if (rec.status === "submitted") transition(state, rec, "awaiting_response", user, "Awaiting platform response");
+      if (rec.status === "awaiting_response") transition(state, rec, "removed", user, "SIMULATED RESPONSE — removed");
       this.startMonitoring(state, rec.id, user);
     }
     audit(state, user, "PLATFORM_RESPONSE", "PlatformResponse", response.id, null, { outcome, simulated: true });

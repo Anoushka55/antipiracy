@@ -55,14 +55,14 @@ export const NAV_GROUPS: {
   },
   {
     label: "Catalogue",
-    roles: ["investigator", "legal", "admin"],
+    roles: ["investigator", "legal"],
     items: [{ id: "catalogue", label: "Catalogue", href: "/catalogue" }],
   },
   {
     label: "Intelligence",
-    roles: ["investigator", "admin", "executive"],
+    roles: ["investigator", "executive"],
     items: [
-      { id: "entities", label: "Repeat Offenders", href: "/entities", roles: ["investigator", "admin"] },
+      { id: "entities", label: "Repeat Offenders", href: "/entities", roles: ["investigator"] },
       { id: "llm", label: "LLM Exposure", href: "/llm-probing" },
     ],
   },

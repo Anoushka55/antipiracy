@@ -261,6 +261,57 @@ describe("executive cannot mutate cases", () => {
   });
 });
 
+describe("case pipeline stays in sync end to end", () => {
+  it("confirming infringement on a case still at 'new' advances it, instead of silently doing nothing", () => {
+    const s = buildSeed();
+    const rec = s.cases.find((c) => c.status === "new");
+    expect(rec, "seed should include at least one 'new' case").toBeDefined();
+    const before = s.transitions.filter((t) => t.caseId === rec!.id).length;
+    CaseWorkflowService.confirmInfringement(s, rec!.id, inv, "confirmed");
+    expect(rec!.status).toBe("rights_validation");
+    // Both the new->investigating and investigating->rights_validation hops
+    // must be recorded, or the journey stepper would show it stuck at "new".
+    const after = s.transitions.filter((t) => t.caseId === rec!.id);
+    expect(after.length).toBe(before + 2);
+    expect(after.map((t) => t.to)).toEqual(expect.arrayContaining(["investigating", "rights_validation"]));
+  });
+
+  it("takes a case from legal_approved to awaiting_response with every hop recorded", () => {
+    const s = buildSeed();
+    const rec = s.cases.find((c) => c.status === "legal_approved");
+    expect(rec, "seed should include at least one 'legal_approved' case").toBeDefined();
+    const before = s.transitions.filter((t) => t.caseId === rec!.id).length;
+
+    CaseWorkflowService.generateNotice(s, rec!.id, legal); // legal_approved -> notice_ready
+    const notice = s.notices.find((n) => n.id === rec!.noticeId)!;
+    CaseWorkflowService.approveNotice(s, notice.id, legal); // no status change
+    CaseWorkflowService.submitNotice(s, rec!.id, ops); // notice_ready -> submitted -> awaiting_response
+
+    expect(rec!.status).toBe("awaiting_response");
+    const after = s.transitions.filter((t) => t.caseId === rec!.id);
+    expect(after.length).toBe(before + 3); // notice_ready, submitted, awaiting_response
+    expect(after.map((t) => t.to)).toEqual(expect.arrayContaining(["notice_ready", "submitted", "awaiting_response"]));
+  });
+
+  it("recording a 'removed' response transitions through the journey, not a raw status write", () => {
+    const s = buildSeed();
+    const rec = s.cases.find((c) => c.status === "legal_approved");
+    expect(rec).toBeDefined();
+    CaseWorkflowService.generateNotice(s, rec!.id, legal);
+    const notice = s.notices.find((n) => n.id === rec!.noticeId)!;
+    CaseWorkflowService.approveNotice(s, notice.id, legal);
+    CaseWorkflowService.submitNotice(s, rec!.id, ops);
+    const before = s.transitions.filter((t) => t.caseId === rec!.id).length;
+    CaseWorkflowService.recordResponse(s, rec!.id, ops, "removed");
+    // recordResponse moves the case to "removed", then startMonitoring
+    // immediately moves it on to "monitoring" — both hops must be recorded.
+    expect(rec!.status).toBe("monitoring");
+    const after = s.transitions.filter((t) => t.caseId === rec!.id);
+    expect(after.length).toBe(before + 2);
+    expect(after.map((t) => t.to)).toEqual(expect.arrayContaining(["removed", "monitoring"]));
+  });
+});
+
 describe("discovery scan playback", () => {
   it("lists every connector hit as a matching document, and counts its sources", () => {
     const result = runDiscoveryScan(new Set());
