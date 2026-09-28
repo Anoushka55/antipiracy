@@ -100,7 +100,9 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
 
   const groups = useMemo(() => {
     if (!user) return [];
-    return NAV_GROUPS.filter((g) => navAllowed(user.role as Role, g.roles));
+    return NAV_GROUPS.filter((g) => navAllowed(user.role as Role, g.roles))
+      .map((g) => ({ ...g, items: g.items.filter((item) => navAllowed(user.role as Role, item.roles ?? g.roles)) }))
+      .filter((g) => g.items.length > 0);
   }, [user]);
 
   const title = PAGE_TITLES[pathname] ?? (pathname.startsWith('/cases/') ? 'Case' : pathname.startsWith('/catalogue/') ? 'Asset' : 'Command Center');

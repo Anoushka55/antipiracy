@@ -21,11 +21,12 @@ export const TOOL_VERSION = "EvidenceCapture-v0.4-demo";
 export const NAV_GROUPS: {
   label: string;
   roles: Role[] | "all";
-  items: { id: string; label: string; href: string }[];
+  /** Each item inherits the group's `roles` unless it sets its own, narrowing visibility further. */
+  items: { id: string; label: string; href: string; roles?: Role[] | "all" }[];
 }[] = [
   {
     label: "Command",
-    roles: "all",
+    roles: ["executive", "investigator", "legal", "operations"],
     items: [
       { id: "overview", label: "Overview", href: "/overview" },
       { id: "analytics", label: "Analytics", href: "/analytics" },
@@ -34,7 +35,7 @@ export const NAV_GROUPS: {
   },
   {
     label: "Operations",
-    roles: ["lead", "investigator", "legal", "operations", "admin"],
+    roles: ["lead", "investigator", "legal", "operations"],
     items: [
       { id: "discovery", label: "Discovery", href: "/discovery" },
       { id: "investigations", label: "Investigations", href: "/investigations" },
@@ -46,20 +47,20 @@ export const NAV_GROUPS: {
   },
   {
     label: "Catalogue",
-    roles: ["lead", "investigator", "legal", "admin", "executive"],
+    roles: ["lead", "investigator", "legal", "admin"],
     items: [{ id: "catalogue", label: "Catalogue", href: "/catalogue" }],
   },
   {
     label: "Intelligence",
     roles: ["lead", "investigator", "admin", "executive"],
     items: [
-      { id: "entities", label: "Repeat Offenders", href: "/entities" },
+      { id: "entities", label: "Repeat Offenders", href: "/entities", roles: ["lead", "investigator", "admin"] },
       { id: "llm", label: "LLM Exposure", href: "/llm-probing" },
     ],
   },
   {
     label: "System",
-    roles: ["admin", "lead"],
+    roles: ["admin"],
     items: [
       { id: "configuration", label: "Configuration", href: "/configuration" },
       { id: "administration", label: "Administration", href: "/administration" },
