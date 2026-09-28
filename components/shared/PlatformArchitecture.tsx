@@ -69,19 +69,19 @@ function Box({ box, inAiLayer, onOpen }: { box: ArchBox; inAiLayer?: boolean; on
       onClick={() => onOpen(box.key)}
       className="text-left bg-white border border-[#CBD5E1] rounded overflow-hidden flex flex-col transition-all duration-150 hover:border-[#9FB2CF] hover:shadow-[0_6px_18px_rgba(0,51,141,0.12)] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#C9950C]"
     >
-      <span className={`flex items-center gap-2 px-3 py-2 text-white text-[12.5px] font-bold ${inAiLayer ? 'bg-[#0077C8]' : 'bg-[#00338D]'}`}>
+      <span className={`flex items-center gap-2 px-3 py-2.5 min-h-[52px] text-white text-[12.5px] font-bold leading-snug ${inAiLayer ? 'bg-[#0077C8]' : 'bg-[#00338D]'}`}>
         <Icon size={14} className="flex-shrink-0" />
         <span className="flex-1">{box.title}</span>
-        {box.ai && <span className="text-[9px] font-extrabold tracking-wider px-1.5 py-0.5 rounded-sm bg-white/20">AI</span>}
+        {box.ai && <span className="flex-shrink-0 text-[9px] font-extrabold tracking-wider px-1.5 py-0.5 rounded-sm bg-white/20">AI</span>}
       </span>
-      <span className="flex flex-col gap-2 px-3 pt-2.5 pb-3 flex-1">
-        {box.fn && <span className="font-mono text-[10.5px] text-[#0077C8]">{box.fn}</span>}
+      <span className="flex flex-col gap-2.5 px-3 pt-3 pb-3 flex-1">
+        {box.fn && <span className="font-mono text-[10px] text-[#0077C8] tracking-tight break-words leading-snug">{box.fn}</span>}
         {box.items && (
           <span className="flex flex-wrap gap-1.5">
             {box.items.map((raw) => <Item key={raw} raw={raw} />)}
           </span>
         )}
-        <span className="mt-auto pt-1.5 border-t border-dashed border-[#E3E8F0] text-[11px] text-[#5B6478] leading-snug">{box.why}</span>
+        <span className="mt-auto pt-2 border-t border-dashed border-[#E3E8F0] text-[11px] text-[#5B6478] leading-relaxed">{box.why}</span>
       </span>
     </button>
   );
