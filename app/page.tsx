@@ -73,7 +73,6 @@ export default function LoginPage() {
             );
           })}
         </div>
-        <p className="text-[11px] text-[#6B7280] mt-4">Shared demo password: {DEMO_PASSWORD}</p>
       </div>
     </div>
   );
