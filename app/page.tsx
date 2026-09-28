@@ -7,12 +7,9 @@ import { Button } from '@/components/shared/Button';
 import { DEMO_PASSWORD, SCHAND_LOGO } from '@/lib/constants';
 
 const PERSONAS = [
-  { email: 'sourabh@schand.demo', name: 'Mr. Sourabh', role: 'Executive / CFO' },
+  { email: 'sourabh@schand.demo', name: 'Mr. Sourabh', role: 'Executive / CXO' },
   { email: 'murli@schand.demo', name: 'Mr. Murli', role: 'Anti-Piracy Lead' },
-  { email: 'inv02@schand.demo', name: 'Enforcement Analyst 02', role: 'Investigator' },
-  { email: 'legal@schand.demo', name: 'Legal Reviewer 01', role: 'Legal Reviewer' },
-  { email: 'ops@schand.demo', name: 'Platform Operations 01', role: 'Operations' },
-  { email: 'b.pradhan@schand.demo', name: 'B. Pradhan', role: 'Technology Admin' },
+  { email: 'b.pradhan@schand.demo', name: 'B. Pradhan', role: 'Technology Lead' },
 ];
 
 export default function LoginPage() {
