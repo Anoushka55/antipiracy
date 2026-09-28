@@ -28,11 +28,22 @@ export interface CaseChatContext {
   legalStatus?: string | null;
 }
 
+/** The handful of live Overview KPIs K.Bot can quote when describing that page — see ChatThread's overview fetch. */
+export interface LiveOverviewStats {
+  activeCases: number;
+  criticalHigh: number;
+  takedownRate: number;
+  slaBreachRate: number;
+  reappearanceRate: number;
+  estimatedExposureCr: number;
+}
+
 export interface KBotQuery {
   message: string;
   role: Role;
   pathname: string;
   caseContext?: CaseChatContext | null;
+  liveStats?: LiveOverviewStats | null;
 }
 
 function normalize(text: string): string {
@@ -51,7 +62,16 @@ function pageGuideForRole(page: PageGuide, role: Role): PageGuide & { accessible
   return { ...page, accessible: navAllowed(role, page.roles) };
 }
 
-function describePage(page: PageGuide, role: Role): KBotReply {
+/** A quoted, live snapshot line appended to the Overview page guide, when K.Bot has fetched current KPIs (see ChatThread). */
+function liveOverviewSummary(stats: LiveOverviewStats): string {
+  return (
+    `Right now: **${stats.activeCases} active cases** (${stats.criticalHigh} critical/high), ` +
+    `**${stats.takedownRate}% takedown rate**, **${stats.slaBreachRate}% SLA breach rate**, ` +
+    `**${stats.reappearanceRate}% reappearance rate**, and **₹${stats.estimatedExposureCr} Cr** estimated exposure.`
+  );
+}
+
+function describePage(page: PageGuide, role: Role, liveStats?: LiveOverviewStats | null): KBotReply {
   const guide = pageGuideForRole(page, role);
   if (!guide.accessible) {
     return {
@@ -59,8 +79,9 @@ function describePage(page: PageGuide, role: Role): KBotReply {
     };
   }
   const steps = guide.howToUseIt.map((s) => `- ${s}`).join("\n");
+  const summary = guide.id === "overview" && liveStats ? `\n\n${liveOverviewSummary(liveStats)}` : "";
   return {
-    text: `**${guide.title}** — ${guide.whatItIs}\n\nHow to use it:\n${steps}`,
+    text: `**${guide.title}** — ${guide.whatItIs}${summary}\n\nHow to use it:\n${steps}`,
     suggestedLinks: [
       { label: `Open ${guide.title}`, href: guide.href },
       ...guide.relatedPages
@@ -164,7 +185,7 @@ export function answerQuery(query: KBotQuery): KBotReply {
 
   // Pick the highest-scoring category.
   const scores: [number, () => KBotReply][] = [
-    [bestPageScore, () => describePage(bestPage as PageGuide, query.role)],
+    [bestPageScore, () => describePage(bestPage as PageGuide, query.role, query.liveStats)],
     [
       bestWorkflowScore,
       () => {

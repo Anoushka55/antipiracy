@@ -152,8 +152,8 @@ export default function WelcomePage() {
         </button>
       </header>
 
-      <div className="flex-1 grid grid-cols-1 lg:grid-cols-5 gap-6 p-6 lg:p-10 max-w-7xl mx-auto w-full">
-        <div className="lg:col-span-3 relative flex flex-col justify-center px-2">
+      <div className="flex-1 grid grid-cols-1 lg:grid-cols-2 gap-6 p-6 lg:p-10 max-w-7xl mx-auto w-full">
+        <div className="relative flex flex-col justify-center px-2">
           <LoopGraphic />
           <div className="relative">
             <h1 className="text-4xl lg:text-5xl font-bold leading-tight text-white" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
@@ -178,7 +178,7 @@ export default function WelcomePage() {
           </div>
         </div>
 
-        <div className="lg:col-span-2 bg-white rounded-2xl border border-[#E2E8F0] shadow-[0_1px_3px_0_rgba(0,0,0,0.08)] overflow-hidden flex flex-col" style={{ height: '620px', maxHeight: '85vh' }}>
+        <div className="bg-white rounded-2xl border border-[#E2E8F0] shadow-[0_1px_3px_0_rgba(0,0,0,0.08)] overflow-hidden flex flex-col h-full min-h-[620px]">
           <div className="flex-shrink-0 px-5 pt-5 pb-3 border-b border-[#E2E8F0]">
             <div className="flex items-center gap-2 mb-3">
               <div className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0" style={{ background: 'linear-gradient(135deg, #00338D, #0077C8)' }}>

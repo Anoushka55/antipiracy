@@ -4,8 +4,9 @@ import { useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Bot, Paperclip, Send } from 'lucide-react';
 import { answerQuery, greet } from '@/lib/kbot';
-import type { CaseChatContext, SuggestedLink } from '@/lib/kbot';
+import type { CaseChatContext, LiveOverviewStats, SuggestedLink } from '@/lib/kbot';
 import { LoadingDots } from '@/components/shared/LoadingDots';
+import { api } from '@/lib/client';
 import type { Role } from '@/lib/types';
 
 export interface ChatMessage {
@@ -26,6 +27,57 @@ let msgSeq = 0;
 function nextMsgId() {
   msgSeq += 1;
   return `m${msgSeq}`;
+}
+
+/**
+ * Renders K.Bot's plain-text replies (see lib/kbot.ts) as real markup instead
+ * of literal `**bold**` and `- ` characters: **bold** becomes <strong>, and a
+ * run of consecutive "- " lines becomes a real <ul><li> list. Kept minimal —
+ * K.Bot's messages only ever use these two constructs.
+ */
+function renderMessageText(text: string): React.ReactNode {
+  const lines = text.split('\n');
+  const blocks: React.ReactNode[] = [];
+  let listBuffer: string[] = [];
+
+  const flushList = (key: string) => {
+    if (listBuffer.length === 0) return;
+    blocks.push(
+      <ul key={key} className="list-disc pl-4 space-y-0.5 my-1">
+        {listBuffer.map((item, i) => (
+          <li key={i}>{renderInline(item)}</li>
+        ))}
+      </ul>
+    );
+    listBuffer = [];
+  };
+
+  lines.forEach((line, i) => {
+    if (line.startsWith('- ')) {
+      listBuffer.push(line.slice(2));
+      return;
+    }
+    flushList(`ul-${i}`);
+    if (line.length === 0) {
+      blocks.push(<br key={`br-${i}`} />);
+    } else {
+      blocks.push(<span key={`ln-${i}`}>{renderInline(line)}{i < lines.length - 1 ? <br /> : null}</span>);
+    }
+  });
+  flushList('ul-end');
+
+  return blocks;
+}
+
+/** Turns `**bold**` segments into <strong>, leaving everything else as plain text. */
+function renderInline(text: string): React.ReactNode {
+  const parts = text.split(/(\*\*[^*]+\*\*)/g);
+  return parts.map((part, i) => {
+    if (part.startsWith('**') && part.endsWith('**')) {
+      return <strong key={i}>{part.slice(2, -2)}</strong>;
+    }
+    return part;
+  });
 }
 
 /**
@@ -59,6 +111,18 @@ export function ChatThread({
   const listRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const greeted = useRef(false);
+  const [liveStats, setLiveStats] = useState<LiveOverviewStats | null>(null);
+
+  // Fetched once so K.Bot can quote real current numbers when describing
+  // Overview (see lib/kbot.ts's liveOverviewSummary), instead of only the
+  // static page description. Silently ignored if the request fails.
+  useEffect(() => {
+    let cancelled = false;
+    api<{ kpis: LiveOverviewStats }>('overview')
+      .then((data) => { if (!cancelled) setLiveStats(data.kpis); })
+      .catch(() => {});
+    return () => { cancelled = true; };
+  }, []);
 
   useEffect(() => {
     if (!greeted.current) {
@@ -101,6 +165,7 @@ export function ChatThread({
         role: user.role,
         pathname,
         caseContext,
+        liveStats,
       });
       setMessages((m) => [...m, { id: nextMsgId(), from: 'bot', text: reply.text, suggestedLinks: reply.suggestedLinks }]);
       setTyping(false);
@@ -132,13 +197,13 @@ export function ChatThread({
             )}
             <div className={bubbleMaxWidth}>
               <div
-                className={`text-xs px-3 py-2 rounded-xl whitespace-pre-wrap ${
+                className={`text-xs px-3 py-2 rounded-xl ${
                   m.from === 'user'
-                    ? 'bg-[#0077C8] text-white rounded-br-sm'
+                    ? 'bg-[#0077C8] text-white rounded-br-sm whitespace-pre-wrap'
                     : 'bg-[#F4F6F9] text-[#1A1F36] rounded-bl-sm ai-output'
                 }`}
               >
-                {m.text}
+                {m.from === 'bot' ? renderMessageText(m.text) : m.text}
               </div>
               {m.suggestedLinks && m.suggestedLinks.length > 0 && (
                 <div className="flex flex-wrap gap-1.5 mt-1.5">
