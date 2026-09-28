@@ -141,6 +141,36 @@ export const PAGE_GUIDES: PageGuide[] = [
     roles: ["lead", "investigator", "legal", "operations", "admin"],
   },
   {
+    id: "legal",
+    href: "/legal",
+    title: "Legal Review",
+    keywords: ["legal", "legal review", "rights validation", "four gates", "gates", "hold"],
+    whatItIs:
+      "Every case waiting on a legal decision, in one queue: rights validation (the four gates), legal approval, cases on hold, and cases ready for a notice.",
+    howToUseIt: [
+      "Use the filters to jump straight to rights validation, legal review, held cases, or cases ready for a notice.",
+      "Each row shows how many of the four gates have passed and the recommended notice route.",
+      "Opening a case takes you to its Legal tab to act on it.",
+    ],
+    relatedPages: ["cases", "notices"],
+    roles: ["lead", "legal"],
+  },
+  {
+    id: "notices",
+    href: "/notices",
+    title: "Notices",
+    keywords: ["notice", "notices", "takedown notice", "dmca", "draft", "template"],
+    whatItIs:
+      "Every takedown notice the platform has drafted, written from S. Chand's own notice templates: Copyright Reporting, US Copyright – DMCA, Intermediary Notice (India), and Escalated Legal Notice.",
+    howToUseIt: [
+      "Filter by status (draft, approved, dispatched) or by template to find a notice.",
+      "Select a notice to read the full formal letter, switch its template, approve it, or download it as a Word document.",
+      "Fields the platform can't fill in automatically (like a copyright registration number) are highlighted for Legal to complete before the notice is sent.",
+    ],
+    relatedPages: ["legal", "enforcement"],
+    roles: ["lead", "legal"],
+  },
+  {
     id: "radar",
     href: "/radar",
     title: "Reappearance Radar",

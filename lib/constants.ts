@@ -144,6 +144,7 @@ export const ROLE_LABEL: Record<Role, string> = {
  */
 export function destinationForEmail(email: string): string {
   if (email.startsWith("sourabh")) return "/overview";
+  if (email.startsWith("murli")) return "/discovery";
   if (email.startsWith("inv")) return "/discovery";
   if (email.startsWith("legal")) return "/cases";
   if (email.startsWith("ops")) return "/enforcement";

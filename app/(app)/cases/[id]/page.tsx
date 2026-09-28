@@ -14,7 +14,7 @@ import { JourneyStepper } from '@/components/shared/JourneyStepper';
 import { NoticeDocumentLoader, NoticeTemplatePicker } from '@/components/shared/NoticeDocumentView';
 import { CASE_STATUS_LABEL, NOTICE_ROUTE_LABEL } from '@/lib/constants';
 import { slaProgressLabel } from '@/lib/sla';
-import type { CaseRecord, Evidence, Finding, LegalReview, Notice, Reappearance, Role, RightsValidation } from '@/lib/types';
+import type { CaseRecord, Evidence, Finding, LegalReview, Notice, NoticeRoute as NoticeRouteType, Reappearance, Role, RightsValidation } from '@/lib/types';
 
 export default function CaseDetailPage() {
   const { id } = useParams<{ id: string }>();
@@ -173,7 +173,14 @@ export default function CaseDetailPage() {
               </div>
             )}
             {tab === 'notice' && (
-              <NoticePanel notice={notice} route={data.route} onGenerate={() => act('cases/notice', { caseId: c.id }, 'Draft generated')} onApprove={() => notice && act('notices/approve', { noticeId: notice.id }, 'Notice approved')} onOpen={() => setNoticeOpen(true)} />
+              <NoticePanel
+                notice={notice}
+                route={data.route}
+                busy={busy}
+                onGenerate={(r) => act('cases/notice', { caseId: c.id, route: r }, notice ? 'Draft rewritten from the selected template' : 'Draft generated')}
+                onApprove={() => notice && act('notices/approve', { noticeId: notice.id }, 'Notice approved and signed')}
+                onOpen={() => setNoticeOpen(true)}
+              />
             )}
             {tab === 'compare' && data.reappearances[0] && (
               <Compare original={data.finding} rec={c} rea={data.reappearances[0]} evidence={data.evidence} />
@@ -200,8 +207,8 @@ export default function CaseDetailPage() {
       </div>
       <ClosedLoopDiagram />
       {noticeOpen && notice && (
-        <Drawer title="Notice preview" onClose={() => setNoticeOpen(false)}>
-          <pre className="text-xs whitespace-pre-wrap font-mono">{Object.entries(notice).map(([k, v]) => `${k}: ${v}`).join('\n')}</pre>
+        <Drawer title={`${notice.id} · Notice preview`} width="w-[720px]" onClose={() => setNoticeOpen(false)}>
+          <NoticeDocumentLoader noticeId={notice.id} version={`${notice.route}-${notice.status}-${notice.generatedAt}`} />
         </Drawer>
       )}
       {toast && <Toast message={toast} onDone={() => setToast('')} />}
@@ -246,31 +253,31 @@ function Similarity({ finding }: { finding: Finding }) {
   );
 }
 
-function NoticePanel({ notice, route, onGenerate, onApprove, onOpen }: {
-  notice?: Notice; route?: { route: string; confidence: string; reason: string };
-  onGenerate: () => void; onApprove: () => void; onOpen: () => void;
+function NoticePanel({ notice, route, busy, onGenerate, onApprove, onOpen }: {
+  notice?: Notice; route?: { route: string; confidence: string; reason: string }; busy?: boolean;
+  onGenerate: (route?: NoticeRouteType) => void; onApprove: () => void; onOpen: () => void;
 }) {
-  return (
-    <div className="space-y-3 text-sm">
-      {route && (
-        <div className="rounded-xl border border-[#E2E8F0] p-3 text-xs">
-          Recommended route: <b>{NOTICE_ROUTE_LABEL[route.route as keyof typeof NOTICE_ROUTE_LABEL] ?? route.route}</b> · Confidence {route.confidence}
-          <div className="text-[#6B7280] mt-1">{route.reason}</div>
-        </div>
-      )}
-      <div className="flex gap-2 flex-wrap">
-        <Button size="sm" onClick={onGenerate}>Generate Draft</Button>
-        <Button size="sm" variant="outline" onClick={onOpen} disabled={!notice}>Preview</Button>
-        <Button size="sm" variant="accent" onClick={onApprove} disabled={!notice}>Approve</Button>
+  if (!notice) {
+    return (
+      <div className="space-y-3 text-sm">
+        {route && (
+          <div className="rounded-xl border border-[#E2E8F0] p-3 text-xs">
+            Recommended route: <b>{NOTICE_ROUTE_LABEL[route.route as keyof typeof NOTICE_ROUTE_LABEL] ?? route.route}</b> · Confidence {route.confidence}
+            <div className="text-[#6B7280] mt-1">{route.reason}</div>
+          </div>
+        )}
+        <Button size="sm" disabled={busy} onClick={() => onGenerate()}>Generate Draft Notice</Button>
       </div>
-      {notice && (
-        <div className="text-xs space-y-1">
-          <div><b>Complainant</b> {notice.complainant}</div>
-          <div><b>Work</b> {notice.copyrightedWork}</div>
-          <div><b>Location</b> {notice.location}</div>
-          <div className="text-[#9CA3AF]">{notice.goodFaithDeclaration}</div>
-        </div>
-      )}
+    );
+  }
+  return (
+    <div className="space-y-3">
+      <div className="flex flex-wrap items-center gap-2">
+        <NoticeTemplatePicker route={notice.route} disabled={busy || notice.status !== 'draft'} onChange={(r) => onGenerate(r)} />
+        {notice.status === 'draft' && <Button size="sm" disabled={busy} onClick={onApprove}>Approve notice</Button>}
+        <Button size="sm" variant="outline" onClick={onOpen}>Open full-screen</Button>
+      </div>
+      <NoticeDocumentLoader noticeId={notice.id} version={`${notice.route}-${notice.status}-${notice.generatedAt}`} />
     </div>
   );
 }
