@@ -24,7 +24,7 @@ import { PageLoader } from '@/components/shared/LoadingDots';
 import { ClosedLoopDiagram } from '@/components/shared/Domain';
 import { DetailModal } from '@/components/shared/Overlay';
 import { KpiDrilldownPanel } from '@/components/shared/KpiDrilldownPanel';
-import type { KpiKey } from '@/lib/analytics';
+import type { KpiKey, KpiStat, KpiTrend } from '@/lib/analytics';
 
 type Slice = { name: string; value: number; pct?: number; color?: string; action?: string };
 type PlatformRow = Slice;
@@ -48,6 +48,8 @@ export default function OverviewPage() {
     recurringThreat: number;
     insights?: Record<string, string>;
     kri?: { residualRiskShare: number; riskInsight?: string };
+    kpiTrends?: Record<string, KpiTrend>;
+    kpiStats?: Record<string, KpiStat[]>;
   }>('overview');
 
   const [openDrilldown, setOpenDrilldown] = useState<string | null>(null);
@@ -55,6 +57,10 @@ export default function OverviewPage() {
   if (loading || !data) return <PageLoader label="Loading command center…" />;
   const k = data.kpis;
   const ins = data.insights ?? {};
+  const trends = data.kpiTrends ?? {};
+  const stats = data.kpiStats ?? {};
+  /** e.g. "median 1.8d · p90 4.6d" from a KPI's stats array, for the tile's second line. */
+  const statLine = (key: string) => (stats[key] ?? []).map((s) => `${s.label.toLowerCase()} ${s.value}`).join(' · ');
   const funnelSteps = data.funnel.map((row, i) => {
     const created = data.funnel.find((f) => f.stage === 'Case Created')?.value ?? 0;
     if (row.stage === 'Closed' && created) {
@@ -125,14 +131,14 @@ export default function OverviewPage() {
       </div>
 
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <MetricCard label="Active Cases" value={k.activeCases} icon={Activity} color="#00338D" onDoubleClick={() => setOpenDrilldown('activeCases')} />
-        <MetricCard label="Critical / High Risk" value={k.criticalHigh} icon={ShieldAlert} color="#DC2626" onDoubleClick={() => setOpenDrilldown('criticalHigh')} />
-        <MetricCard label="Takedown Success Rate" value={k.takedownRate} unit="%" icon={Target} color="#00A36C" onDoubleClick={() => setOpenDrilldown('takedownRate')} />
-        <MetricCard label="Avg. Removal Time" value={k.avgRemovalDays} unit="days" icon={Timer} color="#0077C8" onDoubleClick={() => setOpenDrilldown('avgRemovalDays')} />
-        <MetricCard label="SLA Breach Rate" value={k.slaBreachRate} unit="%" icon={Clock} color="#D4A017" onDoubleClick={() => setOpenDrilldown('slaBreachRate')} />
-        <MetricCard label="Reappearance Rate" value={k.reappearanceRate} unit="%" icon={Radar} color="#8B1E3F" onDoubleClick={() => setOpenDrilldown('reappearanceRate')} />
-        <MetricCard label="Priority Title Exposure" value={k.priorityTitleExposure} unit="%" icon={AlertTriangle} color="#D4A017" onDoubleClick={() => setOpenDrilldown('priorityTitleExposure')} />
-        <MetricCard label="Estimated Exposure Value" value={`₹${k.estimatedExposureCr}`} unit="Cr" icon={IndianRupee} color="#00338D" onDoubleClick={() => setOpenDrilldown('estimatedExposureCr')} />
+        <MetricCard label="Active Cases" value={k.activeCases} icon={Activity} color="#00338D" trend={trends.activeCases?.changePct} trendGood={trends.activeCases?.risingIsGood} statLine={statLine('activeCases')} onDoubleClick={() => setOpenDrilldown('activeCases')} />
+        <MetricCard label="Critical / High Risk" value={k.criticalHigh} icon={ShieldAlert} color="#DC2626" trend={trends.criticalHigh?.changePct} trendGood={trends.criticalHigh?.risingIsGood} statLine={statLine('criticalHigh')} onDoubleClick={() => setOpenDrilldown('criticalHigh')} />
+        <MetricCard label="Takedown Success Rate" value={k.takedownRate} unit="%" icon={Target} color="#00A36C" trend={trends.takedownRate?.changePct} trendGood={trends.takedownRate?.risingIsGood} statLine={statLine('takedownRate')} onDoubleClick={() => setOpenDrilldown('takedownRate')} />
+        <MetricCard label="Avg. Removal Time" value={k.avgRemovalDays} unit="days" icon={Timer} color="#0077C8" trend={trends.avgRemovalDays?.changePct} trendGood={trends.avgRemovalDays?.risingIsGood} statLine={statLine('avgRemovalDays')} onDoubleClick={() => setOpenDrilldown('avgRemovalDays')} />
+        <MetricCard label="SLA Breach Rate" value={k.slaBreachRate} unit="%" icon={Clock} color="#D4A017" trend={trends.slaBreachRate?.changePct} trendGood={trends.slaBreachRate?.risingIsGood} statLine={statLine('slaBreachRate')} onDoubleClick={() => setOpenDrilldown('slaBreachRate')} />
+        <MetricCard label="Reappearance Rate" value={k.reappearanceRate} unit="%" icon={Radar} color="#8B1E3F" trend={trends.reappearanceRate?.changePct} trendGood={trends.reappearanceRate?.risingIsGood} statLine={statLine('reappearanceRate')} onDoubleClick={() => setOpenDrilldown('reappearanceRate')} />
+        <MetricCard label="Priority Title Exposure" value={k.priorityTitleExposure} unit="%" icon={AlertTriangle} color="#D4A017" trend={trends.priorityTitleExposure?.changePct} trendGood={trends.priorityTitleExposure?.risingIsGood} statLine={statLine('priorityTitleExposure')} onDoubleClick={() => setOpenDrilldown('priorityTitleExposure')} />
+        <MetricCard label="Estimated Exposure Value" value={`₹${k.estimatedExposureCr}`} unit="Cr" icon={IndianRupee} color="#00338D" trend={trends.estimatedExposureCr?.changePct} trendGood={trends.estimatedExposureCr?.risingIsGood} statLine={statLine('estimatedExposureCr')} onDoubleClick={() => setOpenDrilldown('estimatedExposureCr')} />
       </div>
       <p className="text-[11px] text-[#9CA3AF]">Double-click any tile or chart for a detailed breakdown.</p>
       <p className="text-[11px] text-[#9CA3AF]">

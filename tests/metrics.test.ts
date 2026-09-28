@@ -24,6 +24,40 @@ describe("executive KPI/KRI pack", () => {
     expect(ov.riskDist.map((r) => r.name)).toEqual(["Critical", "High", "Medium", "Low"]);
     expect(ov.kri.residualRiskShare).toBe(27);
   });
+
+  const TILE_KEYS = [
+    "activeCases", "criticalHigh", "takedownRate", "avgRemovalDays", "slaBreachRate",
+    "reappearanceRate", "priorityTitleExposure", "estimatedExposureCr", "closedLoopRecoveryRate",
+  ];
+
+  it("gives every tile a real, internally consistent trend and a non-empty stats block", () => {
+    const ov = executiveOverview(buildSeed());
+    for (const key of TILE_KEYS) {
+      const trend = ov.kpiTrends[key];
+      expect(trend, key).toBeDefined();
+      expect(trend.current, key).toBeGreaterThanOrEqual(0);
+      expect(trend.previous, key).toBeGreaterThanOrEqual(0);
+      // direction must agree with the sign of the raw current/previous counts.
+      if (trend.current === trend.previous) expect(trend.direction, key).toBe("flat");
+      else expect(trend.direction, key).toBe(trend.current > trend.previous ? "up" : "down");
+      // changePct, when not null, must be the actual percentage change.
+      if (trend.previous > 0) {
+        expect(trend.changePct, key).toBe(Math.round(((trend.current - trend.previous) / trend.previous) * 100));
+      } else if (trend.current === 0) {
+        expect(trend.changePct, key).toBe(0);
+      } else {
+        expect(trend.changePct, key).toBeNull();
+      }
+      expect(typeof trend.risingIsGood, key).toBe("boolean");
+
+      const stats = ov.kpiStats[key];
+      expect(stats?.length, key).toBeGreaterThan(0);
+      stats!.forEach((s) => {
+        expect(s.label.length, `${key} stat label`).toBeGreaterThan(0);
+        expect(s.value.length, `${key} stat value`).toBeGreaterThan(0);
+      });
+    }
+  });
 });
 
 describe("LLM unified assessment (Drive 1 + Drive 2)", () => {

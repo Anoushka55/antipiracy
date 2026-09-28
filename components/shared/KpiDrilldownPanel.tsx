@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { ArrowRight, ChevronRight, Lightbulb } from 'lucide-react';
+import { ArrowRight, ChevronRight, Lightbulb, Minus, TrendingDown, TrendingUp } from 'lucide-react';
 import { useApi } from '@/hooks/useApi';
 import { LoadingDots } from '@/components/shared/LoadingDots';
 import type { KpiDrilldown, KpiKey, KpiTone } from '@/lib/analytics';
@@ -36,6 +36,18 @@ export function KpiDrilldownPanel({ kpi, onNavigate }: { kpi: KpiKey; onNavigate
         <Lightbulb size={16} className="text-[#0077C8] flex-shrink-0 mt-0.5" />
         <p className="text-sm text-[#1A1F36] leading-relaxed">{data.insight}</p>
       </div>
+
+      {(data.trend || data.stats) && (
+        <div className="flex flex-wrap items-stretch gap-2">
+          {data.trend && <TrendChip trend={data.trend} />}
+          {data.stats?.map((s) => (
+            <div key={s.label} className="flex-1 min-w-[110px] rounded-xl border border-[#E2E8F0] px-3 py-2">
+              <div className="text-sm font-bold font-mono text-[#1A1F36] tabular-nums">{s.value}</div>
+              <div className="text-[10px] text-[#9CA3AF] uppercase tracking-wide leading-tight mt-0.5">{s.label}</div>
+            </div>
+          ))}
+        </div>
+      )}
 
       <div>
         <div className="text-[10px] font-bold uppercase tracking-widest text-[#9CA3AF] mb-2">{data.rowsTitle}</div>
@@ -75,6 +87,34 @@ export function KpiDrilldownPanel({ kpi, onNavigate }: { kpi: KpiKey; onNavigate
             {data.secondary.label}
           </Link>
         )}
+      </div>
+    </div>
+  );
+}
+
+const TREND_ICON = { up: TrendingUp, down: TrendingDown, flat: Minus };
+
+/**
+ * A real trend badge: current vs. the prior 7-day window, from record
+ * timestamps (see windowTrend() in lib/metrics.ts) — never a fabricated
+ * week label. changePct is null when the prior window had zero events.
+ * Color follows whether a rising count is good news for this metric (more
+ * removals: good; more breaches: not), not direction alone.
+ */
+function TrendChip({ trend }: { trend: NonNullable<import('@/lib/analytics').KpiDrilldown['trend']> }) {
+  const Icon = TREND_ICON[trend.direction];
+  const isGoodNews = trend.direction === 'flat' ? null : trend.direction === 'up' ? trend.risingIsGood : !trend.risingIsGood;
+  const color = isGoodNews === null ? 'text-[#6B7280] bg-[#F4F6F9] border-[#E2E8F0]' : isGoodNews ? 'text-[#00A36C] bg-[#00A36C]/10 border-[#00A36C]/20' : 'text-[#DC2626] bg-red-50 border-red-200';
+  return (
+    <div className={`flex-1 min-w-[150px] rounded-xl border px-3 py-2 ${color}`}>
+      <div className="flex items-center gap-1.5">
+        <Icon size={14} />
+        <span className="text-sm font-bold font-mono tabular-nums">
+          {trend.changePct === null ? 'New' : `${trend.changePct >= 0 ? '+' : ''}${trend.changePct}%`}
+        </span>
+      </div>
+      <div className="text-[10px] uppercase tracking-wide leading-tight mt-0.5 opacity-80">
+        {trend.current} vs {trend.previous} in the prior {trend.windowLabel.replace('last ', '')}
       </div>
     </div>
   );

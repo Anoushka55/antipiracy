@@ -8,7 +8,7 @@ import { Drawer, DetailModal } from '@/components/shared/Overlay';
 import { AIRecommendationCard } from '@/components/shared/Domain';
 import { KPICard } from '@/components/shared/Card';
 import { KpiDrilldownPanel } from '@/components/shared/KpiDrilldownPanel';
-import type { KpiKey } from '@/lib/analytics';
+import type { KpiKey, KpiStat, KpiTrend } from '@/lib/analytics';
 import type { FinancialEstimate } from '@/lib/types';
 
 
@@ -17,6 +17,8 @@ export default function AnalyticsPage() {
     overview: {
       kpis: Record<string, number>;
       trend: { week: string; exposure: number }[];
+      kpiTrends?: Record<string, KpiTrend>;
+      kpiStats?: Record<string, KpiStat[]>;
     };
     forecast: { statement: string; confidence: string; methodologyVersion: string };
     financial: FinancialEstimate[];
@@ -26,6 +28,9 @@ export default function AnalyticsPage() {
   const [openDrilldown, setOpenDrilldown] = useState<string | null>(null);
   if (loading || !data) return <PageLoader />;
   const f = data.financial[0];
+  const trends = data.overview.kpiTrends ?? {};
+  const stats = data.overview.kpiStats ?? {};
+  const statLine = (key: string) => (stats[key] ?? []).map((s) => `${s.label.toLowerCase()} ${s.value}`).join(' · ');
 
   const close = () => setOpenDrilldown(null);
   const tile = (kpi: KpiKey, title: string, subtitle: string) => ({ title, subtitle, render: () => <KpiDrilldownPanel kpi={kpi} onNavigate={close} /> });
@@ -82,10 +87,10 @@ export default function AnalyticsPage() {
         </div>
       </div>
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <KPICard title="Closed-loop recovery (KPI)" value={`${data.overview.kpis.closedLoopRecoveryRate}%`} unit="linked reappearances / detected" statusColor="#00A36C" onDoubleClick={() => setOpenDrilldown('closedLoopRecovery')} />
-        <KPICard title="Reappearance rate (KRI)" value={`${data.overview.kpis.reappearanceRate}%`} unit="16 of 143 monitored" statusColor="#8B1E3F" onDoubleClick={() => setOpenDrilldown('reappearanceRate')} />
-        <KPICard title="Estimated exposure" value={`₹${data.overview.kpis.estimatedExposureCr} Cr`} unit="4.2 lakh copies × ₹443" statusColor="#8B1E3F" onDoubleClick={() => setOpenDrilldown('estimatedExposure')} />
-        <KPICard title="Takedown success (KPI)" value={`${data.overview.kpis.takedownRate}%`} unit="138 / 156 notices" statusColor="#00A36C" onDoubleClick={() => setOpenDrilldown('takedownSuccess')} />
+        <KPICard title="Closed-loop recovery (KPI)" value={`${data.overview.kpis.closedLoopRecoveryRate}%`} unit="linked reappearances / detected" statusColor="#00A36C" trend={trends.closedLoopRecoveryRate?.changePct} trendGood={trends.closedLoopRecoveryRate?.risingIsGood} statLine={statLine('closedLoopRecoveryRate')} onDoubleClick={() => setOpenDrilldown('closedLoopRecovery')} />
+        <KPICard title="Reappearance rate (KRI)" value={`${data.overview.kpis.reappearanceRate}%`} unit="of the monitored book" statusColor="#8B1E3F" trend={trends.reappearanceRate?.changePct} trendGood={trends.reappearanceRate?.risingIsGood} statLine={statLine('reappearanceRate')} onDoubleClick={() => setOpenDrilldown('reappearanceRate')} />
+        <KPICard title="Estimated exposure" value={`₹${data.overview.kpis.estimatedExposureCr} Cr`} unit="modelled indicative exposure" statusColor="#8B1E3F" trend={trends.estimatedExposureCr?.changePct} trendGood={trends.estimatedExposureCr?.risingIsGood} statLine={statLine('estimatedExposureCr')} onDoubleClick={() => setOpenDrilldown('estimatedExposure')} />
+        <KPICard title="Takedown success (KPI)" value={`${data.overview.kpis.takedownRate}%`} unit="of dispatched notices" statusColor="#00A36C" trend={trends.takedownRate?.changePct} trendGood={trends.takedownRate?.risingIsGood} statLine={statLine('takedownRate')} onDoubleClick={() => setOpenDrilldown('takedownSuccess')} />
       </div>
       <p className="text-[11px] text-[#6B7280]">W12 exposure index 118 vs W11 100 = +18% exam-season KRI. Forecast is a scenario, not a fact. Double-click any tile or the AI card for detail.</p>
       <div className="grid grid-cols-1 xl:grid-cols-2 gap-4">

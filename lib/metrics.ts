@@ -13,10 +13,63 @@
  *    no week-by-week or region field on a case record to derive these from.
  *  - The LLM Exposure / AI Governance report content: that's a separate model
  *    red-teaming exercise (see lib/llm-probe.ts), unrelated to case data.
+ *
+ * kpiTrends and kpiStats (below) ARE real, derived from actual record
+ * timestamps (case.createdAt, platformResponse.receivedAt, etc.) compared
+ * against STORY_NOW, the fixed instant both seed generators build their data
+ * relative to — never a fabricated week label.
  */
 
-import type { AppState } from "./types";
+import type { AppState, CaseRecord, RiskLevel } from "./types";
 import { llmProbeDataset } from "./llm-probe";
+
+/** The fixed "now" every seed generator (lib/seed.ts, lib/dataset-seed.ts) builds its timestamps relative to. */
+const STORY_NOW = new Date("2026-09-04T10:00:00Z");
+const DAY = 24 * 3600 * 1000;
+
+export interface KpiTrend {
+  current: number;
+  previous: number;
+  changePct: number | null;
+  direction: "up" | "down" | "flat";
+  windowLabel: string;
+  /** Whether a rising count is a good sign for this particular metric (e.g. more removals is good; more breaches is not). */
+  risingIsGood: boolean;
+}
+
+export interface KpiStat {
+  label: string;
+  value: string;
+}
+
+/** Counts how many items in `dates` fall in [now - days*2, now - days) and [now - days, now). */
+function windowTrend(dates: (string | undefined)[], risingIsGood: boolean, days = 7, now = STORY_NOW): KpiTrend {
+  const times = dates.filter((d): d is string => !!d).map((d) => new Date(d).getTime());
+  const nowMs = now.getTime();
+  const current = times.filter((t) => t > nowMs - days * DAY && t <= nowMs).length;
+  const previous = times.filter((t) => t > nowMs - days * 2 * DAY && t <= nowMs - days * DAY).length;
+  const changePct = previous > 0 ? Math.round(((current - previous) / previous) * 100) : current > 0 ? null : 0;
+  const direction = current === previous ? "flat" : current > previous ? "up" : "down";
+  return { current, previous, changePct, direction, windowLabel: `last ${days} days`, risingIsGood };
+}
+
+function median(nums: number[]): number {
+  if (!nums.length) return 0;
+  const s = [...nums].sort((a, b) => a - b);
+  const mid = Math.floor(s.length / 2);
+  return s.length % 2 ? s[mid] : (s[mid - 1] + s[mid]) / 2;
+}
+
+function percentile(nums: number[], p: number): number {
+  if (!nums.length) return 0;
+  const s = [...nums].sort((a, b) => a - b);
+  const idx = Math.min(s.length - 1, Math.ceil((p / 100) * s.length) - 1);
+  return s[Math.max(0, idx)];
+}
+
+function daysOpenNow(c: CaseRecord, now = STORY_NOW): number {
+  return Math.max(0, Math.round((now.getTime() - new Date(c.createdAt).getTime()) / DAY));
+}
 
 /**
  * Reference snapshot of the built-in demo seed's numbers. Kept for tests that
@@ -194,6 +247,98 @@ export function executiveOverview(state: AppState) {
 
   const priorityTitles = state.catalogue.filter((a) => a.priorityTitle);
 
+  // Real, timestamp-derived trend/change and distribution stats for each
+  // tile — last-7-days vs. the 7 days before, and medians/percentiles/splits
+  // rather than just the headline number. See windowTrend() above.
+  const daysOpenAll = active.map((c) => daysOpenNow(c));
+  const topPlatformShare = platformCounts[0]?.pct ?? 0;
+  const breachByRisk: Record<RiskLevel, { n: number; total: number }> = {
+    critical: { n: 0, total: 0 }, high: { n: 0, total: 0 }, medium: { n: 0, total: 0 }, low: { n: 0, total: 0 },
+  };
+  active.forEach((c) => {
+    breachByRisk[c.risk].total += 1;
+    if (c.slaState === "breached") breachByRisk[c.risk].n += 1;
+  });
+  const criticalBreachRate = pct(breachByRisk.critical.n, breachByRisk.critical.total);
+  const overdueHours = active
+    .filter((c) => c.slaState === "breached")
+    .map((c) => Math.max(0, (STORY_NOW.getTime() - new Date(c.slaDueAt).getTime()) / (3600 * 1000)));
+  const reappDays = state.reappearances.map((r) => {
+    const orig = cases.find((c) => c.id === r.originalCaseId);
+    return orig ? (new Date(r.detectedAt).getTime() - new Date(orig.createdAt).getTime()) / DAY : null;
+  }).filter((d): d is number => d !== null && d >= 0);
+  const priorityByTitle = priorityTitles
+    .map((a) => ({ a, n: active.filter((c) => c.assetId === a.id).length }))
+    .sort((x, y) => y.n - x.n);
+  const topPriorityTitleShare = priorityCases > 0 && priorityByTitle[0] ? pct(priorityByTitle[0].n, priorityCases) : 0;
+  const exposureByTitle = state.catalogue
+    .map((a) => ({ a, n: active.filter((c) => c.assetId === a.id).length, exp: a.indicativeValueInr * active.filter((c) => c.assetId === a.id).length }))
+    .sort((x, y) => y.exp - x.exp);
+  const top3ExposureShare = pct(exposureByTitle.slice(0, 3).reduce((s, x) => s + x.exp, 0), exposureByTitle.reduce((s, x) => s + x.exp, 0) || 1);
+
+  const kpiTrends: Record<string, KpiTrend> = {
+    // New active cases opening faster is a warning sign, not progress.
+    activeCases: windowTrend(cases.filter((c) => c.status !== "closed").map((c) => c.createdAt), false),
+    criticalHigh: windowTrend(active.filter((c) => c.risk === "critical" || c.risk === "high").map((c) => c.createdAt), false),
+    // More removals landing this week is the programme working.
+    takedownRate: windowTrend(state.platformResponses.filter((r) => r.outcome === "removed").map((r) => r.receivedAt), true),
+    avgRemovalDays: windowTrend(state.platformResponses.filter((r) => r.outcome === "removed").map((r) => r.receivedAt), true),
+    slaBreachRate: windowTrend(active.filter((c) => c.slaState === "breached").map((c) => c.createdAt), false),
+    reappearanceRate: windowTrend(state.reappearances.map((r) => r.detectedAt), false),
+    priorityTitleExposure: windowTrend(active.filter((c) => priorityAssets.has(c.assetId)).map((c) => c.createdAt), false),
+    estimatedExposureCr: windowTrend(active.map((c) => c.createdAt), false),
+    // More confirmed reappearance links being closed out is good.
+    closedLoopRecoveryRate: windowTrend(state.reappearances.filter((r) => r.confirmed).map((r) => r.detectedAt), true),
+  };
+
+  const kpiStats: Record<string, KpiStat[]> = {
+    activeCases: [
+      { label: "Median days open", value: `${median(daysOpenAll)}d` },
+      { label: "p90 days open", value: `${percentile(daysOpenAll, 90)}d` },
+      { label: "Top platform share", value: `${topPlatformShare}%${platformCounts[0] ? ` (${platformCounts[0].name})` : ""}` },
+    ],
+    criticalHigh: [
+      { label: "Critical of book", value: `${pct(critical, active.length)}%` },
+      { label: "High of book", value: `${pct(high, active.length)}%` },
+      { label: "Critical breach rate", value: `${criticalBreachRate}%` },
+    ],
+    takedownRate: [
+      { label: "Removed", value: `${removedCount}` },
+      { label: "Notices sent", value: `${noticesSent}` },
+      { label: "Still open", value: `${noticesSent - removedCount}` },
+    ],
+    avgRemovalDays: [
+      { label: "Median", value: `${Math.round(median(allRemovalDays) * 10) / 10}d` },
+      { label: "p90", value: `${Math.round(percentile(allRemovalDays, 90) * 10) / 10}d` },
+      { label: "Slowest platform", value: removalByPlatform.length ? [...removalByPlatform].sort((a, b) => b.days - a.days)[0].name : "—" },
+    ],
+    slaBreachRate: [
+      { label: "Critical-risk breach rate", value: `${criticalBreachRate}%` },
+      { label: "Median hours overdue", value: `${Math.round(median(overdueHours))}h` },
+      { label: "p90 hours overdue", value: `${Math.round(percentile(overdueHours, 90))}h` },
+    ],
+    reappearanceRate: [
+      { label: "Confirmed", value: `${confirmedReapps} of ${reappearances}` },
+      { label: "Mean days to resurface", value: reappDays.length ? `${Math.round((reappDays.reduce((a, b) => a + b, 0) / reappDays.length) * 10) / 10}d` : "—" },
+      { label: "Monitored book", value: `${monitored}` },
+    ],
+    priorityTitleExposure: [
+      { label: "Flagship titles", value: `${priorityTitles.length}` },
+      { label: "Top title share", value: `${topPriorityTitleShare}%` },
+      { label: "Non-flagship cases", value: `${nonPriorityCases}` },
+    ],
+    estimatedExposureCr: [
+      { label: "Per active case", value: active.length ? `₹${Math.round((estimatedExposureCr * 10000000) / active.length).toLocaleString("en-IN")}` : "—" },
+      { label: "Top 3 titles' share", value: `${top3ExposureShare}%` },
+      { label: "Confidence", value: financial?.confidence ?? "—" },
+    ],
+    closedLoopRecoveryRate: [
+      { label: "Confirmed links", value: `${confirmedReapps}` },
+      { label: "Awaiting confirmation", value: `${reappearances - confirmedReapps}` },
+      { label: "Reopened cases", value: `${cases.filter((c) => c.status === "reopened").length}` },
+    ],
+  };
+
   return {
     kpis: {
       activeCases: active.length,
@@ -208,6 +353,8 @@ export function executiveOverview(state: AppState) {
       avgDetectReappearanceDays: EXEC_KPI.avgDetectReappearanceDays,
       avgResurfaceDays: EXEC_KPI.avgResurfaceDays,
     },
+    kpiTrends,
+    kpiStats,
     trend,
     platformCounts,
     funnel,

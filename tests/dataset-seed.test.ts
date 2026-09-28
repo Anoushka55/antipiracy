@@ -149,4 +149,18 @@ describe("Overview follows an uploaded dataset instead of staying on the built-i
     // values, not the built-in demo's fixed ₹18.6 Cr / 4.2 lakh copies.
     expect(ov.kpis.estimatedExposureCr).toBe(Math.round((state.financialEstimates[0].valueInr / 10000000) * 10) / 10);
   });
+
+  it("gives every tile a populated trend and stats block for an uploaded dataset too", () => {
+    const rows = parseDatasetCsv(fs.readFileSync(Q4_PATH, "utf8"));
+    const state = buildDatasetSeed(rows, "S. Chand Q4 Catalogue Refresh", 51);
+    const ov = executiveOverview(state);
+    const keys = [
+      "activeCases", "criticalHigh", "takedownRate", "avgRemovalDays", "slaBreachRate",
+      "reappearanceRate", "priorityTitleExposure", "estimatedExposureCr", "closedLoopRecoveryRate",
+    ];
+    for (const key of keys) {
+      expect(ov.kpiTrends[key], key).toBeDefined();
+      expect(ov.kpiStats[key]?.length, key).toBeGreaterThan(0);
+    }
+  });
 });

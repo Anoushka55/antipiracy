@@ -1,7 +1,9 @@
 import type { AppState, CaseRecord, RiskLevel } from "./types";
-import { executiveOverview } from "./metrics";
+import { executiveOverview, type KpiStat, type KpiTrend } from "./metrics";
 import { CASE_STATUS_LABEL } from "./constants";
 import { caseFilterHref, filterCases, type CaseFilter } from "./case-filters";
+
+export type { KpiStat, KpiTrend } from "./metrics";
 
 export function computeOverview(state: AppState) {
   return executiveOverview(state);
@@ -61,6 +63,10 @@ export interface KpiLink {
 
 export interface KpiDrilldown {
   insight: string;
+  /** Real trend vs. the prior 7-day window, derived from record timestamps — never a fabricated week label. */
+  trend?: KpiTrend;
+  /** A small grid of labelled distribution stats (median, percentile, split by tier, etc.). */
+  stats?: KpiStat[];
   rowsTitle: string;
   rows: KpiRow[];
   link: KpiLink;
@@ -141,9 +147,26 @@ function listLink(state: AppState, f: CaseFilter, noun: string): KpiLink {
   return { href: caseFilterHref(f), label: `View all ${n} ${noun}` };
 }
 
+/** Maps a drill-down's KpiKey to the corresponding key in executiveOverview()'s kpiTrends/kpiStats. */
+const METRICS_KEY: Record<KpiKey, string> = {
+  activeCases: "activeCases",
+  criticalHigh: "criticalHigh",
+  takedownRate: "takedownRate",
+  avgRemovalDays: "avgRemovalDays",
+  slaBreachRate: "slaBreachRate",
+  reappearanceRate: "reappearanceRate",
+  closedLoop: "closedLoopRecoveryRate",
+  priorityTitleExposure: "priorityTitleExposure",
+  estimatedExposureCr: "estimatedExposureCr",
+};
+
 export function kpiDrilldown(state: AppState, kpi: KpiKey): KpiDrilldown {
   const active = filterCases(state, { active: true });
   const catalogue = new Map(state.catalogue.map((a) => [a.id, a]));
+  const ov = executiveOverview(state);
+  const trend = ov.kpiTrends[METRICS_KEY[kpi]];
+  const stats = ov.kpiStats[METRICS_KEY[kpi]];
+  const withStats = <T extends KpiDrilldown>(d: T): T => ({ ...d, trend, stats });
 
   switch (kpi) {
     case "activeCases": {
@@ -152,7 +175,7 @@ export function kpiDrilldown(state: AppState, kpi: KpiKey): KpiDrilldown {
       const approaching = active.filter((c) => c.slaState === "approaching").length;
       const waiting = active.filter((c) => !REMOVED_STATUSES.includes(c.status));
       const oldest = [...waiting].sort((a, b) => b.daysOpen - a.daysOpen)[0];
-      return {
+      return withStats({
         insight:
           `${top.name} holds ${top.n} of the ${active.length} active cases (${pct(top.n, active.length)}%). ` +
           `${waiting.length} are still waiting for removal: ${breached} are past SLA and ${approaching} more are close to breaching.` +
@@ -160,7 +183,7 @@ export function kpiDrilldown(state: AppState, kpi: KpiKey): KpiDrilldown {
         rowsTitle: "Most urgent active cases",
         rows: [...active].sort(byUrgency).slice(0, 5).map((c) => caseRow(c)),
         link: listLink(state, { active: true }, "active cases"),
-      };
+      });
     }
 
     case "criticalHigh": {
@@ -171,14 +194,14 @@ export function kpiDrilldown(state: AppState, kpi: KpiKey): KpiDrilldown {
       const top = topBy(rows, (c) => c.platform);
       const critical = rows.filter((c) => c.risk === "critical");
       const criticalRemoved = critical.filter((c) => REMOVED_STATUSES.includes(c.status)).length;
-      return {
+      return withStats({
         insight:
           `${criticalRemoved} of the ${critical.length} critical cases are already removed and under monitoring. ` +
           `${waiting.length} critical or high cases are still live, ${late} are past or close to SLA, and ${top.name} carries the most of them (${top.n}).`,
         rowsTitle: "Critical and high cases to act on first",
         rows: [...rows].sort(byUrgency).slice(0, 5).map((c) => caseRow(c)),
         link: listLink(state, f, "critical and high cases"),
-      };
+      });
     }
 
     case "takedownRate": {
@@ -191,7 +214,7 @@ export function kpiDrilldown(state: AppState, kpi: KpiKey): KpiDrilldown {
         const sub = state.submissions.find((s) => s.id === c.submissionId);
         return sub ? Math.round((NOW.getTime() - new Date(sub.submittedAt).getTime()) / HOUR) : 0;
       };
-      return {
+      return withStats({
         insight:
           `${removed} of ${dispatched} notices sent led to removal. The other ${open.length} are still open: ` +
           `${count("escalated")} escalated after breaching SLA, ${count("awaiting_response")} awaiting a platform response and ${count("submitted")} not yet acknowledged by the platform.`,
@@ -202,7 +225,7 @@ export function kpiDrilldown(state: AppState, kpi: KpiKey): KpiDrilldown {
           .map((c) => caseRow(c, `${duration(waitedHours(c))} waiting`)),
         link: listLink(state, f, "open notices"),
         secondary: { href: "/enforcement", label: "Open the enforcement queue" },
-      };
+      });
     }
 
     case "avgRemovalDays": {
@@ -224,7 +247,7 @@ export function kpiDrilldown(state: AppState, kpi: KpiKey): KpiDrilldown {
         .sort((a, b) => (days.get(b.id) ?? 0) - (days.get(a.id) ?? 0))
         .slice(0, 5);
       const f: CaseFilter = { status: REMOVED_STATUSES };
-      return {
+      return withStats({
         insight:
           `${slow.name} takedowns take ${slow.avg} days on average and ${second.name} ${second.avg} days, ` +
           `against ${fast.avg} days on ${fast.name}. Escalate ${slow.name.toLowerCase()} and ${second.name.toLowerCase()} notices early instead of waiting for the average.`,
@@ -232,7 +255,7 @@ export function kpiDrilldown(state: AppState, kpi: KpiKey): KpiDrilldown {
         rows: slowest.map((c) => caseRow(c, `${days.get(c.id)} days`)),
         link: listLink(state, f, "removed cases"),
         secondary: { href: "/enforcement", label: "Open the enforcement queue" },
-      };
+      });
     }
 
     case "slaBreachRate": {
@@ -242,7 +265,7 @@ export function kpiDrilldown(state: AppState, kpi: KpiKey): KpiDrilldown {
       const escalated = new Set(state.escalations.map((e) => e.caseId));
       const notEscalated = breached.filter((c) => !escalated.has(c.id)).length;
       const top = topBy(breached, (c) => c.platform);
-      return {
+      return withStats({
         insight:
           `${plural(breached.length, "active case")} ${breached.length === 1 ? "is" : "are"} past SLA and ${approaching.length} more will breach soon. ` +
           (notEscalated === 0
@@ -256,7 +279,7 @@ export function kpiDrilldown(state: AppState, kpi: KpiKey): KpiDrilldown {
           .map((c) => caseRow(c, `${duration(hoursOverdue(c))} overdue`)),
         link: listLink(state, f, "breached cases"),
         secondary: { href: caseFilterHref({ active: true, sla: ["approaching"] }), label: `View ${approaching.length} about to breach` },
-      };
+      });
     }
 
     case "reappearanceRate":
@@ -273,7 +296,7 @@ export function kpiDrilldown(state: AppState, kpi: KpiKey): KpiDrilldown {
             `${confirmed} links are confirmed by an investigator and ${reopenedCount} cases have been reopened; ${reapps.length - confirmed} still need confirmation.`
           : `${reapps.length} removed items resurfaced out of ${monitored} under monitoring (${pct1(reapps.length, monitored)}%). ` +
             `${topUploader.name} is behind ${topUploader.n} of them. ${confirmed} are confirmed and ${reopenedCount} cases reopened; ${reapps.length - confirmed} still need an investigator to confirm the link.`;
-      return {
+      return withStats({
         insight,
         rowsTitle: "Latest reappearances",
         rows: reapps.slice(0, 5).map((r) => {
@@ -289,7 +312,7 @@ export function kpiDrilldown(state: AppState, kpi: KpiKey): KpiDrilldown {
         }),
         link: { href: "/radar", label: `Open Reappearance Radar (${reapps.length})` },
         secondary: listLink(state, { reappearance: true }, "resurfaced cases"),
-      };
+      });
     }
 
     case "priorityTitleExposure": {
@@ -306,7 +329,7 @@ export function kpiDrilldown(state: AppState, kpi: KpiKey): KpiDrilldown {
       const criticalAll = active.filter((c) => c.risk === "critical").length;
       const criticalOnPriority = onPriority.filter((c) => c.risk === "critical").length;
       const top = titles[0];
-      return {
+      return withStats({
         insight:
           `${onPriority.length} of the ${active.length} active cases sit on ${titles.length} flagship titles. ` +
           `${top.a.title} alone accounts for ${top.n}` +
@@ -322,7 +345,7 @@ export function kpiDrilldown(state: AppState, kpi: KpiKey): KpiDrilldown {
         })),
         link: listLink(state, f, "flagship-title cases"),
         secondary: { href: "/catalogue", label: "Open the catalogue" },
-      };
+      });
     }
 
     case "estimatedExposureCr": {
@@ -336,7 +359,7 @@ export function kpiDrilldown(state: AppState, kpi: KpiKey): KpiDrilldown {
       const multiple = Math.round((priciest.indicativeValueInr / Math.max(1, avgValue)) * 10) / 10;
       const financial = state.financialEstimates[0];
       const exposureCr = financial ? Math.round((financial.valueInr / 10000000) * 10) / 10 : 0;
-      return {
+      return withStats({
         insight: financial
           ? `₹${exposureCr} Cr indicative exposure (${financial.methodology}, ${financial.confidence} confidence). ${priciest.title} sells at ${inr(priciest.indicativeValueInr)}, ${multiple}× the catalogue average, ` +
             `so each copy lost on its ${priciestCases} active cases costs the most.`
@@ -351,7 +374,7 @@ export function kpiDrilldown(state: AppState, kpi: KpiKey): KpiDrilldown {
         })),
         link: { href: "/catalogue", label: "Open the catalogue" },
         secondary: { href: "/analytics", label: "See the exposure methodology" },
-      };
+      });
     }
   }
 }
