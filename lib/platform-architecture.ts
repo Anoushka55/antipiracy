@@ -45,7 +45,7 @@ export const ARCH_LAYERS: ArchLayer[] = [
     out: 'Role-scoped requests',
     boxes: [
       { key: 'kbot', title: 'AI Agent Chatbot — K.Bot', icon: 'bot', ai: true, items: ['Role-aware guidance', 'Platform navigation', 'Case "what next"', 'Quick starts'], why: 'Every role knows where to go next.' },
-      { key: 'roles', title: 'Users & Roles', icon: 'users', items: ['Executive', 'Anti-Piracy Lead', 'Investigator', 'Legal', 'Operations', 'Admin'], why: 'Each role sees only what it may act on.' },
+      { key: 'roles', title: 'Users & Roles', icon: 'users', items: ['Executive', 'Anti-Piracy Lead', 'Investigator', 'Legal', 'Operations', 'Technology Lead'], why: 'Each role sees only what it may act on.' },
     ],
   },
   {
@@ -125,7 +125,7 @@ export const ARCH_DETAILS: Record<string, ArchDetail> = {
   roles: { title: 'Users & Roles', module: 'AppShell · NAV_GROUPS · lib/rbac.ts', ai: 'None.', human: 'Six roles; each sees only the pages and actions its permissions allow.', why: 'Separation of duties: investigators cannot approve legal action, executives cannot change cases.' },
   crawlers: { title: 'AI Web Crawlers', module: 'lib/connectors.ts — Telegram, Web, Marketplace, Cloud Storage connectors', ai: 'Every finding is scored at intake (match score, AI confidence).', human: 'None at intake. Findings wait for investigator validation.', why: 'Coverage. Telegram alone holds 48 of 142 active cases, so continuous scanning finds copies before they spread.' },
   manual: { title: 'Manual Input', module: 'Upload Dataset (discovery/upload) · investigator notes', ai: 'Uploaded findings get the same scoring as crawler findings.', human: 'Investigator-initiated.', why: 'Brings in leads the crawlers miss: author reports, school tips, partner exports.' },
-  config: { title: 'IT System Config', module: 'Configuration and Administration pages', ai: 'None. Rules are set by people.', human: 'Administrator and Anti-Piracy Lead only.', why: 'SLA hours, escalation triggers, notice templates and AI model settings live in configuration, so policy changes need no release.' },
+  config: { title: 'IT System Config', module: 'Configuration and Administration pages', ai: 'None. Rules are set by people.', human: 'Technology Lead only.', why: 'SLA hours, escalation triggers, notice templates and AI model settings live in configuration, so policy changes need no release.' },
   data: { title: 'Data Layer — Findings Repository', module: 'Findings store · URL deduplication · entity relationships', ai: 'repeatOffenderScore links new findings to known uploaders and past cases.', human: 'None.', why: 'One deduplicated record of every finding and its full history, so nothing is chased twice.' },
   classify: { title: 'Classification & Match', module: 'lib/ai.ts · classifyFinding', ai: 'Classifies each finding against the protected catalogue and scores the match.', human: 'Shown to the investigator as a recommendation, never applied automatically.', why: 'Separates real copies of S. Chand titles from look-alikes.' },
   priority: { title: 'Priority & Risk', module: 'lib/ai.ts · recommendPriority · lib/sla.ts', ai: 'Sets priority from match score, platform and whether it is a flagship title.', human: 'Investigators and leads can reorder work.', why: 'Investigator time goes to the five flagship titles and critical cases first.' },
