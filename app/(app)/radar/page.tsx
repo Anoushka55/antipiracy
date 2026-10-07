@@ -56,7 +56,7 @@ export default function RadarPage() {
     <div className="max-w-screen-xl mx-auto px-6 py-8 space-y-4">
       <div className="flex items-start justify-between">
         <div>
-          <h1 className="text-2xl font-bold">Reappearance Radar</h1>
+          <h1 className="text-2xl font-bold font-heading">Reappearance Radar</h1>
           <p className="text-sm text-[#6B7280]">We don&apos;t just take piracy down. We learn from every enforcement action and continuously look for its return.</p>
         </div>
         <Button onClick={simulate} disabled={busy}>Simulate Reappearance</Button>

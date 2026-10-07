@@ -272,7 +272,7 @@ export default function ArchitecturePage() {
     <div className="max-w-screen-xl mx-auto px-6 py-8 space-y-6">
       <div>
         <div className="text-[10px] font-bold uppercase tracking-widest text-[#9CA3AF]">Reference</div>
-        <h1 className="text-2xl font-bold">Architecture</h1>
+        <h1 className="text-2xl font-bold font-heading">Architecture</h1>
         <p className="text-sm text-[#6B7280]">How this platform is built, and the enforcement process it runs on.</p>
       </div>
 

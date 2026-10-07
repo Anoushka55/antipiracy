@@ -14,7 +14,7 @@ export default function CatalogueDetailPage() {
   const a = data.asset;
   return (
     <div className="max-w-screen-xl mx-auto px-6 py-8 space-y-4">
-      <h1 className="text-2xl font-bold">{a.title}</h1>
+      <h1 className="text-2xl font-bold font-heading">{a.title}</h1>
       <p className="text-sm text-[#6B7280]">{a.author} · {a.segment}</p>
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <Info title="Asset profile" items={[['ISBN', a.isbn], ['Edition', a.edition], ['Category', a.category], ['Release', a.releaseDate]]} />

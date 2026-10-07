@@ -150,7 +150,7 @@ export default function LlmProbingPage() {
       <div className="flex items-start justify-between gap-4">
         <div className="max-w-3xl">
           <div className="text-[10px] font-bold uppercase tracking-[0.18em] text-[#00338D] mb-2">S. Chand LLM Exposure Programme</div>
-          <h1 className="text-2xl font-bold text-[#1A1F36]">Two levels of testing, four models</h1>
+          <h1 className="text-2xl font-bold text-[#1A1F36] font-heading">Two levels of testing, four models</h1>
           <p className="text-sm text-[#6B7280] mt-2 leading-relaxed">
             Drive 1 asks whether models already know proprietary S. Chand content. Drive 2 asks how closely — and how repeatably — they reconstruct it.
             Unified assessment {formatStamp(u.generated)}. Judge {data.campaign.judge}. No live model calls.
@@ -565,7 +565,7 @@ function SectionHead({ kicker, title, body }: { kicker: string; title: string; b
   return (
     <div>
       <div className="text-[10px] font-bold uppercase tracking-[0.16em] text-[#00338D]">{kicker}</div>
-      <h2 className="text-lg font-semibold text-[#1A1F36] mt-1">{title}</h2>
+      <h2 className="text-lg font-semibold text-[#1A1F36] mt-1 font-heading">{title}</h2>
       <p className="text-sm text-[#6B7280] mt-1 max-w-3xl leading-relaxed">{body}</p>
     </div>
   );
@@ -589,7 +589,7 @@ function DriveCard({
           <Icon size={20} style={{ color }} />
         </div>
       </div>
-      <h3 className="text-base font-semibold text-[#1A1F36]">{title}</h3>
+      <h3 className="text-base font-semibold text-[#1A1F36] font-heading">{title}</h3>
       <p className="text-xs text-[#6B7280] mt-2 leading-relaxed">{question}</p>
       <div className="mt-4 grid grid-cols-2 gap-3 text-xs">
         <div>
@@ -618,7 +618,7 @@ function DriveBanner({ drive, title, body, chips, color }: { drive: string; titl
   return (
     <div className="bg-white rounded-2xl border border-[#E2E8F0] p-6 border-l-[3px]" style={{ borderLeftColor: color }}>
       <div className="text-[10px] font-bold uppercase tracking-widest" style={{ color }}>{drive}</div>
-      <h2 className="text-xl font-semibold text-[#1A1F36] mt-1">{title}</h2>
+      <h2 className="text-xl font-semibold text-[#1A1F36] mt-1 font-heading">{title}</h2>
       <p className="text-sm text-[#6B7280] mt-2 max-w-3xl leading-relaxed">{body}</p>
       <div className="flex flex-wrap gap-2 mt-3">
         {chips.map((c) => (

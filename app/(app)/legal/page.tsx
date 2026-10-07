@@ -57,7 +57,7 @@ export default function LegalReviewPage() {
   return (
     <div className="max-w-screen-xl mx-auto px-6 py-8 space-y-4">
       <div>
-        <h1 className="text-2xl font-bold text-[#1A1F36]">Legal Review</h1>
+        <h1 className="text-2xl font-bold text-[#1A1F36] font-heading">Legal Review</h1>
         <p className="text-sm text-[#6B7280] mt-1">Every case waiting on a legal decision: four-gate rights validation, legal approval, and the notice that follows.</p>
       </div>
 

@@ -14,7 +14,7 @@ export default function InvestigationsPage() {
   if (loading || !data) return <PageLoader />;
   return (
     <div className="max-w-screen-xl mx-auto px-6 py-8 space-y-4">
-      <h1 className="text-2xl font-bold">Investigation Workspace</h1>
+      <h1 className="text-2xl font-bold font-heading">Investigation Workspace</h1>
       <p className="text-sm text-[#6B7280]">Investigator queue — evidence, similarity and promotion controls live on the case record.</p>
       <div className="bg-white rounded-2xl border border-[#E2E8F0] overflow-hidden">
         <table className="w-full text-xs">

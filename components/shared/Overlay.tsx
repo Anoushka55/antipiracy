@@ -26,7 +26,7 @@ export function Modal({ title, children, onClose }: { title: string; children: R
     <div className="fixed inset-0 z-[70] bg-[#0D1428]/50 flex items-center justify-center p-4" onClick={onClose}>
       <div className="bg-white rounded-2xl border border-[#E2E8F0] max-w-2xl w-full p-6" onClick={(e) => e.stopPropagation()}>
         <div className="flex items-center justify-between mb-4">
-          <h3 className="text-sm font-semibold text-[#1A1F36]">{title}</h3>
+          <h3 className="text-sm font-semibold text-[#1A1F36] font-heading">{title}</h3>
           <button onClick={onClose} className="text-[#9CA3AF] text-sm">Close</button>
         </div>
         {children}
@@ -86,7 +86,7 @@ export function DetailModal({
         >
           <div className="flex items-start justify-between gap-4 px-6 py-5 border-b border-[#E2E8F0]">
             <div>
-              <h3 className="text-base font-bold text-[#1A1F36]">{title}</h3>
+              <h3 className="text-base font-bold text-[#1A1F36] font-heading">{title}</h3>
               {subtitle && <p className="text-xs text-[#6B7280] mt-0.5">{subtitle}</p>}
             </div>
             <button
@@ -119,7 +119,7 @@ export function Drawer({ title, children, onClose, width = 'w-[520px]' }: {
       <div className="absolute inset-0 bg-[#0D1428]/40" onClick={onClose} />
       <div className={`relative ${width} max-w-full h-full bg-white border-l border-[#E2E8F0] overflow-y-auto p-6`}>
         <div className="flex items-center justify-between mb-4">
-          <h3 className="text-sm font-semibold text-[#1A1F36]">{title}</h3>
+          <h3 className="text-sm font-semibold text-[#1A1F36] font-heading">{title}</h3>
           <button onClick={onClose} className="text-xs text-[#6B7280]">Close</button>
         </div>
         {children}

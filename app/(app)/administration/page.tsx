@@ -32,7 +32,7 @@ export default function AdminPage() {
   if (loading || !data) return <PageLoader />;
   return (
     <div className="max-w-screen-xl mx-auto px-6 py-8 space-y-4">
-      <h1 className="text-2xl font-bold">Administration</h1>
+      <h1 className="text-2xl font-bold font-heading">Administration</h1>
       <p className="text-sm text-[#6B7280]">Technology operations · connector health · demo controls · identity</p>
 
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">

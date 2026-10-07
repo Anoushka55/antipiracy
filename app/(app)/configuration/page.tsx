@@ -68,7 +68,7 @@ export default function ConfigurationPage() {
 
   return (
     <div className="max-w-screen-xl mx-auto px-6 py-8 space-y-4">
-      <h1 className="text-2xl font-bold">Configuration</h1>
+      <h1 className="text-2xl font-bold font-heading">Configuration</h1>
       <p className="text-sm text-[#6B7280]">Tenant SCHAND · configurable, not client-coded.</p>
 
       <Section title="Platforms">

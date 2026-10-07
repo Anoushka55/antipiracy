@@ -44,7 +44,7 @@ export default function LoginPage() {
             <div className="text-[10px] text-[#6B7280]">Tenant SCHAND</div>
           </div>
         </div>
-        <h2 className="text-lg font-semibold mt-4 mb-4 text-[#1A1F36]">Sign in</h2>
+        <h2 className="text-lg font-semibold mt-4 mb-4 text-[#1A1F36] font-heading">Sign in</h2>
         <label className="text-xs text-[#6B7280]">Email</label>
         <input value={email} onChange={(e) => setEmail(e.target.value)} className="w-full mt-1 mb-3 px-3 py-2 text-sm rounded-lg border border-[#E2E8F0] text-[#1A1F36] focus:outline-none focus:ring-2 focus:ring-[#0077C8]/30" />
         <label className="text-xs text-[#6B7280]">Password</label>

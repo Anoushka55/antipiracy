@@ -85,7 +85,7 @@ export function NoticeDocumentView({ doc }: { doc: NoticeDocument }) {
 
       <article className="rounded-xl border border-[#E2E8F0] bg-white px-7 py-6 text-[13px] leading-relaxed text-[#1A1F36] shadow-sm">
         <div className="text-[10px] font-bold uppercase tracking-widest text-[#9CA3AF] mb-1">Subject</div>
-        <h2 className="text-[15px] font-bold text-[#00338D] leading-snug">{doc.subject}</h2>
+        <h2 className="text-[15px] font-bold text-[#00338D] leading-snug font-heading">{doc.subject}</h2>
 
         <p className="mt-5">{doc.salutation}</p>
         <div className="mt-3 space-y-2.5">
@@ -96,7 +96,7 @@ export function NoticeDocumentView({ doc }: { doc: NoticeDocument }) {
 
         {doc.sections.map((s) => (
           <section key={s.heading} className="mt-5">
-            <h3 className="text-[13px] font-bold text-[#1A1F36] border-b border-[#E2E8F0] pb-1 mb-2">{s.heading}</h3>
+            <h3 className="text-[13px] font-bold text-[#1A1F36] border-b border-[#E2E8F0] pb-1 mb-2 font-heading">{s.heading}</h3>
             <div className="space-y-2">
               {s.paragraphs?.map((p, i) => <p key={`p${i}`}><Text>{p}</Text></p>)}
               {s.fields && (

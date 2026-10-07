@@ -94,7 +94,7 @@ export default function DiscoveryPage() {
     <div className="max-w-screen-xl mx-auto px-6 py-8 space-y-4">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold">Discovery Inbox</h1>
+          <h1 className="text-2xl font-bold font-heading">Discovery Inbox</h1>
           <p className="text-sm text-[#6B7280]">{data?.newCount ?? 0} new findings · OSINT intake for S. Chand catalogue</p>
         </div>
         <div className="flex gap-2">

@@ -82,7 +82,7 @@ export default function AnalyticsPage() {
     <div className="max-w-screen-xl mx-auto px-6 py-8 space-y-4">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold">AI Risk & Predictive Analytics</h1>
+          <h1 className="text-2xl font-bold font-heading">AI Risk & Predictive Analytics</h1>
           <p className="text-sm text-[#6B7280]">Deterministic synthetic AI outputs. Predictions are not presented as facts.</p>
         </div>
       </div>

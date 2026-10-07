@@ -17,7 +17,7 @@ export default function EntitiesPage() {
     <div className="max-w-screen-xl mx-auto px-6 py-8 space-y-4">
       <div className="flex items-start justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold">Repeat Offender Intelligence</h1>
+          <h1 className="text-2xl font-bold font-heading">Repeat Offender Intelligence</h1>
           <p className="text-sm text-[#6B7280]">Entity clustering across uploaders, channels, domains and marketplace sellers. Scores are deterministic and configurable.</p>
         </div>
       </div>

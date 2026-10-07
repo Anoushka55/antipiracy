@@ -81,7 +81,7 @@ export default function NoticesPage() {
   return (
     <div className="max-w-screen-2xl mx-auto px-6 py-8 space-y-4">
       <div>
-        <h1 className="text-2xl font-bold text-[#1A1F36]">Notices</h1>
+        <h1 className="text-2xl font-bold text-[#1A1F36] font-heading">Notices</h1>
         <p className="text-sm text-[#6B7280] mt-1">
           Every takedown notice, drafted from S. Chand&apos;s notice templates: Copyright Reporting, US Copyright – DMCA, Intermediary Notice and Escalated Legal Notice.
         </p>

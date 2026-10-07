@@ -125,7 +125,7 @@ export default function OverviewPage() {
     <div className="max-w-screen-xl mx-auto px-6 py-8 space-y-4">
       <div className="flex items-start justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-[#1A1F36]">Anti-Piracy Command Center</h1>
+          <h1 className="text-2xl font-bold text-[#1A1F36] font-heading">Anti-Piracy Command Center</h1>
           <p className="text-sm text-[#6B7280] mt-1">Enterprise IP Protection & Enforcement Overview · S. Chand & Company</p>
         </div>
       </div>

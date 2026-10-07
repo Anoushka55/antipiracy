@@ -11,7 +11,7 @@ export default function CataloguePage() {
   if (loading || !data) return <PageLoader />;
   return (
     <div className="max-w-screen-xl mx-auto px-6 py-8 space-y-4">
-      <h1 className="text-2xl font-bold">S. Chand Protected Catalogue</h1>
+      <h1 className="text-2xl font-bold font-heading">S. Chand Protected Catalogue</h1>
       <p className="text-sm text-[#6B7280]">Tenant-scoped rights inventory used for matching, validation and financial estimates.</p>
       <div className="bg-white rounded-2xl border border-[#E2E8F0] overflow-x-auto">
         <table className="w-full text-xs">

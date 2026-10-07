@@ -86,7 +86,7 @@ export default function ReportsPage() {
     <div className="max-w-screen-xl mx-auto px-6 py-8 space-y-4">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold">Reports</h1>
+          <h1 className="text-2xl font-bold font-heading">Reports</h1>
           <p className="text-sm text-[#6B7280]">KPI / KRI pack is internally consistent — charts, cards and narrative use the same numbers.</p>
         </div>
       </div>

@@ -17,7 +17,7 @@ export default function EntityDetailPage() {
     <div className="max-w-screen-xl mx-auto px-6 py-8 space-y-4">
       <div className="flex items-start justify-between">
         <div>
-          <h1 className="text-2xl font-bold">{e.name}</h1>
+          <h1 className="text-2xl font-bold font-heading">{e.name}</h1>
           <p className="text-sm text-[#6B7280]">{e.kind.replaceAll('_', ' ')} · tenant SCHAND</p>
         </div>
         <div className="text-right">

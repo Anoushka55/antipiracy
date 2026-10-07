@@ -21,7 +21,7 @@ export default function EvidencePage() {
   if (loading || !data) return <PageLoader />;
   return (
     <div className="max-w-screen-xl mx-auto px-6 py-8 space-y-4">
-      <h1 className="text-2xl font-bold">Evidence Vault</h1>
+      <h1 className="text-2xl font-bold font-heading">Evidence Vault</h1>
       <p className="text-sm text-[#6B7280]">Forensic preservation workflow aligned to the prototype&apos;s evidence governance model.</p>
       <div className="grid grid-cols-1 lg:grid-cols-5 gap-4">
         <div className="lg:col-span-3 bg-white rounded-2xl border border-[#E2E8F0] overflow-x-auto">
