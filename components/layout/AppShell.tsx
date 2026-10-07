@@ -148,13 +148,6 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
               </button>
             </div>
           )}
-          <div className="flex items-center gap-2 px-1">
-            <div className="relative flex-shrink-0">
-              <span className="w-2 h-2 rounded-full bg-[#00A36C] block" />
-              <span className="absolute inset-0 rounded-full bg-[#00A36C] animate-ping opacity-50" />
-            </div>
-            {!collapsed && <span className="text-[10px] text-white/40">Prototype systems operational</span>}
-          </div>
         </div>
       </aside>
 
