@@ -74,14 +74,14 @@ function Box({ box, inAiLayer, onOpen }: { box: ArchBox; inAiLayer?: boolean; on
         <span className="flex-1">{box.title}</span>
         {box.ai && <span className="flex-shrink-0 text-[9px] font-extrabold tracking-wider px-1.5 py-0.5 rounded-sm bg-white/20">AI</span>}
       </span>
-      <span className="flex flex-col gap-2.5 px-3 pt-3 pb-3 flex-1">
-        {box.fn && <span className="font-mono text-[10px] text-[#0077C8] tracking-tight break-words leading-snug">{box.fn}</span>}
+      <span className="flex flex-col gap-3 px-3 pt-3 pb-3 flex-1">
+        {box.fn && <span className="font-mono text-[10px] text-[#0077C8] tracking-tight break-words leading-relaxed block pb-0.5">{box.fn}</span>}
         {box.items && (
-          <span className="flex flex-wrap gap-1.5">
+          <span className="flex flex-wrap gap-2">
             {box.items.map((raw) => <Item key={raw} raw={raw} />)}
           </span>
         )}
-        <span className="mt-auto pt-2 border-t border-dashed border-[#E3E8F0] text-[11px] text-[#5B6478] leading-relaxed">{box.why}</span>
+        <span className="mt-auto pt-3 border-t border-dashed border-[#E3E8F0] text-[11px] text-[#5B6478] leading-relaxed">{box.why}</span>
       </span>
     </button>
   );
