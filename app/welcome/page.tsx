@@ -7,7 +7,7 @@ import { api, post } from '@/lib/client';
 import { ChatThread, type QuickStart } from '@/components/shared/ChatThread';
 import { navAllowed } from '@/lib/rbac';
 import { PAGE_GUIDES } from '@/lib/kbot-knowledge';
-import { KPMG_LOGO, ROLE_LABEL, SCHAND_LOGO, destinationForEmail } from '@/lib/constants';
+import { ROLE_LABEL, destinationForEmail } from '@/lib/constants';
 import type { Role, SessionUser } from '@/lib/types';
 
 const PILLARS = ['Discover', 'Investigate', 'Validate', 'Enforce', 'Monitor', 'LLM Probe'];
@@ -122,20 +122,8 @@ export default function WelcomePage() {
   }
 
   return (
-    <div className="min-h-screen flex flex-col" style={{ backgroundColor: '#0D1428' }}>
-      <header className="h-14 flex-shrink-0 bg-[#1A1F36]/95 border-b border-white/[0.08] flex items-center gap-3 px-6" style={{ backdropFilter: 'blur(20px)' }}>
-        <div className="flex items-center gap-2 flex-shrink-0">
-          <img src={KPMG_LOGO} alt="KPMG" className="h-5 w-auto object-contain brightness-0 invert opacity-90" />
-          <span className="text-white/30">|</span>
-          <div className="h-6 px-1.5 rounded bg-white flex items-center">
-            <img src={SCHAND_LOGO} alt="S. Chand" className="h-4 w-auto object-contain" />
-          </div>
-          <span className="text-white/30 hidden sm:inline">|</span>
-          <span className="font-bold text-sm text-white hidden sm:inline font-heading">
-            Anti-Piracy Command Center
-          </span>
-        </div>
-        <div className="flex-1" />
+    <div className="min-h-screen flex flex-col relative" style={{ backgroundColor: '#0D1428' }}>
+      <div className="absolute top-4 right-6 flex items-center gap-1 z-10">
         <span className="text-xs text-white/60">
           Signed in as <span className="text-white font-semibold">{ROLE_LABEL[user.role]}</span>
         </span>
@@ -150,9 +138,9 @@ export default function WelcomePage() {
           <LogOut size={13} />
           <span className="hidden sm:inline">Sign out</span>
         </button>
-      </header>
+      </div>
 
-      <div className="flex-1 grid grid-cols-1 lg:grid-cols-2 gap-6 p-6 lg:p-10 max-w-7xl mx-auto w-full">
+      <div className="flex-1 grid grid-cols-1 lg:grid-cols-2 gap-6 p-6 lg:p-10 pt-12 max-w-7xl mx-auto w-full">
         <div className="relative flex flex-col justify-center px-2">
           <LoopGraphic />
           <div className="relative">
