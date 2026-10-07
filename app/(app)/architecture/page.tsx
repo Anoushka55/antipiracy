@@ -65,7 +65,7 @@ const SYSTEM_BANDS: FlowBand[] = [
       },
       {
         icon: Bot,
-        title: 'MockAIService',
+        title: 'AI Service',
         description: 'Classifies findings, scores similarity, recommends priority and notice route — deterministic, rule-based, never autonomous.',
         tags: ['lib/ai.ts'],
       },
