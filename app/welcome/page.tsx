@@ -131,7 +131,7 @@ export default function WelcomePage() {
             <img src={SCHAND_LOGO} alt="S. Chand" className="h-4 w-auto object-contain" />
           </div>
           <span className="text-white/30 hidden sm:inline">|</span>
-          <span className="font-bold text-sm text-white hidden sm:inline" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
+          <span className="font-bold text-sm text-white hidden sm:inline font-heading">
             Anti-Piracy Command Center
           </span>
         </div>
@@ -156,7 +156,7 @@ export default function WelcomePage() {
         <div className="relative flex flex-col justify-center px-2">
           <LoopGraphic />
           <div className="relative">
-            <h1 className="text-4xl lg:text-5xl font-bold leading-tight text-white" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
+            <h1 className="text-4xl lg:text-5xl font-bold leading-tight text-white font-heading">
               Anti-piracy enforcement,<br /><span className="text-[#0077C8]">at your fingertips</span>
             </h1>
             <p className="text-white/80 mt-5 max-w-md text-sm leading-relaxed">

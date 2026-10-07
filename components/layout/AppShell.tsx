@@ -116,7 +116,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
 
   return (
     <div className="flex h-screen overflow-hidden bg-[#F4F6F9]">
-      <aside className={`${collapsed ? 'w-16' : 'w-64'} flex-shrink-0 bg-[#0D1428] border-r border-white/[0.06] flex flex-col transition-all duration-300 overflow-hidden h-full`}>
+      <aside className={`${collapsed ? 'w-16' : 'w-64'} flex-shrink-0 bg-[#0A1F4D] border-r border-white/[0.06] flex flex-col transition-all duration-300 overflow-hidden h-full`}>
         <div className="px-3 py-4 border-b border-white/[0.06]">
           <div className="flex items-center gap-2">
             <div className="h-8 px-2 rounded bg-white flex items-center flex-shrink-0">
@@ -182,7 +182,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
               <img src={SCHAND_LOGO} alt="S. Chand" className="h-4 w-auto object-contain" />
             </div>
             <span className="text-white/30 hidden sm:inline">|</span>
-            <span className="font-bold text-sm text-white hidden sm:inline" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
+            <span className="font-bold text-sm text-white hidden sm:inline font-heading">
               Anti-Piracy Command Center
             </span>
           </div>

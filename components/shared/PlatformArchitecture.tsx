@@ -153,7 +153,7 @@ export function PlatformArchitecture() {
       <div className="flex flex-wrap items-end justify-between gap-4 pb-4 mb-5 border-b-[3px] border-[#00338D]">
         <div>
           <div className="text-[10px] font-bold uppercase tracking-widest text-[#0077C8]">S. Chand &amp; Company · Anti-Piracy Command Center</div>
-          <h2 className="text-xl font-extrabold text-[#0B1F4D] mt-1" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>Platform AI Architecture</h2>
+          <h2 className="text-xl font-extrabold text-[#0B1F4D] mt-1 font-heading">Platform AI Architecture</h2>
           <p className="text-xs text-[#5B6478] mt-1 max-w-2xl leading-relaxed">
             How a suspected pirated copy moves through the platform, top to bottom: role-based access and multi-source intake, the AI
             intelligence layer, human approval gates, enforcement and executive reporting. Click any box for its detail.
@@ -172,7 +172,7 @@ export function PlatformArchitecture() {
             <div key={layer.n}>
               <div className="grid grid-cols-1 lg:grid-cols-[150px_24px_minmax(0,1fr)] lg:gap-x-3.5 gap-y-2">
                 <div className="flex lg:flex-col lg:justify-center items-baseline lg:items-start flex-wrap gap-x-2 gap-y-0.5 py-1">
-                  <span className="text-[22px] font-extrabold leading-none text-[#CBD5E1] tabular-nums" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>{layer.n}</span>
+                  <span className="text-[22px] font-extrabold leading-none text-[#CBD5E1] tabular-nums font-heading">{layer.n}</span>
                   <span className={`text-[13px] font-extrabold uppercase tracking-wide ${layer.ai ? 'text-[#0077C8]' : 'text-[#0B1F4D]'}`}>{layer.name}</span>
                   <span className="text-[11.5px] text-[#5B6478] leading-snug">{layer.purpose}</span>
                   <span className="mt-1 text-[10.5px] font-bold text-[#00338D] bg-[#EEF3FA] border border-[#D5E1F2] rounded-full px-2 py-0.5">{layer.kpi}</span>

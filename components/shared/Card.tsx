@@ -57,7 +57,7 @@ export function MetricCard({ label, value, unit, icon: Icon, color = '#0077C8', 
         </div>
         {trend !== undefined && <TrendBadge trend={trend} trendGood={trendGood} />}
       </div>
-      <div className="font-mono font-bold text-2xl text-[#1A1F36]" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
+      <div className="font-mono font-bold text-2xl text-[#1A1F36]">
         {value}
         {unit && <span className="text-sm font-normal text-[#6B7280] ml-1">{unit}</span>}
       </div>
@@ -81,7 +81,7 @@ export function KPICard({ title, value, unit, statusColor = '#0077C8', trend, tr
         <div className="text-[10px] font-bold uppercase tracking-widest text-[#9CA3AF]">{title}</div>
         {trend !== undefined && <TrendBadge trend={trend} trendGood={trendGood} />}
       </div>
-      <div className="text-2xl font-semibold font-mono text-[#1A1F36]" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
+      <div className="text-2xl font-semibold font-mono text-[#1A1F36]">
         {value}
       </div>
       {unit && <div className="text-xs text-[#9CA3AF] mt-0.5">{unit}</div>}

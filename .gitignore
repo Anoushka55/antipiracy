@@ -9,3 +9,10 @@ data/runtime-store.json
 .DS_Store
 coverage
 .vitest
+
+# consulting/pitch deliverables and scratch scripts — not app code
+*.xlsx
+*.pptx
+__pycache__/
+*.pyc
+build_*.py
