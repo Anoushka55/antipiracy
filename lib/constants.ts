@@ -25,6 +25,11 @@ export const NAV_GROUPS: {
   items: { id: string; label: string; href: string; roles?: Role[] | "all" }[];
 }[] = [
   {
+    label: "",
+    roles: "all",
+    items: [{ id: "architecture", label: "Architecture", href: "/architecture" }],
+  },
+  {
     label: "Command",
     roles: ["executive", "investigator", "legal", "operations"],
     items: [

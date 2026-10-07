@@ -2,16 +2,29 @@
 
 import { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Bot, X } from 'lucide-react';
+import { Bell, Bot, ChevronDown, ChevronUp, X } from 'lucide-react';
 import { api } from '@/lib/client';
 import type { CaseChatContext } from '@/lib/kbot';
 import { ChatThread } from '@/components/shared/ChatThread';
 import type { CaseRecord, FourGates, LegalReview, Role, RightsValidation } from '@/lib/types';
 
+interface Notification {
+  id: string;
+  title: string;
+  read?: boolean;
+}
+
 export default function KBot({ user, pathname }: { user: { name: string; role: Role } | null; pathname: string }) {
   const [open, setOpen] = useState(false);
   const [pulse, setPulse] = useState(true);
   const [caseContext, setCaseContext] = useState<CaseChatContext | null>(null);
+  const [notes, setNotes] = useState<Notification[]>([]);
+  const [showNotes, setShowNotes] = useState(false);
+
+  useEffect(() => {
+    if (!user) return;
+    api<{ items: Notification[] }>('notifications').then((d) => setNotes(d.items ?? []));
+  }, [user]);
 
   // Fetch light case context whenever the user is on a /cases/:id page.
   useEffect(() => {
@@ -41,6 +54,8 @@ export default function KBot({ user, pathname }: { user: { name: string; role: R
 
   if (!user) return null;
 
+  const unread = notes.filter((n) => !n.read).length;
+
   return (
     <>
       <button
@@ -53,7 +68,12 @@ export default function KBot({ user, pathname }: { user: { name: string; role: R
         title="K.Bot — Ask for help"
       >
         {open ? <X size={22} /> : <Bot size={22} />}
-        {!open && pulse && (
+        {!open && unread > 0 && (
+          <span className="absolute -top-1 -right-1 w-4.5 h-4.5 min-w-[18px] px-0.5 rounded-full bg-[#DC2626] text-[10px] text-white flex items-center justify-center font-semibold">
+            {unread}
+          </span>
+        )}
+        {!open && unread === 0 && pulse && (
           <span className="absolute -top-1 -right-1 w-3.5 h-3.5 rounded-full bg-[#00A36C]">
             <span className="absolute inset-0 rounded-full bg-[#00A36C] animate-ping opacity-60" />
           </span>
@@ -77,10 +97,40 @@ export default function KBot({ user, pathname }: { user: { name: string; role: R
                 <div className="text-sm font-semibold text-white">K.Bot</div>
                 <div className="text-[10px] text-white/50">AI Assistant · Prototype Guide</div>
               </div>
-              <button onClick={() => setOpen(false)} className="text-white/60 hover:text-white">
+              <button
+                onClick={() => setShowNotes((v) => !v)}
+                className="relative text-white/60 hover:text-white flex-shrink-0"
+                title="Notifications"
+              >
+                <Bell size={16} />
+                {unread > 0 && (
+                  <span className="absolute -top-1.5 -right-1.5 w-3.5 h-3.5 rounded-full bg-[#DC2626] text-[8px] text-white flex items-center justify-center">
+                    {unread}
+                  </span>
+                )}
+              </button>
+              <button onClick={() => setOpen(false)} className="text-white/60 hover:text-white flex-shrink-0">
                 <X size={16} />
               </button>
             </div>
+
+            <button
+              onClick={() => setShowNotes((v) => !v)}
+              className="flex-shrink-0 flex items-center justify-between px-4 py-2 border-b border-[#E2E8F0] text-[10px] font-bold uppercase tracking-widest text-[#9CA3AF] hover:bg-[#F4F6F9] transition-colors"
+            >
+              <span>Notifications{unread > 0 ? ` (${unread} unread)` : ''}</span>
+              {showNotes ? <ChevronUp size={12} /> : <ChevronDown size={12} />}
+            </button>
+            {showNotes && (
+              <div className="flex-shrink-0 border-b border-[#E2E8F0] max-h-40 overflow-y-auto px-4 py-2">
+                {notes.length === 0 && <div className="text-xs text-[#9CA3AF] py-1.5">No notifications.</div>}
+                {notes.slice(0, 12).map((n) => (
+                  <div key={n.id} className="text-xs py-1.5 border-b border-[#E2E8F0] last:border-0 text-[#1A1F36]">
+                    {n.title}
+                  </div>
+                ))}
+              </div>
+            )}
 
             <ChatThread user={user} pathname={pathname} caseContext={caseContext} onLinkClick={() => setOpen(false)} />
           </motion.div>

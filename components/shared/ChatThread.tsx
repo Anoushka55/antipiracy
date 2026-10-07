@@ -29,6 +29,58 @@ function nextMsgId() {
   return `m${msgSeq}`;
 }
 
+interface SearchRecord {
+  id: string;
+  title?: string;
+  name?: string;
+  suspectedTitle?: string;
+}
+type SearchResults = Record<'cases' | 'findings' | 'assets' | 'evidence' | 'entities', SearchRecord[]>;
+
+const SEARCH_CATEGORY_LABEL: Record<keyof SearchResults, string> = {
+  cases: 'Cases',
+  findings: 'Findings',
+  assets: 'Catalogue',
+  evidence: 'Evidence',
+  entities: 'Entities',
+};
+
+function searchRecordHref(category: keyof SearchResults, id: string): string {
+  switch (category) {
+    case 'cases':
+      return `/cases/${id}`;
+    case 'findings':
+      return `/discovery?id=${id}`;
+    case 'assets':
+      return `/catalogue/${id}`;
+    case 'evidence':
+      return `/evidence?id=${id}`;
+    case 'entities':
+      return `/entities/${id}`;
+  }
+}
+
+/** Mirrors the old top-bar search dropdown: same endpoint, same grouping, now rendered as a chat reply. */
+function buildSearchReply(results: SearchResults): ChatMessage | null {
+  const categories = (['cases', 'findings', 'assets', 'evidence', 'entities'] as const).filter(
+    (c) => (results[c] ?? []).length > 0
+  );
+  if (categories.length === 0) return null;
+
+  const total = categories.reduce((sum, c) => sum + results[c].length, 0);
+  const lines: string[] = [`Found ${total} match${total === 1 ? '' : 'es'}:`];
+  const suggestedLinks: SuggestedLink[] = [];
+  for (const c of categories) {
+    lines.push('', `**${SEARCH_CATEGORY_LABEL[c]}**`);
+    for (const r of results[c]) {
+      const label = r.title || r.name || r.suspectedTitle || r.id;
+      lines.push(`- ${r.id} · ${label}`);
+      suggestedLinks.push({ href: searchRecordHref(c, r.id), label: `${SEARCH_CATEGORY_LABEL[c]}: ${r.id}` });
+    }
+  }
+  return { id: nextMsgId(), from: 'bot', text: lines.join('\n'), suggestedLinks };
+}
+
 /**
  * Renders K.Bot's plain-text replies (see lib/kbot.ts) as real markup instead
  * of literal `**bold**` and `- ` characters: **bold** becomes <strong>, and a
@@ -158,7 +210,7 @@ export function ChatThread({
     listRef.current?.scrollTo({ top: listRef.current.scrollHeight, behavior: 'smooth' });
   }, [messages, typing]);
 
-  function send(text: string) {
+  async function send(text: string) {
     const trimmed = text.trim();
     const file = attachment;
     if (!trimmed && !file) return;
@@ -169,8 +221,9 @@ export function ChatThread({
     setInput('');
     setAttachment(null);
     setTyping(true);
-    setTimeout(() => {
-      if (file && !trimmed) {
+
+    if (file && !trimmed) {
+      setTimeout(() => {
         setMessages((m) => [
           ...m,
           {
@@ -179,6 +232,27 @@ export function ChatThread({
             text: `I can see you attached **${file.name}**, but I can't open or read file contents in this prototype yet — try describing what's in it and I'll help from there.`,
           },
         ]);
+        setTyping(false);
+      }, 350);
+      return;
+    }
+
+    // Try a live record lookup first (same endpoint the old top-bar search
+    // used) — a short, question-like message rarely matches a real ID/title
+    // substring, so this stays cheap and falls through to normal Q&A.
+    let searchReply: ChatMessage | null = null;
+    if (trimmed.length >= 2) {
+      try {
+        const results = await api<SearchResults>(`search?q=${encodeURIComponent(trimmed)}`);
+        searchReply = buildSearchReply(results);
+      } catch {
+        // search is a nice-to-have here; fall through to normal Q&A on failure
+      }
+    }
+
+    setTimeout(() => {
+      if (searchReply) {
+        setMessages((m) => [...m, searchReply!]);
         setTyping(false);
         return;
       }
